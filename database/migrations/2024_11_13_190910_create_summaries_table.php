@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('summaries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('team_id')->nullable();
+            $table->unsignedBigInteger('store_id')->nullable();
             $table->unsignedBigInteger('item_id')->nullable();
             $table->string('name');  // Name field (e.g., Item name)
             $table->decimal('stock_in', 10, 2)->default(0);  // Total stock in

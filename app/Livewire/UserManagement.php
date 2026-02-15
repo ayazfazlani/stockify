@@ -7,8 +7,9 @@ use Livewire\Component;
 use Illuminate\Support\Str;
 use App\Mail\InviteUserMail;
 use App\Models\InvitationToken;
-use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class UserManagement extends Component
 {
@@ -26,7 +27,7 @@ class UserManagement extends Component
 
     public function mount()
     {
-        $this->users = User::with('roles')->get();
+        $this->users = User::with('roles')->where('tenant_id', Auth::user()->tenant_id)->get();
         $this->availableRoles = Role::all();
     }
 

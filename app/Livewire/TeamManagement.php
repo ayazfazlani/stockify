@@ -4,9 +4,10 @@ namespace App\Livewire;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Store;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class TeamManagement extends Component
 {
@@ -38,7 +39,7 @@ class TeamManagement extends Component
 
     protected function loadData()
     {
-        $this->teams = Team::with(['owner', 'users'])->get();
+        $this->teams = Store::with(['owner', 'users'])->get();
 
         // Get users not in any team using pivot relationship
         $this->availableUsers = User::whereDoesntHave('teams')->get();
@@ -59,7 +60,7 @@ class TeamManagement extends Component
             'teamDescription' => 'nullable|string|max:255'
         ]);
 
-        Team::create([
+       Store::create([
             'name' => $this->teamName,
             'description' => $this->teamDescription,
             'owner_id' => Auth::id()
@@ -72,7 +73,7 @@ class TeamManagement extends Component
 
     public function deleteTeam($teamId)
     {
-        $team = Team::findOrFail($teamId);
+        $team = Store::findOrFail($teamId);
 
         if ($team->owner_id !== Auth::id() && !Auth::user()->hasRole('super admin')) {
             session()->flash('status', 'Unauthorized to delete this team.');
@@ -83,7 +84,7 @@ class TeamManagement extends Component
         $team->users()->detach();
         $team->delete();
 
-        session()->flash('status', "Team {$team->name} deleted successfully!");
+        session()->flash('status', "Team " . $team->name . " deleted successfully!");
         $this->loadData();
     }
 
@@ -91,44 +92,44 @@ class TeamManagement extends Component
     {
         $this->validate([
             'selectedUsers' => 'required|exists:users,id',
-            'selectedTeam' => 'required|exists:teams,id'
+            'selectedTeam' => 'required|exists:stores,id'
         ]);
 
-        $user = User::findOrFail($this->selectedUsers);
-        $team = Team::findOrFail($this->selectedTeam);
+        $user = User::findOrFail($this->selectedUsers)->where('tenant_id', Auth::user()->tenant_id);
+        $store = Store::findOrFail($this->selectedTeam);
 
-        if ($team->users()->where('user_id', $user->id)->exists()) {
-            session()->flash('status', 'User is already a member of this team.');
+        if ($store->users()->where('user_id', $user->id)->exists()) {
+            session()->flash('status', 'User is already a member of this store.');
             return;
         }
 
         // Attach user to team through pivot
-        $team->users()->attach($user->id);
+        $store->users()->attach($user->id);
 
         // Set current team if not set
-        if (!$user->current_team_id) {
-            $user->update(['current_team_id' => $team->id]);
+        if (!$user->store_id) {
+            $user->update(['store_id' => $store->id]);
         }
 
-        session()->flash('status', "User {$user->name} added to team {$team->name}");
+        session()->flash('status', "User " . $user->name . " added to store " . $store->name);
         $this->loadData();
     }
 
-    public function removeUserFromTeam($userId, $teamId)
+    public function removeUserFromTeam($userId, $storeId)
     {
         $user = User::findOrFail($userId);
-        $team = Team::findOrFail($teamId);
+        $store = Store::findOrFail($storeId);
 
         // Detach user from team through pivot
-        $team->users()->detach($userId);
+        $store->users()->detach($userId);
 
         // Reset current team if it was this team
-        if ($user->current_team_id == $teamId) {
-            $newTeam = $user->teams()->first();
-            $user->update(['current_team_id' => $newTeam->id ?? null]);
+        if ($user->store_id == $storeId) {
+            $newStore = $user->stores()->first();
+            $user->update(['store_id' => $newStore->id ?? null]);
         }
 
-        session()->flash('status', "User {$user->name} removed from team {$team->name}");
+        session()->flash('status', "User " . $user->name . " removed from store " . $store->name);
         $this->loadData();
     }
 
@@ -142,7 +143,7 @@ class TeamManagement extends Component
         $user = User::findOrFail($this->selectedUser);
         $user->syncRoles([$this->selectedRole]);
 
-        session()->flash('status', "Role changed to {$this->selectedRole} for {$user->name}");
+        session()->flash('status', "Role changed to " . $this->selectedRole . " for " . $user->name);
         $this->reset(['selectedUser', 'selectedRole']);
         $this->loadData();
     }

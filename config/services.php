@@ -13,7 +13,27 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'test_secret' => env('STRIPE_SECRET'),
+        'live_secret' => env('STRIPE_SECRET'),
+        'mode' => env('STRIPE_MODE', 'test'),
 
+        'mode' => env('STRIPE_MODE', 'test'),
+        'test' => [
+            'publishable' => env('STRIPE_KEY'),
+            'secret' => env('STRIPE_SECRET'),
+            'webhook' => env('STRIPE_WEBHOOK_SECRET'),
+        ],
+        'live' => [
+            'publishable' => env('STRIPE_KEY'),
+            'secret' => env('STRIPE_SECRET'),
+            'webhook' => env('STRIPE_WEBHOOK_SECRET'),
+        ],
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'test_webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'live_webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
@@ -33,6 +53,12 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT'),
     ],
 
 ];

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('team_id')->nullable(); // Ensure it is unsigned and nullable for "set null"
+            $table->unsignedBigInteger('store_id')->nullable(); // Ensure it is unsigned and nullable for "set null"
             $table->unsignedBigInteger('item_id')->nullable();
             $table->string('item_name');
             $table->enum('type', ['stock in', 'stock out', 'adjusted', 'created', 'edit', 'deleted']);

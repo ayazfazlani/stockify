@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('team_id')->nullable();
+            $table->unsignedBigInteger('store_id')->nullable();
             $table->string('sku')->unique();
             $table->string('name');
             $table->string('image')->nullable();

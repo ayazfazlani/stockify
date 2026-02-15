@@ -22,3 +22,4 @@ Route::get('/summary', [AnalyticsController::class, 'getSummaryData']);
 Route::get('/total-inventory', [AnalyticsController::class, 'getTotalInventoryData']);
 Route::get('/stock-in', [AnalyticsController::class, 'getStockInData']);
 Route::get('/stock-out', [AnalyticsController::class, 'getStockOutData']);
+Route::get('/stock-out', [AnalyticsController::class, 'getStockOutData'])->name('logout');

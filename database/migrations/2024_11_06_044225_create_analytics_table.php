@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('analytics', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('team_id')->nullable();
+            $table->unsignedBigInteger('store_id')->nullable();
             $table->unsignedBigInteger('item_id')->nullable();
             $table->string('item_name');
             $table->integer('current_quantity')->default(0);

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('teams', function (Blueprint $table) {
+        Schema::create('stores', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('owner_id')->nullable();
@@ -22,22 +22,22 @@ return new class extends Migration
         });
 
         // Update users table to include team_id
-        Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('team_id')->nullable()->after('id');
-            $table->foreign('team_id')
-                ->references('id')
-                ->on('teams')
-                ->onDelete('set null');
-        });
+        // Schema::table('users', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('team_id')->nullable()->after('id');
+        //     $table->foreign('team_id')
+        //         ->references('id')
+        //         ->on('teams')
+        //         ->onDelete('set null');
+        // });
     }
 
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['team_id']);
-            $table->dropColumn('team_id');
-        });
+        // Schema::table('users', function (Blueprint $table) {
+        //     $table->dropForeign(['team_id']);
+        //     $table->dropColumn('team_id');
+        // });
 
-        Schema::dropIfExists('teams');
+        Schema::dropIfExists('stores');
     }
 };

@@ -4,15 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Cashier\Billable;
 
 class Team extends Model
 {
-    use HasFactory;
+    use HasFactory, Billable;
 
     protected $fillable = [
         'name',
         'owner_id',
-        'description'
+        'description',
+        'subscription_plan',
+        'is_on_trial',
+        'is_active',
+        'features',
+        'member_limit',
+        'storage_limit'
+    ];
+
+    protected $casts = [
+        'features' => 'array',
+        'is_on_trial' => 'boolean',
+        'is_active' => 'boolean',
+        'trial_ends_at' => 'datetime',
     ];
 
     // Relationship with User (Owner)

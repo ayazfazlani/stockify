@@ -3,36 +3,42 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
+use Spatie\Permission\Traits\HasRoles;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use BelongsToTenant;
 
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use Billable, HasFactory, HasRoles,Notifiable;
 
     protected $guarded = [];
+
     // Relationship with Team
     public function teams()
     {
-        return $this->belongsToMany(Team::class);
+        return $this->belongsToMany(Store::class);
     }
-
 
     // Check if user is a Super Admin
     public function isSuperAdmin()
     {
-        return $this->hasRole('super admin');
+        return $this->is_super_admin;
     }
 
     // Check if user is a Team Admin
-    public function isTeamAdmin()
+    public function isStoreAdmin()
     {
         return $this->hasRole('team admin');
     }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -42,7 +48,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'current_team_id'
+        'current_team_id',
+        'is_super_admin',
+        'google_id',
+        'avatar',
+        'tenant_id',
+        'store_id',
+        'role',
     ];
 
     /**
@@ -71,14 +83,14 @@ class User extends Authenticatable
     // Add relationship for current team
     public function currentTeam()
     {
-        return $this->belongsTo(Team::class, 'current_team_id');
+        return $this->belongsTo(Store::class, 'current_team_id');
     }
 
     // Helper method to switch current team
     public function switchTeam($teamId)
     {
         // Verify user belongs to this team
-        if (!$this->teams()->where('team_id', $teamId)->exists()) {
+        if (! $this->teams()->where('team_id', $teamId)->exists()) {
             return false;
         }
 
@@ -109,9 +121,47 @@ class User extends Authenticatable
     public function accessibleTeams()
     {
         if ($this->hasRole('super admin')) {
-            return Team::all();
+            return Store::all();
         }
 
         return $this->teams;
+    }
+
+    // Subscribtion fields
+    // Add this to your existing User model
+    // public function subscription(): HasOne
+    // {
+    //     return $this->hasOne(Subscription::class);
+    // }
+
+    public function stores(): HasMany
+    {
+        return $this->hasMany(Store::class);
+    }
+
+    // Helper methods
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscription && $this->subscription->active();
+    }
+
+    public function canCreateMoreStores(): bool
+    {
+        if (! $this->hasActiveSubscription()) {
+            return false;
+        }
+
+        $currentStoreCount = $this->stores()->count();
+        $allowedStores = $this->subscription->plan->max_stores;
+
+        return $currentStoreCount < $allowedStores;
+    }
+
+    public function isAdmin(): bool
+    {
+        // Assuming you have a 'role' column or similar
+        // Adjust the logic based on your application's role/permission system
+        // return $this->role === 'admin' || $this->role === 'super_admin';
+        return true;
     }
 }

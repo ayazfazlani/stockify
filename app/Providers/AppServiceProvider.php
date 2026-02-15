@@ -3,11 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Item;
-use App\Models\User;
-use App\Observers\ItemObserver;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Gate;
+use App\Models\Tenant;
+use App\Models\Transaction;
+use App\Observers\ItemMetricsObserver;
+use App\Observers\TransactionObserver;
+use App\Services\FeatureService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,30 +25,22 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        // Attach observer to the Item model
-        // Item::observe(ItemObserver::class);
-
-        Gate::before(function ($user) {
-            if ($user->hasRole('super admin')) {
-                return true;
+        // Register @feature Blade directive
+        \Illuminate\Support\Facades\Blade::if('feature', function ($feature) {
+            $user = Auth::user();
+            if (! $user) {
+                return false;
             }
+
+            return app(FeatureService::class)->teamHasFeature($user->currentTeam, $feature);
         });
 
-        Gate::define('viewer', function ($user) {
-            return $user->role === 'viewer'; // Example condition
-        });
-        // Gate::define('manage-team', function ($user) {
-        //     return $user->hasRole(['super admin', 'team admin']);
-        // });
+        Cashier::useCustomerModel(Tenant::class);
 
-        // Gate::define('view-items', function ($user) {
-        //     return $user->can('view items');
-        // });
-
-        // Gate::define('edit-items', function ($user) {
-        //     return $user->can('edit items');
-        // });
+        // Register observers for metrics tracking
+        Transaction::observe(TransactionObserver::class);
+        Item::observe(ItemMetricsObserver::class);
     }
 }

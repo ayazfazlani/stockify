@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable()->after('team_id'); // Add user_id column
+            $table->unsignedBigInteger('user_id')->nullable()->after('store_id'); // Add user_id column
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null'); // Add foreign key constraint
         });
     }

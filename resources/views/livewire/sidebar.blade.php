@@ -103,12 +103,12 @@
                     </a>
                 </li>
                 
-                <li class="nav-link">
+                {{-- <li class="nav-link">
                     <a wire:navigate href="{{ route('adjust')}}" class="{{ request()->routeIs('adjust') ? 'active' : '' }}">
                         <i class='bx bx-adjust icon'></i>
                         <span class="text nav-text">Adjust</span>
                     </a>
-                </li>
+                </li> --}}
                 
                 <li class="nav-link">
                     <a wire:navigate href="{{ route('transactions')}}" class="{{ request()->routeIs('transactions') ? 'active' : '' }}">
@@ -124,19 +124,19 @@
                     </a>
                 </li>
                 
-                <li class="nav-link">
+                {{-- <li class="nav-link">
                     <a wire:navigate href="{{ route('summary')}}" class="{{ request()->routeIs('summary') ? 'active' : '' }}">
                         <i class='bx bx-file icon'></i>
                         <span class="text nav-text">Summary</span>
                     </a>
-                </li>
+                </li> --}}
                 
-                <li class="nav-link">
+                {{-- <li class="nav-link">
                     <a wire:navigate href="{{ route('dashboard')}}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class='bx bx-grid-alt icon'></i>
                         <span class="text nav-text">Dashboard</span>
                     </a>
-                </li>
+                </li> --}}
                 
             </div>
 
