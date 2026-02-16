@@ -94,11 +94,6 @@ class Register extends Component
             $user->tenant_id = $tenant->id;
             $user->save();
 
-            // create subdomain
-            $tenant->domains()->create([
-                'domain' => $validated['subdomain'],
-            ]);
-
             // 4. Create a default first store for the new tenant
             $tenant->stores()->create([
                 'name' => 'Main Store / Head Office',
@@ -111,31 +106,12 @@ class Register extends Component
             event(new Registered($user));
             Auth::login($user);
 
-            $domain = $tenant->domains()->first();
-
-            if (! $domain) {
-                // Fallback if no domain exists yet
-                return redirect('/some-central-success-page')->with('success', 'Company created!');
-            }
-
-            $base = rtrim(config('app.url'), '/');  // e.g. http://localhost:8000 or http://stockify.com
-
-            // For subdomain identification (your current setup): domain column = 'test5' (not full hostname)
-            $tenantUrl = str_replace('://', "://{$domain->domain}.", $base);  // → http://test5.localhost:8000
-
-            // If you ever store full hostname in domains table (custom domains), use:
-            // $tenantUrl = $baseScheme . '://' . $domain->domain;
-
-            $adminUrl = $tenantUrl.'/admin';   // or '/dashboard', or route('tenant.admin')
+            $adminUrl = "/{$tenant->slug}/admin";
 
             DB::commit();
 
             return redirect()->to($adminUrl)
                 ->with('success', 'Company account created successfully!');
-
-            // Redirect to tenant domain based or subdomain  dashboard
-            return redirect($url)->with('success', 'Company account created successfully!');
-
         } catch (\Exception $e) {
             Log::error('Tenant registration failed', [
                 'subdomain' => $this->subdomain,

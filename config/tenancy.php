@@ -9,7 +9,7 @@ return [
     'tenant_model' => Tenant::class,
     'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
 
-    'domain_model' => Domain::class,
+    // 'domain_model' => Domain::class,
 
     /**
      * The list of domains hosting your central app.
@@ -18,9 +18,9 @@ return [
      */
     'central_domains' => [
         'localhost:8000',
-        'localhost',
-        '127.0.0.1',
-        'stockify.com',
+        // 'localhost',
+        // '127.0.0.1',
+        // 'stockify.com',
 
     ],
 

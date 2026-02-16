@@ -82,43 +82,39 @@
                     </li>
                 </ul> --}}
 
+                @php
+                    $routePrefix = tenancy()->initialized ? 'tenant.' : '';
+                @endphp
                 <li class="nav-link">
-                    <a wire:navigate href="{{ route('items')}}" class="{{ request()->routeIs('items') ? 'active' : '' }}">
+                    <a wire:navigate href="{{ route($routePrefix . 'items')}}" class="{{ request()->routeIs($routePrefix . 'items') ? 'active' : '' }}">
                         <i class='bx bx-list-ol icon'></i>
                         <span class="text nav-text">Item List</span>
                     </a>
                 </li>
                 
                 <li class="nav-link">
-                    <a wire:navigate href="{{ route('stock-in')}}" class="{{ request()->routeIs('stock-in') ? 'active' : '' }}">
+                    <a wire:navigate href="{{ route($routePrefix . 'stock-in')}}" class="{{ request()->routeIs($routePrefix . 'stock-in') ? 'active' : '' }}">
                         <i class='bx bx-cart icon'></i>
                         <span class="text nav-text">Stock In</span>
                     </a>
                 </li>
                 
                 <li class="nav-link">
-                    <a wire:navigate href="{{ route('stock-out')}}" class="{{ request()->routeIs('stock-out') ? 'active' : '' }}">
+                    <a wire:navigate href="{{ route($routePrefix . 'stock-out')}}" class="{{ request()->routeIs($routePrefix . 'stock-out') ? 'active' : '' }}">
                         <i class='bx bx-cart-alt icon'></i>
                         <span class="text nav-text">Stock Out</span>
                     </a>
                 </li>
                 
-                {{-- <li class="nav-link">
-                    <a wire:navigate href="{{ route('adjust')}}" class="{{ request()->routeIs('adjust') ? 'active' : '' }}">
-                        <i class='bx bx-adjust icon'></i>
-                        <span class="text nav-text">Adjust</span>
-                    </a>
-                </li> --}}
-                
                 <li class="nav-link">
-                    <a wire:navigate href="{{ route('transactions')}}" class="{{ request()->routeIs('transactions') ? 'active' : '' }}">
+                    <a wire:navigate href="{{ route($routePrefix . 'transactions')}}" class="{{ request()->routeIs($routePrefix . 'transactions') ? 'active' : '' }}">
                         <i class='bx bx-credit-card icon'></i>
                         <span class="text nav-text">Transactions</span>
                     </a>
                 </li>
                 
                 <li class="nav-link">
-                    <a wire:navigate href="{{ route('analytics')}}" class="{{ request()->routeIs('analytics') ? 'active' : '' }}">
+                    <a wire:navigate href="{{ route($routePrefix . 'analytics')}}" class="{{ request()->routeIs($routePrefix . 'analytics') ? 'active' : '' }}">
                         <i class='bx bx-bar-chart-square icon'></i>
                         <span class="text nav-text">Analytics</span>
                     </a>

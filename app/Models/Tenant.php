@@ -8,8 +8,8 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant
 {
-    use Billable , HasDomains;  // only if you use domain identification
-
+    use Billable ;
+    
     protected $fillable = [
         'name',
         'slug',
@@ -19,6 +19,10 @@ class Tenant extends BaseTenant
         'subdomain',
     ];
 
+    public function getTenantKeyName(): string
+    {
+        return 'slug';
+    }
     /**
      * Direct database columns (not stored in JSON data)
      */

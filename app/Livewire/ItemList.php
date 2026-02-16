@@ -41,11 +41,11 @@ class ItemList extends Component
 
     public function fetchItems()
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         $query = Item::query()
             ->when($teamId, function ($query) use ($teamId) {
-                $query->where('team_id', $teamId);
+                $query->where('store_id', $teamId);
             })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {

@@ -10,14 +10,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class User extends Authenticatable
 {
-    use BelongsToTenant;
-
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use Billable, HasFactory, HasRoles,Notifiable;
+    use Billable, HasFactory, HasRoles, Notifiable;
 
     protected $guarded = [];
 
@@ -90,7 +87,7 @@ class User extends Authenticatable
     public function switchTeam($teamId)
     {
         // Verify user belongs to this team
-        if (! $this->teams()->where('team_id', $teamId)->exists()) {
+        if (!$this->teams()->where('store_id', $teamId)->exists()) {
             return false;
         }
 
@@ -103,17 +100,17 @@ class User extends Authenticatable
         return true;
     }
 
-    public function getCurrentTeamId()
+    public function getCurrentStoreId()
     {
-        // Get team ID from session (for multi-team users)
-        $teamId = (int) session('current_team_id');
+        // Get store ID from session (for multi-store users)
+        $storeId = (int) session('current_store_id');
 
-        // Validate team membership via pivot table
-        if ($teamId && $this->teams()->where('team_id', $teamId)->exists()) {
-            return $teamId;
+        // Validate store membership via pivot table
+        if ($storeId && $this->teams()->where('store_id', $storeId)->exists()) {
+            return $storeId;
         }
 
-        // Fallback for single-team users (get first team from pivot)
+        // Fallback for single-store users (get first store from pivot)
         return $this->teams()->first()->id ?? null;
     }
 
@@ -147,7 +144,7 @@ class User extends Authenticatable
 
     public function canCreateMoreStores(): bool
     {
-        if (! $this->hasActiveSubscription()) {
+        if (!$this->hasActiveSubscription()) {
             return false;
         }
 

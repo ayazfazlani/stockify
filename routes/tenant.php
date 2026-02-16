@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\SubscriptionController;
 use App\Livewire\Analytic;
+use App\Livewire\Auth\Login;
 use App\Livewire\ItemList;
 use App\Livewire\StockInComponent;
 use App\Livewire\StockOutComponent;
@@ -13,7 +14,8 @@ use App\Livewire\TeamManagement;
 use App\Livewire\Transactions;
 use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
-use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
+use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
+// use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
@@ -28,19 +30,21 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-Route::middleware([
+Route::prefix('{tenant}')->name('tenant.')->middleware([
     'web',
-    InitializeTenancyBySubdomain::class,
-    PreventAccessFromCentralDomains::class,
+    InitializeTenancyByPath::class,
+    \App\Http\Middleware\CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
 
     Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
         ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
         ->name('cashier.webhook');
     // / ---------------- Authenticated Routes ----------------
+    Route::get('/login', Login::class)->name('login');
+
     Route::middleware(['auth'])->group(function () {
         // Your existing authenticated routes...
         Route::get('/home', ItemList::class)->name('home');
