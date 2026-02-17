@@ -104,6 +104,10 @@ Route::get('/checkout/success', function () {
     // $session = \Stripe\Checkout\Session::retrieve(request('session_id'));
     return view('checkout.success');
 })->name('checkout.success');
+
+Route::get('/checkout/cancel', function () {
+    return view('checkout.cancel');
+})->name('checkout.cancel');
 // ---------------- Public Routes ----------------
 Route::get('/', function () {
     return view('welcome');

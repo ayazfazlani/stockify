@@ -70,9 +70,6 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
             Route::post('/resume', [SubscriptionController::class, 'resume'])->name('subscription.resume');
             Route::get('/success', [SubscriptionController::class, 'success'])->name('subscription.success');
 
-            Route::get('/checkout/cancel', function () {
-                return view('checkout.cancel');
-            })->name('checkout.cancel');
         });
 
     });
