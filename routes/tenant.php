@@ -15,8 +15,8 @@ use App\Livewire\Transactions;
 use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
+
 // use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +36,7 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
     \App\Http\Middleware\CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
     });
 
     Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
@@ -70,16 +70,11 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
             Route::post('/resume', [SubscriptionController::class, 'resume'])->name('subscription.resume');
             Route::get('/success', [SubscriptionController::class, 'success'])->name('subscription.success');
 
-            Route::get('/checkout/success', function () {
-                // You can retrieve session here if needed
-                // $session = \Stripe\Checkout\Session::retrieve(request('session_id'));
-                return view('checkout.success');
-            })->name('checkout.success');
-
             Route::get('/checkout/cancel', function () {
                 return view('checkout.cancel');
             })->name('checkout.cancel');
         });
+
     });
 
 });

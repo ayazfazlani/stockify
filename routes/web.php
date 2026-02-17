@@ -99,6 +99,11 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
     });
 });
 
+Route::get('/checkout/success', function () {
+    // You can retrieve session here if needed
+    // $session = \Stripe\Checkout\Session::retrieve(request('session_id'));
+    return view('checkout.success');
+})->name('checkout.success');
 // ---------------- Public Routes ----------------
 Route::get('/', function () {
     return view('welcome');
