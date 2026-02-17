@@ -1,13 +1,11 @@
 <?php
 
-// app/Models/Subscription.php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Subscription as CashierSubscription;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Subscription extends Model
+class Subscription extends CashierSubscription
 {
     protected $fillable = [
         'tenant_id',
@@ -22,40 +20,23 @@ class Subscription extends Model
         'ends_at',
     ];
 
-    protected $casts = [
-        'trial_ends_at' => 'datetime',
-        'ends_at' => 'datetime',
-    ];
-
-    // Relationships
+    /**
+     * Get the tenant that owns the subscription.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
+    /**
+     * Get the plan that owns the subscription.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
-    }
-
-    // Status methods
-    public function active(): bool
-    {
-        return $this->stripe_status === 'active' || $this->onTrial();
-    }
-
-    public function onTrial(): bool
-    {
-        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
-    }
-
-    public function cancelled(): bool
-    {
-        return $this->stripe_status === 'canceled' || $this->ends_at?->isPast();
-    }
-
-    public function onGracePeriod(): bool
-    {
-        return $this->ends_at && $this->ends_at->isFuture();
     }
 }

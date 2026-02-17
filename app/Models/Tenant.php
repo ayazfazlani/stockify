@@ -17,6 +17,13 @@ class Tenant extends BaseTenant
         'status',
         'data',
         'subdomain',
+        'stripe_id',
+        'pm_type',
+        'pm_last_four',
+        'trial_ends_at',
+        'subscription_plan',
+        'is_active',
+        'plan_id',
     ];
 
     public function getTenantKeyName(): string
@@ -35,6 +42,13 @@ class Tenant extends BaseTenant
         'status',
         'created_at',
         'updated_at',
+        'stripe_id',
+        'pm_type',
+        'pm_last_four',
+        'trial_ends_at',
+        'subscription_plan',
+        'is_active',
+        'plan_id',
     ];
 
     /**
