@@ -102,11 +102,11 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
 Route::get('/checkout/success', function () {
     // You can retrieve session here if needed
     // $session = \Stripe\Checkout\Session::retrieve(request('session_id'));
-    return view('checkout.success');
+    return view('subscription.success');
 })->name('checkout.success');
 
 Route::get('/checkout/cancel', function () {
-    return view('checkout.cancel');
+    return view('subscription.cancel');
 })->name('checkout.cancel');
 // ---------------- Public Routes ----------------
 Route::get('/', function () {

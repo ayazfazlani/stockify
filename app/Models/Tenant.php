@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Laravel\Cashier\Billable;
-use Stancl\Tenancy\Database\Concerns\HasDomains;
+// use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant
 {
-    use Billable ;
-    
+    use Billable;
+
     protected $fillable = [
         'name',
         'slug',
@@ -23,6 +23,7 @@ class Tenant extends BaseTenant
     {
         return 'slug';
     }
+
     /**
      * Direct database columns (not stored in JSON data)
      */

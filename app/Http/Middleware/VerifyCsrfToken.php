@@ -13,6 +13,10 @@ class VerifyCsrfToken
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+    protected $except = [
+        '*/stripe/webhook', // Exclude Stripe webhook from CSRF verification
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         return $next($request);
