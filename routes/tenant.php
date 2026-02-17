@@ -30,18 +30,22 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 |
 */
 
+Route::prefix('{tenant}')->middleware([
+    InitializeTenancyByPath::class,
+])->group(function () {
+    Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
+        ->name('tenant.cashier.webhook');
+});
+
 Route::prefix('{tenant}')->name('tenant.')->middleware([
     'web',
     InitializeTenancyByPath::class,
     \App\Http\Middleware\CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
 
-    Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
-        ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
-        ->name('cashier.webhook');
     // / ---------------- Authenticated Routes ----------------
     Route::get('/login', Login::class)->name('login');
 

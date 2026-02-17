@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         // Register @feature Blade directive
         \Illuminate\Support\Facades\Blade::if('feature', function ($feature) {
             $user = Auth::user();
-            if (! $user) {
+            if (!$user) {
                 return false;
             }
 
@@ -38,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Cashier::useCustomerModel(Tenant::class);
+        Cashier::useSubscriptionModel(\App\Models\Subscription::class);
 
         // Register observers for metrics tracking
         Transaction::observe(TransactionObserver::class);

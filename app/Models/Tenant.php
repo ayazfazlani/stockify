@@ -51,6 +51,11 @@ class Tenant extends BaseTenant
         }
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
     public function stores()
     {
         return $this->hasMany(Store::class, 'tenant_id', 'id');

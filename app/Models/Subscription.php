@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Subscription extends Model
 {
     protected $fillable = [
-        'user_id',
+        'tenant_id',
         'type',
         'stripe_id',
         'plan_id',
@@ -28,9 +28,9 @@ class Subscription extends Model
     ];
 
     // Relationships
-    public function user(): BelongsTo
+    public function tenant(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Tenant::class);
     }
 
     public function plan(): BelongsTo

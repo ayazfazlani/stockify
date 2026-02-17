@@ -14,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use Billable, HasFactory, HasRoles, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $guarded = [];
 
@@ -139,17 +139,24 @@ class User extends Authenticatable
     // Helper methods
     public function hasActiveSubscription(): bool
     {
-        return $this->subscription && $this->subscription->active();
+        $tenant = tenant();
+        return $tenant && $tenant->subscribed('default');
     }
 
     public function canCreateMoreStores(): bool
     {
-        if (!$this->hasActiveSubscription()) {
+        $tenant = tenant();
+        if (!$tenant || !$tenant->subscribed('default')) {
             return false;
         }
 
         $currentStoreCount = $this->stores()->count();
-        $allowedStores = $this->subscription->plan->max_stores;
+        $plan = Plan::where('slug', $tenant->subscription_plan)->first();
+
+        if (!$plan)
+            return false;
+
+        $allowedStores = $plan->max_stores;
 
         return $currentStoreCount < $allowedStores;
     }

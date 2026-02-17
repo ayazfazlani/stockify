@@ -42,12 +42,14 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
 
         Route::get('/auth/google/callback', function () {
             try {
-                $googleUser = Socialite::driver('google')->stateless()->user();
+                /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+                $driver = Socialite::driver('google');
+                $googleUser = $driver->stateless()->user();
 
                 // Find or create super admin user
                 $user = User::where('email', $googleUser->getEmail())->first();
 
-                if (! $user) {
+                if (!$user) {
                     $user = User::create([
                         'name' => $googleUser->getName(),
                         'email' => $googleUser->getEmail(),
@@ -69,7 +71,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
                 return redirect()->route('super-admin.dashboard');
 
             } catch (\Exception $e) {
-                \Log::error('Google OAuth Error: '.$e->getMessage());
+                \Log::error('Google OAuth Error: ' . $e->getMessage());
 
                 return redirect()->route('super-admin.login')
                     ->with('error', 'Google authentication failed. Please try again.');
@@ -133,12 +135,14 @@ Route::get('/auth/google/redirect', function () {
 
 Route::get('/auth/google/callback', function () {
     try {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+        $driver = Socialite::driver('google');
+        $googleUser = $driver->stateless()->user();
 
         // Find or create super admin user
         $user = User::where('email', $googleUser->getEmail())->first();
 
-        if (! $user) {
+        if (!$user) {
             $user = User::create([
                 'name' => $googleUser->getName(),
                 'email' => $googleUser->getEmail(),
@@ -161,7 +165,7 @@ Route::get('/auth/google/callback', function () {
         return redirect()->route('super-admin.dashboard');
 
     } catch (\Exception $e) {
-        \Log::error('Google OAuth Error: '.$e->getMessage());
+        \Log::error('Google OAuth Error: ' . $e->getMessage());
 
         return redirect()->route('super-admin.login')
             ->with('error', 'Google authentication failed. Please try again.');
@@ -208,5 +212,4 @@ Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenan
 
 // Central Stripe webhook (public endpoint for Stripe CLI and forwarded webhooks)
 Route::post('/stripe/webhook', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, \App\Http\Middleware\Authenticate::class])
-    ->name('cashier.webhook');
+    ->name('central.cashier.webhook');

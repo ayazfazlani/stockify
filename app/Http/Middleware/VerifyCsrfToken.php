@@ -2,23 +2,18 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
-class VerifyCsrfToken
+class VerifyCsrfToken extends Middleware
 {
     /**
-     * Handle an incoming request.
+     * The URIs that should be excluded from CSRF verification.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @var array<int, string>
      */
     protected $except = [
-        '*/stripe/webhook', // Exclude Stripe webhook from CSRF verification
+        'stripe/*',
+        '*/stripe/webhook',
+        'tenant/*/stripe/webhook',
     ];
-
-    public function handle(Request $request, Closure $next): Response
-    {
-        return $next($request);
-    }
 }
