@@ -21,7 +21,7 @@ class Analytic extends Component
     public function mount()
     {
         // Initialize team_id during mount
-        $this->team_id =  Auth::user()->getCurrentTeamId();
+        $this->team_id =  Auth::user()->getCurrentStoreId();
         $this->fetchData();
     }
 

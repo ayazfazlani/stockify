@@ -2,35 +2,40 @@
 
 namespace App\Livewire;
 
+use App\Models\Store;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\Store;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Auth;
 
 class TeamManagement extends Component
 {
     // Team Creation
     public $teamName;
+
     public $teamDescription;
 
     // Add User to Team
     public $selectedUsers;
+
     public $selectedTeam;
 
     // Change User Role
     public $selectedUser;
+
     public $selectedRole;
 
     // Data Collections
     public $teams;
+
     public $availableUsers;
+
     public $availableRoles;
 
     public function mount()
     {
-        if (!Auth::user()->hasRole('super admin')) {
+        if (! Auth::user()->hasRole('super admin')) {
             abort(403, 'Unauthorized access');
         }
 
@@ -39,10 +44,10 @@ class TeamManagement extends Component
 
     protected function loadData()
     {
-        $this->teams = Store::with(['owner', 'users'])->get();
+        $this->teams = Store::with(['owner', 'users'])->where('tenant_id', Auth::user()->tenant_id)->get();
 
         // Get users not in any team using pivot relationship
-        $this->availableUsers = User::whereDoesntHave('teams')->get();
+        $this->availableUsers = User::whereDoesntHave('teams')->where('tenant_id', Auth::user()->tenant_id)->get();
 
         // Get viewer role users
         $viewerUsers = User::whereHas('roles', function ($query) {
@@ -57,13 +62,13 @@ class TeamManagement extends Component
     {
         $this->validate([
             'teamName' => 'required|unique:teams,name',
-            'teamDescription' => 'nullable|string|max:255'
+            'teamDescription' => 'nullable|string|max:255',
         ]);
 
-       Store::create([
+        Store::create([
             'name' => $this->teamName,
             'description' => $this->teamDescription,
-            'owner_id' => Auth::id()
+            'owner_id' => Auth::id(),
         ]);
 
         session()->flash('status', 'Team created successfully!');
@@ -75,8 +80,9 @@ class TeamManagement extends Component
     {
         $team = Store::findOrFail($teamId);
 
-        if ($team->owner_id !== Auth::id() && !Auth::user()->hasRole('super admin')) {
+        if ($team->owner_id !== Auth::id() && ! Auth::user()->hasRole('super admin')) {
             session()->flash('status', 'Unauthorized to delete this team.');
+
             return;
         }
 
@@ -84,7 +90,7 @@ class TeamManagement extends Component
         $team->users()->detach();
         $team->delete();
 
-        session()->flash('status', "Team " . $team->name . " deleted successfully!");
+        session()->flash('status', 'Team '.$team->name.' deleted successfully!');
         $this->loadData();
     }
 
@@ -92,7 +98,7 @@ class TeamManagement extends Component
     {
         $this->validate([
             'selectedUsers' => 'required|exists:users,id',
-            'selectedTeam' => 'required|exists:stores,id'
+            'selectedTeam' => 'required|exists:stores,id',
         ]);
 
         $user = User::findOrFail($this->selectedUsers)->where('tenant_id', Auth::user()->tenant_id);
@@ -100,6 +106,7 @@ class TeamManagement extends Component
 
         if ($store->users()->where('user_id', $user->id)->exists()) {
             session()->flash('status', 'User is already a member of this store.');
+
             return;
         }
 
@@ -107,11 +114,11 @@ class TeamManagement extends Component
         $store->users()->attach($user->id);
 
         // Set current team if not set
-        if (!$user->store_id) {
+        if (! $user->store_id) {
             $user->update(['store_id' => $store->id]);
         }
 
-        session()->flash('status', "User " . $user->name . " added to store " . $store->name);
+        session()->flash('status', 'User '.$user->name.' added to store '.$store->name);
         $this->loadData();
     }
 
@@ -129,7 +136,7 @@ class TeamManagement extends Component
             $user->update(['store_id' => $newStore->id ?? null]);
         }
 
-        session()->flash('status', "User " . $user->name . " removed from store " . $store->name);
+        session()->flash('status', 'User '.$user->name.' removed from store '.$store->name);
         $this->loadData();
     }
 
@@ -137,13 +144,13 @@ class TeamManagement extends Component
     {
         $this->validate([
             'selectedUser' => 'required|exists:users,id',
-            'selectedRole' => 'required|exists:roles,name'
+            'selectedRole' => 'required|exists:roles,name',
         ]);
 
         $user = User::findOrFail($this->selectedUser);
         $user->syncRoles([$this->selectedRole]);
 
-        session()->flash('status', "Role changed to " . $this->selectedRole . " for " . $user->name);
+        session()->flash('status', 'Role changed to '.$this->selectedRole.' for '.$user->name);
         $this->reset(['selectedUser', 'selectedRole']);
         $this->loadData();
     }

@@ -2,27 +2,32 @@
 
 namespace App\Livewire;
 
-use App\Models\User;
-use Livewire\Component;
-use Illuminate\Support\Str;
 use App\Mail\InviteUserMail;
 use App\Models\InvitationToken;
-use Spatie\Permission\Models\Role;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Livewire\Component;
+use Spatie\Permission\Models\Role;
 
 class UserManagement extends Component
 {
     public $email;
+
     public $selectedRoles = [];
+
     public $users;
+
     public $availableRoles;
+
     public $showDeleteModal = false;
+
     public $userToDelete;
 
     protected $rules = [
         'email' => 'required|email|unique:users,email',
-        'selectedRoles.*' => 'nullable|exists:roles,name'
+        'selectedRoles.*' => 'nullable|exists:roles,name',
     ];
 
     public function mount()
@@ -38,6 +43,7 @@ class UserManagement extends Component
         // Check if email already exists
         if (User::where('email', $this->email)->exists()) {
             session()->flash('status', 'Email already registered.');
+
             return;
         }
 
@@ -48,7 +54,7 @@ class UserManagement extends Component
 
         // Generate a new token
         $token = Str::random(32);
-        $expirationTime = config('invitation.expiration_time', 24); // Fetch configurable expiration time, default to 24 hours
+        $expirationTime = config('invitation.expiration-time', 24); // Fetch configurable expiration time, default to 24 hours
 
         // Store the invitation
         InvitationToken::create([
@@ -64,6 +70,7 @@ class UserManagement extends Component
         } catch (\Exception $e) {
             // Handle mail sending failure
             session()->flash('error', 'Failed to send the invitation. Please try again.');
+
             return;
         }
 
@@ -72,15 +79,15 @@ class UserManagement extends Component
         $this->mount();
     }
 
-
     public function assignRole($userId)
     {
-        if (!isset($this->selectedRoles[$userId]) || empty($this->selectedRoles[$userId])) {
+        if (! isset($this->selectedRoles[$userId]) || empty($this->selectedRoles[$userId])) {
             session()->flash('status', 'Please select a role first.');
+
             return;
         }
 
-        $user = User::findOrFail($userId);
+        $user = User::findOrFail($userId)->where('tenant_id', Auth::user()->tenant_id);
 
         // Remove all existing roles and assign the new one
         $user->syncRoles([$this->selectedRoles[$userId]]);
@@ -92,7 +99,7 @@ class UserManagement extends Component
 
     public function removeAllRoles($userId)
     {
-        $user = User::findOrFail($userId);
+        $user = User::findOrFail($userId)->where('tenant_id', Auth::user()->tenant_id);
         $user->syncRoles([]); // Using syncRoles with empty array instead of detach
 
         session()->flash('status', 'All roles removed successfully!');

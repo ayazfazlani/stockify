@@ -11,6 +11,8 @@ use App\Services\FeatureService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Invoice;
+use Laravel\Cashier\Subscription;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,13 +32,15 @@ class AppServiceProvider extends ServiceProvider
         // Register @feature Blade directive
         \Illuminate\Support\Facades\Blade::if('feature', function ($feature) {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return false;
             }
 
             return app(FeatureService::class)->teamHasFeature($user->currentTeam, $feature);
         });
 
+        Subscription::addGlobalScope('tenant', fn ($q) => $q->where('tenant_id', tenant('id')));
+        // Invoice::addGlobalScope('tenant', fn ($q) => $q->where('tenant_id', tenant('id')));
         Cashier::useCustomerModel(Tenant::class);
         Cashier::useSubscriptionModel(\App\Models\Subscription::class);
 

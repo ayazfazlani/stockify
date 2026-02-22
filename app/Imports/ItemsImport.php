@@ -13,7 +13,7 @@ class ItemsImport implements ToModel
 {
     public function model(array $row)
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         // Create and save the item
         $item = new Item([
@@ -39,7 +39,7 @@ class ItemsImport implements ToModel
 
     private function logTransaction($item, $type, $quantity)
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         Transaction::create([
             'item_id' => $item->id,

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Laravel\Cashier\Subscription as CashierSubscription;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Cashier\Subscription as CashierSubscription;
 
 class Subscription extends CashierSubscription
 {
@@ -20,20 +20,24 @@ class Subscription extends CashierSubscription
         'ends_at',
     ];
 
+    protected $foreignKey = 'tenant_id';
+
     /**
      * Get the tenant that owns the subscription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
+    // Optional: if your billable model's PK is string, override
+    // public function user()
+    // {
+    //     return $this->belongsTo(Tenant::class, 'tenant_id', 'slug');
+    // }
+
     /**
      * Get the plan that owns the subscription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function plan(): BelongsTo
     {

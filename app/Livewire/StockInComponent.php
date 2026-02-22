@@ -43,7 +43,7 @@ class StockInComponent extends Component
 
     public function loadItems()
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
         $this->items = Item::when(
             !Auth::user()->hasRole('super admin'),
             fn($q) => $q->where('team_id', $teamId)
@@ -57,7 +57,7 @@ class StockInComponent extends Component
 
     public function loadTransactions()
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock in')
             ->when($teamId, fn($q) => $q->where('team_id', $teamId))
@@ -120,7 +120,7 @@ class StockInComponent extends Component
             'newItem.image' => 'nullable|image|max:2048',
         ]);
 
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
         $imagePath = $this->newItem['image'] ? $this->newItem['image']->store('item_images', 'public') : null;
 
         DB::beginTransaction();
@@ -166,7 +166,7 @@ class StockInComponent extends Component
     public function handleStockIn()
     {
         DB::beginTransaction();
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
         try {
             foreach ($this->selectedItems as $item) {
                 $itemModel = Item::find($item['id']);

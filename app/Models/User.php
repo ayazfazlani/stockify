@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -87,7 +86,7 @@ class User extends Authenticatable
     public function switchTeam($teamId)
     {
         // Verify user belongs to this team
-        if (!$this->teams()->where('store_id', $teamId)->exists()) {
+        if (! $this->teams()->where('store_id', $teamId)->exists()) {
             return false;
         }
 
@@ -140,21 +139,23 @@ class User extends Authenticatable
     public function hasActiveSubscription(): bool
     {
         $tenant = tenant();
+
         return $tenant && $tenant->subscribed('default');
     }
 
     public function canCreateMoreStores(): bool
     {
         $tenant = tenant();
-        if (!$tenant || !$tenant->subscribed('default')) {
+        if (! $tenant || ! $tenant->subscribed('default')) {
             return false;
         }
 
         $currentStoreCount = $this->stores()->count();
         $plan = Plan::where('slug', $tenant->subscription_plan)->first();
 
-        if (!$plan)
+        if (! $plan) {
             return false;
+        }
 
         $allowedStores = $plan->max_stores;
 

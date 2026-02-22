@@ -33,7 +33,7 @@ class Transactions extends Component
 
             // Apply team filter for non-super admins
             if (!Auth::user()->hasRole('super admin')) {
-                $teamId = Auth::user()->getCurrentTeamId();
+                $teamId = Auth::user()->getCurrentStoreId();
                 $query->when($teamId, fn($q) => $q->where('team_id', $teamId));
             }
 

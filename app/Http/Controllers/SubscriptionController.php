@@ -32,43 +32,108 @@ class SubscriptionController extends Controller
         ]);
     }
 
+    // public function subscribe(Request $request)
+    // {
+    //     $plans = Plan::all()->pluck('id', 'slug')->keys()->implode(',');
+    //     $request->validate([
+    //         'plan' => 'required|string|in:'.$plans,
+    //         'payment_method' => 'required|string',
+    //     ]);
+
+    //     $tenant = tenant();
+    //     $planSlug = $request->plan;
+    //     $plan = Plan::where('id', $planSlug)->firstOrFail();
+    //     $paymentMethod = $request->payment_method;
+
+    //     try {
+    //         // If the tenant is already subscribed, we'll swap their subscription
+    //         if ($tenant->subscribed('default')) {
+    //             $tenant->subscription('default')->swap($plan->stripe_price_id);
+    //             $subscription = $tenant->subscription('default');
+    //             $subscription->tenant_id = $tenant->id;
+    //             $subscription->save();
+    //         } else {
+    //             // Create a new subscription
+    //             $tenant->newSubscription('default', $plan->stripe_price_id)
+    //                 ->trialDays($plan->trial_days)
+    //                 ->create($paymentMethod);
+    //         }
+
+    //         // Update tenant's plan and features
+    //         $tenant->update([
+    //             'subscription_plan' => $planSlug,
+    //             'plan_id' => $plan->id,
+    //             'is_active' => true,
+    //         ]);
+
+    //         return redirect()->route('subscription.success');
+    //     } catch (IncompletePayment $exception) {
+    //         return redirect()->route(
+    //             'cashier.payment',
+    //             [$exception->payment->id, 'redirect' => route('subscription.show')]
+    //         );
+    //     }
+    // }
+
     public function subscribe(Request $request)
     {
-        $plans = Plan::all()->pluck('id', 'slug')->keys()->implode(',');
+        // Get all valid plan IDs for validation
+        $validPlanIds = Plan::all()->pluck('id')->implode(',');
+
         $request->validate([
-            'plan' => 'required|string|in:'.$plans,
+            'plan' => 'required|integer|in:'.$validPlanIds,
             'payment_method' => 'required|string',
         ]);
 
-        $tenant = tenant();
-        $planSlug = $request->plan;
-        $plan = Plan::where('slug', $planSlug)->firstOrFail();
+        $tenant = tenant(); // Current tenant (billable model)
+
+        // Since 'plan' is now validated as integer/ID
+        $planId = $request->plan;
+        $plan = Plan::findOrFail($planId); // Safer than where('id', ...) + firstOrFail()
+
         $paymentMethod = $request->payment_method;
 
         try {
-            // If the tenant is already subscribed, we'll swap their subscription
             if ($tenant->subscribed('default')) {
+                // Swap to new price/plan
                 $tenant->subscription('default')->swap($plan->stripe_price_id);
             } else {
-                // Create a new subscription
+                // Create brand new subscription
                 $tenant->newSubscription('default', $plan->stripe_price_id)
-                    ->trialDays($plan->trial_days)
+                    ->trialDays($plan->trial_days ?? 0) // Fallback if null
                     ->create($paymentMethod);
             }
 
-            // Update tenant's plan and features
+            // Optional: Force tenant_id if observer/global scope not yet in place
+            // (Remove this once you implement the observer below)
+            $subscription = $tenant->subscription('default');
+            if ($subscription->tenant_id !== $tenant->id) {
+                $subscription->tenant_id = $tenant->id;
+                $subscription->saveQuietly(); // Avoid firing events if not needed
+            }
+
+            // Sync tenant's local plan reference
             $tenant->update([
-                'subscription_plan' => $planSlug,
+                'subscription_plan' => $plan->slug, // Better to store slug here if you use it elsewhere
                 'plan_id' => $plan->id,
                 'is_active' => true,
             ]);
 
-            return redirect()->route('subscription.success');
+            return redirect()->route('subscription.success')
+                ->with('success', 'Subscription updated successfully!');
         } catch (IncompletePayment $exception) {
-            return redirect()->route(
-                'cashier.payment',
-                [$exception->payment->id, 'redirect' => route('subscription.show')]
-            );
+            return redirect()->route('cashier.payment', [
+                $exception->payment->id,
+                'redirect' => route('subscription.show'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Subscription processing failed', [
+                'error' => $e->getMessage(),
+                'tenant_id' => $tenant->id,
+                'plan_id' => $plan->id,
+            ]);
+
+            return back()->withErrors(['subscription' => 'Failed to process subscription. Please try again or contact support.']);
         }
     }
 
@@ -103,12 +168,12 @@ class SubscriptionController extends Controller
     {
         // Validate the plan exists
         // dd($planSlug);
-        $plan = Plan::where('slug', $planSlug)->firstOrFail();
+        $plan = Plan::where('id', $planSlug)->firstOrFail();
 
         $tenant = tenant();
-        
+
         // Ensure tenant is resolved
-        if (!$tenant) {
+        if (! $tenant) {
             return abort(403, 'Tenant not found or not initialized.');
         }
 
@@ -119,6 +184,11 @@ class SubscriptionController extends Controller
                 // optional
                 'billing_address_collection' => 'required',
                 'customer_update' => ['address' => 'auto'],
+                'metadata' => [
+                    'tenant_id' => $tenant->getKey(),
+                    'tenant_slug' => $tenant->slug,
+                    'plan_id' => $plan->id,
+                ],
             ]);
 
         // This does the 303 redirect to Stripe Checkout

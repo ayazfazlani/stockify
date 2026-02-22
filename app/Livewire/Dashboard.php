@@ -30,7 +30,7 @@ class Dashboard extends Component
                 ];
             } else {
                 // Team admin sees data for all teams they belong to
-                $teamId = Auth::user()->getCurrentTeamId();
+                $teamId = Auth::user()->getCurrentStoreId();
 
                 $this->summary = [
                     'totalInventory' => Analytics::where('team_id', $teamId)->sum('current_quantity'),
@@ -64,7 +64,7 @@ class Dashboard extends Component
                     });
             } else {
                 // Team admin sees data for all teams they belong to
-                $teamId = Auth::user()->getCurrentTeamId();
+                $teamId = Auth::user()->getCurrentStoreId();
 
                 $this->totalInventoryData = Analytics::where('team_id', $teamId)
                     ->select('item_id', 'current_quantity')

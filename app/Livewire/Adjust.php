@@ -48,7 +48,7 @@ class Adjust extends Component
 
     public function fetchItems()
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
         $this->loading = true;
 
         $query = Item::query()->when(!Auth::user()->hasRole('super admin'), fn($q) => $q->where('team_id', $teamId));
@@ -126,7 +126,7 @@ class Adjust extends Component
     public function saveItem()
     {
         $this->validate($this->getValidationRules());
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         if ($this->isEditing && $this->currentItem) {
             $item = Item::findOrFail($this->currentItem['id']);
@@ -160,7 +160,7 @@ class Adjust extends Component
         Transaction::create([
             'item_id' => $item->id,
             'user_id' => Auth::user()->id,
-            'team_id' => Auth::user()->getCurrentTeamId(),
+            'team_id' => Auth::user()->getCurrentStoreId(),
             'item_name' => $item->name,
             'type' => $type,
             'quantity' => $quantityDifference,

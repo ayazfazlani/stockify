@@ -33,8 +33,8 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 Route::prefix('{tenant}')->middleware([
     InitializeTenancyByPath::class,
 ])->group(function () {
-    Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
-        ->name('tenant.cashier.webhook');
+    // Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
+    //     ->name('tenant.cashier.webhook');
 });
 
 Route::prefix('{tenant}')->name('tenant.')->middleware([
@@ -43,7 +43,7 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
     \App\Http\Middleware\CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
     });
 
     // / ---------------- Authenticated Routes ----------------

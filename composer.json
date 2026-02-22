@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
         "maatwebsite/excel": "^3.1",
+        "nativephp/mobile": "^3.0",
         "spatie/laravel-permission": "^6.10",
         "stancl/tenancy": "^3.9"
     },

@@ -24,7 +24,7 @@ class AnalyticsService
       [
         'item_name' => $item->name,
         'current_quantity' => 0,
-        'team_id' => Auth::user()->getCurrentTeamId(),
+        'team_id' => Auth::user()->getCurrentStoreId(),
         'inventory_assets' => 0,
         'average_quantity' => 0,
         'turnover_ratio' => 0,

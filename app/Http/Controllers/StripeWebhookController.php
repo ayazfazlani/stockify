@@ -25,6 +25,9 @@ class StripeWebhookController extends CashierWebhookController
         ]);
 
         // Let Cashier do its normal work (create/update subscription, handle payments, etc.)
+        // Set current tenant context (important even in single-DB for scoping/notifications)
+        // tenancy()->initialize($tenant);
+
         // It will verify the signature and process the event
         return parent::handleWebhook($request);
     }

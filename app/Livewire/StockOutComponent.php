@@ -30,7 +30,7 @@ class StockOutComponent extends Component
 
     public function loadItems()
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         $this->items = Item::when(
             !Auth::user()->hasRole('super admin'),
@@ -45,7 +45,7 @@ class StockOutComponent extends Component
 
     public function loadTransactions()
     {
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock out')
             ->when($teamId, fn($q) => $q->where('team_id', $teamId))
@@ -109,7 +109,7 @@ class StockOutComponent extends Component
         ]);
 
         DB::beginTransaction();
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         try {
             foreach ($this->selectedItems as $item) {

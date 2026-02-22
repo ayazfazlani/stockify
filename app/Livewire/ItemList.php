@@ -108,7 +108,7 @@ class ItemList extends Component
             'image' => 'nullable|image|max:2048',
         ]);
 
-        $teamId = Auth::user()->getCurrentTeamId();
+        $teamId = Auth::user()->getCurrentStoreId();
 
         $item = Item::create([
             'team_id' => $teamId,
