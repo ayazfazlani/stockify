@@ -8,19 +8,23 @@ class QrScanner extends Component
 {
     public $scannedData = null;
 
-    // app/Models/Product.php
-    public function generateQrCode()
+    public $scannedCode = '';
+
+    public function updatedScannedCode($value)
     {
-        $data = $this->sku;                    // or "https://yourapp.com/product/".$this->id
+        if (empty($value))
+            return;
 
-        // Generate QR Code (install: composer require simplesoftwareio/simple-qrcode)
-        $qrPath = "qrcodes/{$this->sku}.png";
-        \SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)
-            ->format('png')
-            ->generate($data, storage_path("app/public/{$qrPath}"));
+        // Find product by SKU or barcode
+        $product = Product::where('sku', $value)->orWhere('barcode', $value)->first();
 
-        $this->qr_code = $qrPath;
-        $this->save();
+        if ($product) {
+            $product->increment('stock_quantity', 1); // or whatever action you want
+            session()->flash('success', "Stock +1 for {$product->name}");
+            $this->scannedCode = ''; // reset for next scan
+        } else {
+            session()->flash('error', 'Product not found');
+        }
     }
 
     // Optional: Barcode too
