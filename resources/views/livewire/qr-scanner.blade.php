@@ -1,55 +1,66 @@
 <div>
     <h2>Scan QR Code for Stock</h2>
 
-    <!-- Scanner container -->
-    <div id="reader" style="width: 100%; max-width: 600px; margin: 0 auto;"></div>
+    <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; border: 2px solid #ccc;"></div>
 
-    <!-- Result area -->
-    <div wire:ignore>
-        <p>Scanned Code: <strong id="scanned-result">{{ $scannedData ?? 'Nothing yet...' }}</strong></p>
+    <div class="text-center my-3">
+        <button wire:ignore id="start-scan-btn" class="btn btn-primary">Start Camera Scan</button>
+        <button wire:ignore id="stop-scan-btn" class="btn btn-danger" style="display:none;">Stop Scanning</button>
     </div>
 
-    <button wire:click="clearScan">Clear</button>
+    <p>Scanned Code: <strong id="scanned-result">{{ $scannedData ?? 'Nothing yet...' }}</strong></p>
+
+    <button wire:click="clearScan" class="btn btn-secondary">Clear</button>
 </div>
 
 @push('scripts')
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
     <script>
-        let html5QrCodeScanner;
+        let scanner = null;
 
-        function onScanSuccess(decodedText, decodedResult) {
-            // Send the scanned data to Livewire
-            @this.set('scannedData', decodedText);
+        function startScanner() {
+            if (scanner) return;
 
-            // Optional: Stop scanning after success
-            // html5QrCodeScanner.clear();
+            scanner = new Html5QrcodeScanner(
+                "reader",
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                    facingMode: "environment"
+                },
+                false
+            );
 
-            // You can also trigger an action immediately
-            // @this.call('processScannedCode', decodedText);
+            scanner.render((decodedText) => {
+                @this.set('scannedData', decodedText);
+                // Optional: auto stop after scan
+                // scanner.clear();
+                document.getElementById('stop-scan-btn').style.display = 'none';
+            });
+
+            document.getElementById('start-scan-btn').style.display = 'none';
+            document.getElementById('stop-scan-btn').style.display = 'inline-block';
         }
 
-        // Initialize scanner when component loads
-        document.addEventListener('livewire:navigated', () => {
-            if (document.getElementById('reader')) {
-                html5QrCodeScanner = new Html5QrcodeScanner(
-                    "reader",
-                    {
-                        fps: 10,              // frames per second
-                        qrbox: { width: 250, height: 250 }, // scanning box size
-                        aspectRatio: 1.0,
-                        facingMode: "environment" // use back camera on mobile
-                    },
-                    false // verbose = false
-                );
-
-                html5QrCodeScanner.render(onScanSuccess);
+        function stopScanner() {
+            if (scanner) {
+                scanner.clear().then(() => {
+                    scanner = null;
+                    document.getElementById('start-scan-btn').style.display = 'inline-block';
+                    document.getElementById('stop-scan-btn').style.display = 'none';
+                });
             }
-        });
+        }
 
-        // Clean up when component is removed (good practice)
+        // Button events
         document.addEventListener('livewire:navigated', () => {
-            if (html5QrCodeScanner) {
-                html5QrCodeScanner.clear();
-            }
+            const startBtn = document.getElementById('start-scan-btn');
+            const stopBtn = document.getElementById('stop-scan-btn');
+
+            if (startBtn) startBtn.addEventListener('click', startScanner);
+            if (stopBtn) stopBtn.addEventListener('click', stopScanner);
         });
     </script>
 @endpush
