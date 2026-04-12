@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tenant;
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -16,19 +18,69 @@ class StripeWebhookController extends CashierWebhookController
     {
         $payload = $request->all();
         $eventType = $payload['type'] ?? 'unknown';
-        $tenantId = Arr::get($payload, 'data.object.metadata.tenant_id', 'none');
+        
+        // Try to get tenant_id from metadata first
+        $tenantId = Arr::get($payload, 'data.object.metadata.tenant_id');
+        
+        // If not in metadata, try to find tenant by customer ID
+        $customerId = Arr::get($payload, 'data.object.customer');
+        $tenant = null;
+        
+        if ($tenantId) {
+            $tenant = Tenant::find($tenantId);
+        } elseif ($customerId) {
+            $tenant = Tenant::where('stripe_id', $customerId)->first();
+        }
 
         Log::info('Stripe webhook received', [
             'event' => $eventType,
-            'tenant_id' => $tenantId,
-            'customer' => Arr::get($payload, 'data.object.customer'),
+            'tenant_id' => $tenant ? $tenant->id : 'none',
+            'customer' => $customerId,
         ]);
 
-        // Let Cashier do its normal work (create/update subscription, handle payments, etc.)
-        // Set current tenant context (important even in single-DB for scoping/notifications)
-        // tenancy()->initialize($tenant);
-
-        // It will verify the signature and process the event
         return parent::handleWebhook($request);
+    }
+
+    /**
+     * Handle a successful checkout session.
+     */
+    protected function handleCheckoutSessionCompleted(array $payload)
+    {
+        $session = (object) $payload['data']['object'];
+        
+        $paymentService = app(PaymentService::class);
+        $paymentService->handleCheckoutSessionCompleted($session->id);
+
+        return $this->successMethod();
+    }
+
+    /**
+     * Handle invoice payment succeeded.
+     * Cashier will also handle this, but we override to record in our payments table.
+     */
+    protected function handleInvoicePaymentSucceeded(array $payload)
+    {
+        $invoice = (object) $payload['data']['object'];
+        $customerId = $invoice->customer;
+        
+        $tenant = Tenant::where('stripe_id', $customerId)->first();
+        
+        if ($tenant) {
+            $subscription = $tenant->subscriptions()
+                ->where('stripe_id', $invoice->subscription)
+                ->first();
+
+            if ($subscription) {
+                $paymentService = app(PaymentService::class);
+                $paymentService->recordPayment($subscription, $invoice);
+            } else {
+                Log::warning('Subscription not found for payment recording', [
+                    'tenant_id' => $tenant->id,
+                    'stripe_subscription_id' => $invoice->subscription
+                ]);
+            }
+        }
+
+        return $this->successMethod();
     }
 }

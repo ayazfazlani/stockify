@@ -12,7 +12,6 @@ class Subscription extends CashierSubscription
         'type',
         'stripe_id',
         'plan_id',
-        'stripe_subscription_id',
         'stripe_status',
         'stripe_price',
         'quantity',
@@ -20,21 +19,22 @@ class Subscription extends CashierSubscription
         'ends_at',
     ];
 
-    protected $foreignKey = 'tenant_id';
+    /**
+     * Get the model related to the subscription.
+     * Overriding Cashier's default to use 'tenant' relationship.
+     */
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
 
     /**
      * Get the tenant that owns the subscription.
      */
     public function tenant(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class, 'tenant_id');
+        return $this->owner();
     }
-
-    // Optional: if your billable model's PK is string, override
-    // public function user()
-    // {
-    //     return $this->belongsTo(Tenant::class, 'tenant_id', 'slug');
-    // }
 
     /**
      * Get the plan that owns the subscription.

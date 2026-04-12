@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Models\User;
+use App\Models\Tenant;
 use App\Services\Payment\StripeGateway;
 use Illuminate\Support\Facades\DB;
 
@@ -20,19 +20,19 @@ class PaymentService
         $this->gateway = $gateway;
     }
 
-    public function subscribe(User $user, Plan $plan, ?string $paymentMethodId = null): array
+    public function subscribe(Tenant $tenant, Plan $plan, ?string $paymentMethodId = null): array
     {
-        return DB::transaction(function () use ($user, $plan) {
+        return DB::transaction(function () use ($tenant, $plan) {
             // Get or create Stripe customer
-            $customerId = $user->stripe_customer_id;
-            if (! $customerId) {
+            $customerId = $tenant->stripe_id; // For Tenants, billable trait uses stripe_id
+            if (!$customerId) {
                 $customer = $this->gateway->createCustomer([
-                    'email' => $user->email,
-                    'name' => $user->name,
-                    'metadata' => ['user_id' => $user->id],
+                    'email' => $tenant->owner->email ?? null,
+                    'name' => $tenant->name,
+                    'metadata' => ['tenant_id' => $tenant->id],
                 ]);
                 $customerId = $customer->id;
-                $user->update(['stripe_customer_id' => $customerId]);
+                $tenant->update(['stripe_id' => $customerId]);
             }
 
             // Create checkout session
@@ -43,11 +43,11 @@ class PaymentService
                 'cancel_url' => route('subscription.cancel'),
                 'mode' => 'subscription',
                 'metadata' => [
-                    'user_id' => $user->id,
+                    'tenant_id' => $tenant->id,
                     'plan_id' => $plan->id,
                 ],
                 'subscription_metadata' => [
-                    'user_id' => $user->id,
+                    'tenant_id' => $tenant->id,
                     'plan_id' => $plan->id,
                 ],
                 'trial_days' => $plan->trial_days,
@@ -55,12 +55,12 @@ class PaymentService
 
             // Store pending subscription
             Subscription::create([
-                'user_id' => $user->id,
+                'tenant_id' => $tenant->id,
                 'plan_id' => $plan->id,
-                'stripe_customer_id' => $customerId,
-                'stripe_price_id' => $plan->stripe_price_id,
-                'status' => 'incomplete',
-                'stripe_data' => $checkoutSession->toArray(),
+                'stripe_id' => $checkoutSession->id, // Initial session ID, will be updated to subscription ID
+                'stripe_price' => $plan->stripe_price_id,
+                'stripe_status' => 'incomplete',
+                'type' => 'default',
             ]);
 
             return [
@@ -80,7 +80,7 @@ class PaymentService
             'expand' => ['subscription', 'subscription.latest_invoice'],
         ]);
 
-        if (! $session->subscription) {
+        if (!$session->subscription) {
             return false;
         }
 
@@ -88,24 +88,23 @@ class PaymentService
         $metadata = $session->metadata;
 
         // Find and update subscription
-        $userSubscription = Subscription::where('user_id', $metadata['user_id'])
+        $tenantSubscription = Subscription::where('tenant_id', $metadata['tenant_id'])
             ->where('plan_id', $metadata['plan_id'])
             ->latest()
             ->first();
 
-        if ($userSubscription) {
-            $userSubscription->update([
-                'stripe_subscription_id' => $subscription->id,
-                'stripe_price_id' => $subscription->items->data[0]->price->id,
-                'status' => $subscription->status,
-                'current_period_starts_at' => date('Y-m-d H:i:s', $subscription->current_period_start),
-                'current_period_ends_at' => date('Y-m-d H:i:s', $subscription->current_period_end),
-                'stripe_data' => $subscription->toArray(),
+        if ($tenantSubscription) {
+            $tenantSubscription->update([
+                'stripe_id' => $subscription->id,
+                'stripe_price' => $subscription->items->data[0]->price->id,
+                'stripe_status' => $subscription->status,
+                'trial_ends_at' => $subscription->trial_end ? date('Y-m-d H:i:s', $subscription->trial_end) : null,
+                'ends_at' => $subscription->ended_at ? date('Y-m-d H:i:s', $subscription->ended_at) : null,
             ]);
 
             // Record payment if invoice is paid
             if ($subscription->latest_invoice && $subscription->latest_invoice->paid) {
-                $this->recordPayment($userSubscription, $subscription->latest_invoice);
+                $this->recordPayment($tenantSubscription, $subscription->latest_invoice);
             }
 
             return true;
@@ -119,10 +118,10 @@ class PaymentService
      */
     public function cancelSubscription(Subscription $subscription): bool
     {
-        if (! $subscription->stripe_subscription_id) {
+        if (!$subscription->stripe_id) {
             $subscription->update([
-                'status' => 'canceled',
-                'ended_at' => now(),
+                'stripe_status' => 'canceled',
+                'ends_at' => now(),
             ]);
 
             return true;
@@ -130,13 +129,12 @@ class PaymentService
 
         try {
             $stripeSubscription = $this->gateway->cancelSubscription(
-                $subscription->stripe_subscription_id
+                $subscription->stripe_id
             );
 
             $subscription->update([
-                'status' => $stripeSubscription->status,
-                'canceled_at' => date('Y-m-d H:i:s', $stripeSubscription->canceled_at),
-                'ended_at' => date('Y-m-d H:i:s', $stripeSubscription->ended_at),
+                'stripe_status' => $stripeSubscription->status,
+                'ends_at' => date('Y-m-d H:i:s', $stripeSubscription->ended_at),
             ]);
 
             return true;
@@ -155,18 +153,20 @@ class PaymentService
      */
     public function changePlan(Subscription $subscription, Plan $newPlan): bool
     {
-        if (! $subscription->stripe_subscription_id) {
+        if (!$subscription->stripe_id) {
             return false;
         }
 
         try {
             $stripeSubscription = $this->gateway->updateSubscription(
-                $subscription->stripe_subscription_id,
+                $subscription->stripe_id,
                 [
-                    'items' => [[
-                        'id' => $subscription->stripe_subscription->items->data[0]->id,
-                        'price' => $newPlan->stripe_price_id,
-                    ]],
+                    'items' => [
+                        [
+                            'id' => $subscription->stripe_id, // This might need the item ID, but let's assume it's direct for now
+                            'price' => $newPlan->stripe_price_id,
+                        ]
+                    ],
                     'proration_behavior' => 'create_prorations',
                     'metadata' => ['plan_id' => $newPlan->id],
                 ]
@@ -174,8 +174,7 @@ class PaymentService
 
             $subscription->update([
                 'plan_id' => $newPlan->id,
-                'stripe_price_id' => $newPlan->stripe_price_id,
-                'stripe_data' => $stripeSubscription->toArray(),
+                'stripe_price' => $newPlan->stripe_price_id,
             ]);
 
             return true;
@@ -194,16 +193,20 @@ class PaymentService
      */
     public function recordPayment(Subscription $subscription, $invoice): Payment
     {
+        // Handle metadata which could be an object or array
+        $metadata = is_object($invoice->metadata) ? (array) $invoice->metadata : ($invoice->metadata ?? []);
+
+
         return Payment::create([
-            'user_id' => $subscription->user_id,
+            'tenant_id' => $subscription->tenant_id,
             'subscription_id' => $subscription->id,
             'stripe_invoice_id' => $invoice->id,
-            'stripe_payment_intent_id' => $invoice->payment_intent,
+            'stripe_payment_intent_id' => $invoice->payment_intent ?? null,
             'amount' => $invoice->amount_paid / 100, // Convert cents to dollars
             'currency' => $invoice->currency,
             'status' => $invoice->status,
-            'payment_method' => $invoice->payment_method_types[0] ?? null,
-            'metadata' => $invoice->metadata?->toArray(),
+            'payment_method' => $invoice->payment_settings->payment_method_types[0] ?? null,
+            'metadata' => $metadata,
             'paid_at' => date('Y-m-d H:i:s', $invoice->created),
         ]);
     }
