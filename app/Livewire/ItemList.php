@@ -92,7 +92,8 @@ class ItemList extends Component
     public function toggleModal()
     {
         $this->isModalOpen = !$this->isModalOpen;
-        if (!$this->isModalOpen) $this->resetNewItem();
+        if (!$this->isModalOpen)
+            $this->resetNewItem();
     }
 
     public function addItem()
@@ -111,7 +112,8 @@ class ItemList extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         $item = Item::create([
-            'team_id' => $teamId,
+            'tenant_id' => Auth::user()->tenant_id,
+            'store_id' => $teamId,
             'user_id' => Auth::id(),
             ...$this->newItem,
             'image' => $this->image ? $this->image->store('item_images', 'public') : null
@@ -119,7 +121,7 @@ class ItemList extends Component
 
         Transaction::create([
             'item_id' => $item->id,
-            'team_id' => $teamId,
+            'store_id' => $teamId,
             'user_id' => Auth::id(),
             'item_name' => $item->name,
             'type' => 'created',

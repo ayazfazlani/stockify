@@ -11,6 +11,7 @@ use App\Livewire\StockInComponent;
 use App\Livewire\StockOutComponent;
 use App\Livewire\SubscriptionManagement;
 use App\Livewire\TeamManagement;
+use App\Livewire\Tenant\Admin\Dashboard;
 use App\Livewire\Transactions;
 use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +44,7 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
     \App\Http\Middleware\CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
 
     // / ---------------- Authenticated Routes ----------------
@@ -58,7 +59,7 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
         Route::get('/transactions', Transactions::class)->name('transactions');
         Route::get('/analytics', Analytic::class)->name('analytics');
         Route::get('/user', UserManagement::class)->name('user');
-        Route::get('/admin', TeamManagement::class)->name('admin');
+        Route::get('/admin', Dashboard::class)->name('admin');
         Route::get('/plans', [PlansController::class, 'index'])->name('plans.index');
         Route::get('/plans/{plan}', [PlansController::class, 'show'])->name('plans.show');
 

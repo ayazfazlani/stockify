@@ -15,7 +15,8 @@ class Item extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'team_id',
+        'tenant_id',
+        'store_id',
         'user_id',
         'sku',
         'name',

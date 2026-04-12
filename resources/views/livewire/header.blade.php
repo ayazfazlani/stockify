@@ -1,5 +1,5 @@
 <div>
-    <header class="bg-white  z-0 shadow-lg px-9 py-5 border-b border-gray-300 flex justify-between items-center">
+    <header class="bg-white  z-0 px-9 py-5 border-b border-gray-300 flex justify-between items-center">
         <!-- Logo -->
         <div class="flex h-10 w-40 items-center space-x-3">
             <a wire:navigate href="/">
@@ -16,7 +16,8 @@
                         <i class="fas fa-bell text-xl"></i>
                     </button>
                     <!-- Notification Dropdown -->
-                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
+                    <div id="notificationDropdown"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
                         <!-- Add notification items here -->
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notification 1</a>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notification 2</a>
@@ -33,11 +34,13 @@
                 <!-- User Profile -->
                 <div class="relative">
                     <button id="userButton" class="flex items-center focus:outline-none space-x-2">
-                        <img src="https://th.bing.com/th/id/OIP.x7X2oAehk5M9IvGwO_K0PgHaHa?rs=1&pid=ImgDetMain" alt="User Image" class="w-10 h-10 rounded-full border border-gray-300">
+                        <img src="https://th.bing.com/th/id/OIP.x7X2oAehk5M9IvGwO_K0PgHaHa?rs=1&pid=ImgDetMain"
+                            alt="User Image" class="w-10 h-10 rounded-full border border-gray-300">
                         <span class="hidden md:block text-gray-700">{{ Auth::user()->name ?? 'John Doe' }}</span>
                     </button>
                     <!-- User Dropdown -->
-                    <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
+                    <div id="userDropdown"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
                         @php
                             $user = auth()->user();
                             $adminUrl = '#';
@@ -55,11 +58,13 @@
                             } else {
                                 $adminUrl = route('admin');
                             }
-                            
+
                             $logoutUrl = $user->isSuperAdmin() ? route('super-admin.logout') : url('/logout');
                         @endphp
-                        <a wire:navigate href="{{ $adminUrl }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
-                        <a wire:navigate href="{{ $logoutUrl }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        <a wire:navigate href="{{ $adminUrl }}"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
+                        <a wire:navigate href="{{ $logoutUrl }}"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
                     </div>
                 </div>
             @endauth

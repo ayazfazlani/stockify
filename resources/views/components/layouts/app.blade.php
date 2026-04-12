@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,30 +8,36 @@
     <meta name="apple-mobile-web-app-status-bar" content="#01d679">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-        {{-- fav icon  --}}
+    {{-- fav icon --}}
     <link rel="icon" type="image/x-icon" href="{{ asset('icon.png')}}">
     <title>{{ $title ?? 'JGT' }}</title>
     <link rel="manifest" href="/manifest.json">
-    
+
     @livewireStyles
-   
-    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+
+    {{--
+    <script src="https://cdn.tailwindcss.com"></script> --}}
     <!-- Link to external styles -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
-    {{-- <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
-     <script src="{{ asset('js/script.js') }}?v={{ time() }}"></script> --}}
-  
-     @vite("resources/css/app.css");
-    
+    {{--
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
+    <script src="{{ asset('js/script.js') }}?v={{ time() }}"></script> --}}
+
+    @vite("resources/css/app.css");
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
-    
-    {{-- <link href="/dist/tailwind.css" rel="stylesheet" /> --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> --}}
+
+    {{--
+    <link href="/dist/tailwind.css" rel="stylesheet" /> --}}
+    {{--
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> --}}
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
     <link rel="apple-touch-icon" sizes="16x16" href="/pwa/icons/ios/16.png">
     <link rel="apple-touch-icon" sizes="20x20" href="/pwa/icons/ios/20.png">
@@ -58,48 +65,53 @@
     <link rel="apple-touch-icon" sizes="256x256" href="/pwa/icons/ios/256.png">
     <link rel="apple-touch-icon" sizes="512x512" href="/pwa/icons/ios/512.png">
     <link rel="apple-touch-icon" sizes="1024x1024" href="/pwa/icons/ios/1024.png">
-    
+
     <link href="/pwa/icons/ios/1024.png" sizes="1024x1024" rel="apple-touch-startup-image">
     <link href="/pwa/icons/ios/512.png" sizes="512x512" rel="apple-touch-startup-image">
     <link href="/pwa/icons/ios/256.png" sizes="256x256" rel="apple-touch-startup-image">
     <link href="/pwa/icons/ios/192.png" sizes="192x192" rel="apple-touch-startup-image">
 
- 
+
 </head>
-<body>
+
+<body class="flex">
 
     <!-- Sidebar Component -->
-    @livewire('header')
 
-<div class="flex" wire:ignore>
+
     @livewire('sidebar')
 
+    <div class="flex-1" wire:ignore>
 
-    <!-- Main Content Section -->
-    <div class="flex-1 overflow-x-hidden">
-    @hasSection('content')
-        @yield('content') <!-- Use section if defined -->
-    @else
-        {{ $slot }} <!-- Fall back to slot if no section -->
-    @endif <!-- This will display the content of Livewire components -->
+        @livewire('header')
+
+        <!-- Main Content Section -->
+        <div class="flex-1 overflow-x-hidden">
+            @hasSection('content')
+                @yield('content') <!-- Use section if defined -->
+            @else
+                {{ $slot }} <!-- Fall back to slot if no section -->
+            @endif <!-- This will display the content of Livewire components -->
+        </div>
+
     </div>
-    
-</div>
 
 
     <!-- Scripts Section -->
-   
+
     @yield('scripts')
     @stack('scripts')
     <!-- Alpine.js for Dropdown functionality -->
-    {{-- <script src="//unpkg.com/alpinejs"></script> --}}
+    {{--
+    <script src="//unpkg.com/alpinejs"></script> --}}
     <script src="{{ asset('js/script.js') }}"></script>
-    {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
+    {{--
+    <script src="{{ asset('js/app.js') }}"></script> --}}
 
     @vite('resources/js/app.js');
     @livewireScripts
-    
-{{-- @vite(['resources/js/app.js']) --}}
-</body>
-</html>
 
+    {{-- @vite(['resources/js/app.js']) --}}
+</body>
+
+</html>
