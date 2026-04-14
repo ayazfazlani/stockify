@@ -4,6 +4,10 @@
         <div class="p-4 mb-4 text-sm text-white bg-green-500 rounded-lg" role="alert">
             {{ session('message') }}
         </div>
+    @elseif(session()->has('success'))
+        <div class="p-4 mb-4 text-sm text-white bg-blue-500 rounded-lg" role="alert">
+            {{ session('success') }}
+        </div>
     @elseif(session()->has('error'))
         <div class="p-4 mb-4 text-sm text-white bg-red-500 rounded-lg" role="alert">
             {{ session('error') }}
@@ -20,6 +24,10 @@
         </div>
     </div>
 
+    <!-- Scanner -->
+    <div class="mb-6">
+        <livewire:qr-scanner />
+    </div>
 
     <!-- Search and Date Filter -->
     <div class="flex items-center gap-4 mb-6 max-sm:flex-wrap">
@@ -37,8 +45,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        <livewire:qr-scanner />
         <!-- Left Column: Stock Out Operations -->
         <div class="space-y-6">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -56,7 +62,12 @@
                                 <li wire:key="item-{{ $item->id }}" wire:click="toggleItemSelection({{ $item->id }})"
                                     class="p-3 border rounded-md cursor-pointer hover:bg-gray-50 {{ in_array($item->id, array_column($selectedItems, 'id')) ? 'bg-red-50 border-red-200' : '' }}">
                                     <div class="flex justify-between items-center">
-                                        <span>{{ $item->name }}</span>
+                                        <div class="flex items-center gap-3">
+                                            @if($item->image)
+                                                <img src="{{ Storage::url($item->image) }}" class="w-10 h-10 object-cover rounded-md">
+                                            @endif
+                                            <span>{{ $item->name }} ({{ $item->sku }})</span>
+                                        </div>
                                         <span class="text-sm {{ $item->quantity > 0 ? 'text-green-600' : 'text-red-600' }}">
                                             Qty: {{ $item->quantity }}
                                         </span>
@@ -74,11 +85,12 @@
                                 @foreach($selectedItems as $index => $item)
                                     <li wire:key="selected-{{ $item['id'] }}"
                                         class="flex justify-between items-center p-2 border rounded-md bg-gray-50">
-                                        <span>{{ $item['name'] }}</span>
-                                        {{-- <input type="number" min="1" max="{{ Item::find($item['id'])->quantity }}"
-                                            wire:model.debounce.300ms="selectedItems.{{ $index }}.quantity"
-                                            class="w-24 px-2 py-1 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        --}}
+                                        <div class="flex items-center gap-3">
+                                            @if($item['image'])
+                                                <img src="{{ Storage::url($item['image']) }}" class="w-8 h-8 object-cover rounded-md">
+                                            @endif
+                                            <span>{{ $item['name'] }}</span>
+                                        </div>
                                         <input type="number" min="1" max="{{ \App\Models\Item::find($item['id'])->quantity }}"
                                             wire:model.debounce.300ms="selectedItems.{{ $index }}.quantity"
                                             class="w-24 px-2 py-1 border rounded-md focus:ring-blue-500 focus:border-blue-500">

@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Services\AnalyticsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class StockOutComponent extends Component
 {
@@ -34,7 +35,7 @@ class StockOutComponent extends Component
 
         $this->items = Item::when(
             !Auth::user()->hasRole('super admin'),
-            fn($q) => $q->where('team_id', $teamId)
+            fn($q) => $q->where('store_id', $teamId)
         )
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
@@ -48,7 +49,7 @@ class StockOutComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock out')
-            ->when($teamId, fn($q) => $q->where('team_id', $teamId))
+            ->when($teamId, fn($q) => $q->where('store_id', $teamId))
             ->when(
                 $this->dateRange['start'] && $this->dateRange['end'],
                 fn($q) => $q->whereBetween('created_at', [
@@ -68,6 +69,22 @@ class StockOutComponent extends Component
     public function updatedDateRange()
     {
         $this->loadTransactions();
+    }
+
+    #[On('scannedData')]
+    public function handleScannedData($code, $scannerId = null)
+    {
+        $teamId = Auth::user()->getCurrentStoreId();
+        $item = Item::where('sku', $code)
+            ->where('store_id', $teamId)
+            ->first();
+
+        if ($item) {
+            $this->toggleItemSelection($item->id);
+            session()->flash('success', "Item auto-selected: {$item->name}");
+        } else {
+            session()->flash('error', "Item with SKU '{$code}' not found.");
+        }
     }
 
     public function toggleItemSelection($itemId)
@@ -125,7 +142,7 @@ class StockOutComponent extends Component
 
                     Transaction::create([
                         'item_id' => $itemModel->id,
-                        'team_id' => $teamId,
+                        'store_id' => $teamId,
                         'user_id' => Auth::id(),
                         'item_name' => $itemModel->name,
                         'type' => 'stock out',
@@ -140,7 +157,6 @@ class StockOutComponent extends Component
             }
 
             DB::commit();
-            // $this->dispatch('refreshComponent');
             session()->flash('message', 'Stock-out completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();

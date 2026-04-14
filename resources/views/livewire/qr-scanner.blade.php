@@ -1,77 +1,77 @@
 <div>
-    <h2>Fast Stock Scan (QR + Barcode)</h2>
-
-    <div id="reader" style="width:100%; max-width:600px; margin:20px auto;"></div>
-
-    <div class="text-center">
-        <button wire:ignore id="start-btn" class="btn btn-success">📸 Start Fast Camera Scan</button>
-        <button wire:ignore id="stop-btn" class="btn btn-danger" style="display:none;">Stop</button>
-        <label class="btn btn-primary ms-2">
-            📤 Upload Label Image
-            <input type="file" id="upload" accept="image/*" style="display:none;">
-        </label>
-    </div>
-
-    <p>Scanned: <strong id="result">{{ $scannedData ?? '—' }}</strong></p>
-</div>
-
-@push('scripts')
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script>
-        let scanner = null;
-
-        function startFastScan() {
-            if (scanner) return;
-            scanner = new Html5Qrcode("reader");
-
-            scanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 25,                          // MAX speed
-                    qrbox: { width: 350, height: 220 }, // wide = better for barcodes
-                    aspectRatio: 1.0,
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.QR_CODE,
-                        Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
-                        Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.ITF
-                    ]
+    <div x-data="{
+        scanner: null,
+        scannerId: '{{ $scannerId }}',
+        scannedData: @entangle('scannedData'),
+        isScanning: false,
+        error: '',
+        
+        startScan() {
+            this.error = '';
+            this.scanner = new Html5Qrcode(this.scannerId);
+            this.scanner.start(
+                { facingMode: 'environment' },
+                { 
+                    fps: 20, 
+                    qrbox: { width: 350, height: 220 },
+                    aspectRatio: 1.0 
                 },
                 (decodedText) => {
-                    @this.set('scannedData', decodedText);   // send to Livewire
-                    document.getElementById('result').textContent = decodedText;
-                    // Auto-process stock here if you want
-                    // @this.call('processScan', decodedText);
-                },
-                () => { } // ignore "no code" errors
-            );
-
-            document.getElementById('start-btn').style.display = 'none';
-            document.getElementById('stop-btn').style.display = 'inline-block';
+                    this.$wire.processScannedCode(decodedText);
+                    // this.stopScan(); // Optional: stop after success
+                }
+            ).then(() => {
+                this.isScanning = true;
+            }).catch(err => {
+                console.error('Camera start error:', err);
+                this.error = 'Camera error: ' + err + '. Ensure you are using HTTPS.';
+                this.scanner = null;
+            });
+        },
+        
+        stopScan() {
+            if (this.scanner) {
+                this.scanner.stop().then(() => {
+                    this.scanner = null;
+                    this.isScanning = false;
+                }).catch(err => {
+                    console.error('Camera stop error:', err);
+                });
+            }
         }
+    }" class="qr-scanner-container">
+        <div :id="scannerId" wire:ignore
+            style="width:100%; max-width:600px; margin:20px auto; background: #eee; border-radius: 8px; min-height: 200px;">
+        </div>
 
-        function stopScan() {
-            if (scanner) scanner.stop().then(() => { scanner = null; });
-            document.getElementById('start-btn').style.display = 'inline-block';
-            document.getElementById('stop-btn').style.display = 'none';
+        <div class="text-center mb-4">
+            <button type="button" x-show="!isScanning" @click="startScan()"
+                class="px-4 py-2 bg-green-500 text-white rounded-md">
+                📸 Start Camera Scan
+            </button>
+
+            <button type="button" x-show="isScanning" @click="stopScan()"
+                class="px-4 py-2 bg-red-500 text-white rounded-md" x-cloak>
+                Stop
+            </button>
+
+            <div x-show="error" x-text="error" class="mt-2 text-red-500 text-sm" x-cloak></div>
+        </div>
+
+        @if($scannedData)
+            <p class="text-center">Scanned: <strong>{{ $scannedData }}</strong></p>
+        @endif
+    </div>
+
+    @once
+        @push('scripts')
+            <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+        @endpush
+    @endonce
+
+    <style>
+        [x-cloak] {
+            display: none !important;
         }
-
-        // Upload (very reliable for difficult labels)
-        document.getElementById('upload').addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const tempScanner = new Html5Qrcode("reader");
-            tempScanner.scanFile(file, true)
-                .then(text => {
-                    @this.set('scannedData', text);
-                    document.getElementById('result').textContent = text;
-                })
-                .catch(() => alert("Could not read this image. Try clearer photo."));
-        });
-
-        document.addEventListener('livewire:navigated', () => {
-            document.getElementById('start-btn').addEventListener('click', startFastScan);
-            document.getElementById('stop-btn').addEventListener('click', stopScan);
-        });
-    </script>
-@endpush
+    </style>
+</div>

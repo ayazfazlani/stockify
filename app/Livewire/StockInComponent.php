@@ -10,6 +10,8 @@ use Livewire\WithFileUploads;
 use App\Services\AnalyticsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use Illuminate\Validation\Rule;
 
 class StockInComponent extends Component
 {
@@ -35,6 +37,8 @@ class StockInComponent extends Component
         'image' => null,
     ];
 
+    public $isScanningForSku = false;
+
     public function mount()
     {
         $this->loadItems();
@@ -46,7 +50,7 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $this->items = Item::when(
             !Auth::user()->hasRole('super admin'),
-            fn($q) => $q->where('team_id', $teamId)
+            fn($q) => $q->where('store_id', $teamId)
         )
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
@@ -60,7 +64,7 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock in')
-            ->when($teamId, fn($q) => $q->where('team_id', $teamId))
+            ->when($teamId, fn($q) => $q->where('store_id', $teamId))
             ->when(
                 $this->dateRange['start'] && $this->dateRange['end'],
                 fn($q) => $q->whereBetween('date', [
@@ -82,14 +86,38 @@ class StockInComponent extends Component
         $this->loadTransactions();
     }
 
+    #[On('scannedData')]
+    public function handleScannedData($code, $scannerId = null)
+    {
+        // If scanned from the modal's scanner
+        if ($scannerId === 'modal-scanner') {
+            $this->newItem['sku'] = $code;
+            $this->isScanningForSku = false;
+            session()->flash('success', "SKU captured: {$code}");
+            return;
+        }
+
+        // Default: Stock selection scanner
+        $teamId = Auth::user()->getCurrentStoreId();
+        $item = Item::where('sku', $code)
+            ->where('store_id', $teamId)
+            ->first();
+
+        if ($item) {
+            $this->toggleItemSelection($item->id);
+            session()->flash('success', "Item auto-selected: {$item->name}");
+        } else {
+            session()->flash('error', "Item with SKU '{$code}' not found.");
+        }
+    }
+
     public function toggleItemSelection($itemId)
     {
         $key = array_search($itemId, array_column($this->selectedItems, 'id'));
 
         if ($key === false) {
-            // Add selected item with an initial quantity
             $item = Item::find($itemId)->toArray();
-            $item['quantity'] = 1;  // Default quantity for stock-in
+            $item['quantity'] = 1;
             $this->selectedItems[] = $item;
         } else {
             unset($this->selectedItems[$key]);
@@ -97,20 +125,16 @@ class StockInComponent extends Component
         }
     }
 
-    public function updateQuantity($itemId, $quantity)
-    {
-        foreach ($this->selectedItems as &$item) {
-            if ($item['id'] == $itemId) {
-                $item['quantity'] = $quantity;
-                break;
-            }
-        }
-    }
-
     public function addItem()
     {
+        $teamId = Auth::user()->getCurrentStoreId();
+        
         $this->validate([
-            'newItem.sku' => 'required|string|unique:items,sku',
+            'newItem.sku' => [
+                'required',
+                'string',
+                Rule::unique('items', 'sku')->where('store_id', $teamId)
+            ],
             'newItem.name' => 'required|string',
             'newItem.cost' => 'required|numeric|min:0',
             'newItem.price' => 'required|numeric|min:0',
@@ -120,7 +144,6 @@ class StockInComponent extends Component
             'newItem.image' => 'nullable|image|max:2048',
         ]);
 
-        $teamId = Auth::user()->getCurrentStoreId();
         $imagePath = $this->newItem['image'] ? $this->newItem['image']->store('item_images', 'public') : null;
 
         DB::beginTransaction();
@@ -134,12 +157,13 @@ class StockInComponent extends Component
                 'brand' => $this->newItem['brand'],
                 'quantity' => $this->newItem['quantity'],
                 'image' => $imagePath,
-                'team_id' => $teamId,
+                'store_id' => $teamId,
+                'tenant_id' => Auth::user()->tenant_id,
             ]);
 
             Transaction::create([
                 'item_id' => $item->id,
-                'team_id' => $teamId,
+                'store_id' => $teamId,
                 'user_id' => Auth::id(),
                 'item_name' => $item->name,
                 'type' => 'created',
@@ -176,7 +200,7 @@ class StockInComponent extends Component
 
                     Transaction::create([
                         'item_id' => $itemModel->id,
-                        'team_id' => $teamId,
+                        'store_id' => $teamId,
                         'user_id' => Auth::id(),
                         'item_name' => $itemModel->name,
                         'type' => 'stock in',
