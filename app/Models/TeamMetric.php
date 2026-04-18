@@ -24,6 +24,6 @@ class TeamMetric extends Model
 
     public function team()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Store::class, 'team_id');
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Team;
+use App\Models\Tenant;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 
@@ -16,7 +16,7 @@ class SaasServiceProvider extends ServiceProvider
     public function boot()
     {
         // Set the Stripe API Version
-        Cashier::useCustomerModel(Team::class);
+        Cashier::useCustomerModel(Tenant::class);
         
         // Define subscription plans
         config(['saas.plans' => [

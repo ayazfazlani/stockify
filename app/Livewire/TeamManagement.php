@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Store;
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -11,31 +10,26 @@ use Spatie\Permission\Models\Role;
 
 class TeamManagement extends Component
 {
-    // Team Creation
-    public $teamName;
+    // Store Creation
+    public $storeName;
+    public $storeDescription;
 
-    public $teamDescription;
-
-    // Add User to Team
+    // Add User to Store
     public $selectedUsers;
-
-    public $selectedTeam;
+    public $selectedStore;
 
     // Change User Role
     public $selectedUser;
-
     public $selectedRole;
 
     // Data Collections
-    public $teams;
-
+    public $stores;
     public $availableUsers;
-
     public $availableRoles;
 
     public function mount()
     {
-        if (! Auth::user()->hasRole('super admin')) {
+        if (! Auth::user()->hasRole('super admin') && ! Auth::user()->hasRole('team admin')) {
             abort(403, 'Unauthorized access');
         }
 
@@ -44,65 +38,65 @@ class TeamManagement extends Component
 
     protected function loadData()
     {
-        $this->teams = Store::with(['owner', 'users'])->where('tenant_id', Auth::user()->tenant_id)->get();
+        $this->stores = Store::with(['owner', 'users'])->where('tenant_id', Auth::user()->tenant_id)->get();
 
-        // Get users not in any team using pivot relationship
+        // Get users not in any store using pivot relationship
         $this->availableUsers = User::whereDoesntHave('teams')->where('tenant_id', Auth::user()->tenant_id)->get();
 
         // Get viewer role users
         $viewerUsers = User::whereHas('roles', function ($query) {
             $query->where('name', 'viewer');
         })->get();
-        // dd($viewerUsers);
         $this->availableUsers = $this->availableUsers->merge($viewerUsers);
         $this->availableRoles = Role::all();
     }
 
-    public function createTeam()
+    public function createStore()
     {
         $this->validate([
-            'teamName' => 'required|unique:teams,name',
-            'teamDescription' => 'nullable|string|max:255',
+            'storeName' => 'required|unique:stores,name',
+            'storeDescription' => 'nullable|string|max:255',
         ]);
 
         Store::create([
-            'name' => $this->teamName,
-            'description' => $this->teamDescription,
+            'name' => $this->storeName,
+            'description' => $this->storeDescription,
             'owner_id' => Auth::id(),
+            'tenant_id' => Auth::user()->tenant_id,
         ]);
 
-        session()->flash('status', 'Team created successfully!');
-        $this->reset(['teamName', 'teamDescription']);
+        session()->flash('status', 'Store created successfully!');
+        $this->reset(['storeName', 'storeDescription']);
         $this->loadData();
     }
 
-    public function deleteTeam($teamId)
+    public function deleteStore($storeId)
     {
-        $team = Store::findOrFail($teamId);
+        $store = Store::findOrFail($storeId);
 
-        if ($team->owner_id !== Auth::id() && ! Auth::user()->hasRole('super admin')) {
-            session()->flash('status', 'Unauthorized to delete this team.');
+        if ($store->owner_id !== Auth::id() && ! Auth::user()->hasRole('super admin')) {
+            session()->flash('status', 'Unauthorized to delete this store.');
 
             return;
         }
 
-        // Detach all users from team through pivot
-        $team->users()->detach();
-        $team->delete();
+        // Detach all users from store through pivot
+        $store->users()->detach();
+        $store->delete();
 
-        session()->flash('status', 'Team '.$team->name.' deleted successfully!');
+        session()->flash('status', 'Store '.$store->name.' deleted successfully!');
         $this->loadData();
     }
 
-    public function addUserToTeam()
+    public function addUserToStore()
     {
         $this->validate([
             'selectedUsers' => 'required|exists:users,id',
-            'selectedTeam' => 'required|exists:stores,id',
+            'selectedStore' => 'required|exists:stores,id',
         ]);
 
         $user = User::findOrFail($this->selectedUsers)->where('tenant_id', Auth::user()->tenant_id);
-        $store = Store::findOrFail($this->selectedTeam);
+        $store = Store::findOrFail($this->selectedStore);
 
         if ($store->users()->where('user_id', $user->id)->exists()) {
             session()->flash('status', 'User is already a member of this store.');
@@ -110,10 +104,10 @@ class TeamManagement extends Component
             return;
         }
 
-        // Attach user to team through pivot
+        // Attach user to store through pivot
         $store->users()->attach($user->id);
 
-        // Set current team if not set
+        // Set current store if not set
         if (! $user->store_id) {
             $user->update(['store_id' => $store->id]);
         }
@@ -122,15 +116,15 @@ class TeamManagement extends Component
         $this->loadData();
     }
 
-    public function removeUserFromTeam($userId, $storeId)
+    public function removeUserFromStore($userId, $storeId)
     {
         $user = User::findOrFail($userId);
         $store = Store::findOrFail($storeId);
 
-        // Detach user from team through pivot
+        // Detach user from store through pivot
         $store->users()->detach($userId);
 
-        // Reset current team if it was this team
+        // Reset current store if it was this store
         if ($user->store_id == $storeId) {
             $newStore = $user->stores()->first();
             $user->update(['store_id' => $newStore->id ?? null]);

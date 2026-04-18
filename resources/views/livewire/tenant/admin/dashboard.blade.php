@@ -1,104 +1,96 @@
 <div>
     <style>
-        .content {
-            flex: 1;
-            padding: 2rem;
-            overflow-y: auto;
-        }
-
-        .primary {
-            background-color: #000000;
-            color: #0fd1dfff;
-        }
-
+        /* ── Base Layout ───────────────────────────────────── */
         .settings-container {
             display: flex;
             gap: 2rem;
-            padding: 40px;
+            padding: 2rem;
         }
-
         .settings-sidebar {
             width: 240px;
             flex-shrink: 0;
         }
-
         .settings-nav {
             background-color: hsl(var(--card));
             border: 1px solid hsl(var(--border));
             border-radius: var(--radius);
-            padding: 1rem 0;
+            padding: 0.5rem 0;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 2rem;
         }
-
         .settings-nav-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             color: hsl(var(--foreground));
             text-decoration: none;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
         }
-
         .settings-nav-item:hover {
             background-color: hsl(var(--accent));
         }
-
         .settings-nav-item.active {
-            background-color: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
+            background-color: hsl(var(--primary) / 0.08);
+            color: hsl(var(--primary));
+            border-left-color: hsl(var(--primary));
+            font-weight: 600;
         }
-
+        .settings-nav-item i {
+            width: 1.25rem;
+            text-align: center;
+        }
         .settings-content {
             flex: 1;
+            min-width: 0;
         }
 
-        .settings-section {
-            display: none;
-        }
-
-        .settings-section.active {
-            display: block;
-        }
-
-        .card {
+        /* ── Cards ─────────────────────────────────────────── */
+        .s-card {
             background-color: hsl(var(--card));
             border: 1px solid hsl(var(--border));
             border-radius: var(--radius);
             padding: 1.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
             margin-bottom: 1.5rem;
         }
-
-        .card-header {
-            margin-bottom: 1.5rem;
+        .s-card-header {
+            margin-bottom: 1.25rem;
         }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .s-card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        .card-description {
+        .s-card-title i {
+            color: hsl(var(--primary));
+        }
+        .s-card-desc {
             color: hsl(var(--muted-foreground));
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
+        /* ── Forms ─────────────────────────────────────────── */
+        .form-group { margin-bottom: 1.25rem; }
         .form-label {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            color: hsl(var(--foreground));
         }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
             padding: 0.5rem 0.75rem;
             border: 1px solid hsl(var(--input));
@@ -106,890 +98,858 @@
             background-color: hsl(var(--background));
             color: hsl(var(--foreground));
             font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: hsl(var(--ring));
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 0 2px hsl(var(--ring) / 0.15);
         }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
+        .form-textarea { min-height: 80px; resize: vertical; }
         .form-hint {
-            font-size: 0.75rem;
+            font-size: 0.6875rem;
             color: hsl(var(--muted-foreground));
-            margin-top: 0.5rem;
+            margin-top: 0.25rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
-        .form-check {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .form-check-input {
-            width: 16px;
-            height: 16px;
-        }
-
-        .form-check-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
+        /* ── Buttons ───────────────────────────────────────── */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 0.375rem;
             border-radius: var(--radius);
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 0.8125rem;
+            font-weight: 600;
             padding: 0.5rem 1rem;
             border: none;
             cursor: pointer;
             transition: all 0.2s;
-            gap: 0.5rem;
         }
-
         .btn-primary {
             background-color: hsl(var(--primary));
             color: hsl(var(--primary-foreground));
         }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-
+        .btn-primary:hover { opacity: 0.9; }
         .btn-outline {
             background-color: transparent;
             border: 1px solid hsl(var(--border));
             color: hsl(var(--foreground));
         }
-
-        .btn-outline:hover {
-            background-color: hsl(var(--accent));
-        }
-
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-        }
-
-        .toggle-sidebar {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: hsl(var(--muted-foreground));
-            padding: 0.5rem;
-            border-radius: var(--radius);
-        }
-
-        .toggle-sidebar:hover {
-            background-color: hsl(var(--accent));
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: hsl(var(--muted-foreground));
-            padding: 0.5rem;
-            border-radius: var(--radius);
-        }
-
-        .theme-toggle:hover {
-            background-color: hsl(var(--accent));
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .plan-card {
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .plan-card:hover {
-            border-color: hsl(var(--primary));
-        }
-
-        .plan-card.selected {
-            border-color: hsl(var(--primary));
-            background-color: rgba(59, 130, 246, 0.05);
-        }
-
-        .plan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .plan-name {
-            font-weight: 600;
-            font-size: 1.125rem;
-        }
-
-        .plan-price {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-bottom: 1.5rem;
-        }
-
-        .plan-feature {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .plan-feature i {
-            color: #10b981;
-        }
-
-        .api-key {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: hsl(var(--muted));
-            padding: 0.75rem;
-            border-radius: var(--radius);
-            font-family: monospace;
-            margin-bottom: 1rem;
-        }
-
-        .api-key-value {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .danger-zone {
+        .btn-outline:hover { background-color: hsl(var(--accent)); }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+        .btn-danger-outline {
+            background-color: transparent;
             border: 1px solid hsl(var(--destructive));
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            background-color: rgba(239, 68, 68, 0.05);
-        }
-
-        .danger-zone-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
             color: hsl(var(--destructive));
         }
-
-        .danger-zone-title {
-            font-weight: 600;
-            font-size: 1.125rem;
+        .btn-danger-outline:hover {
+            background-color: hsl(var(--destructive) / 0.1);
         }
 
-        .danger-zone-description {
-            color: hsl(var(--muted-foreground));
-            margin-bottom: 1.5rem;
-            font-size: 0.875rem;
-        }
-
-        .integration-card {
+        /* ── Flash Messages ────────────────────────────────── */
+        .flash-msg {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border: 1px solid hsl(var(--border));
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
             border-radius: var(--radius);
             margin-bottom: 1rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            animation: flashSlide 0.3s ease;
+        }
+        .flash-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #059669;
         }
 
-        .integration-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius);
-            background-color: hsl(var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        /* ── Plan Card ─────────────────────────────────────── */
+        .current-plan-card {
+            border: 2px solid hsl(var(--primary));
+            border-radius: calc(var(--radius) * 1.5);
+            padding: 1.75rem;
+            background: linear-gradient(135deg, hsl(var(--primary) / 0.03), hsl(var(--primary) / 0.08));
+            position: relative;
+            overflow: hidden;
         }
-
-        .integration-info {
-            flex: 1;
+        .current-plan-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: hsl(var(--primary) / 0.06);
         }
-
-        .integration-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .integration-description {
-            font-size: 0.875rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .integration-status {
+        .plan-badge-active {
             display: inline-flex;
             align-items: center;
+            gap: 0.375rem;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
-            font-size: 0.75rem;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #059669;
+        }
+        .plan-name-lg {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0.75rem 0 0.25rem;
+        }
+        .plan-price-lg {
+            font-size: 2rem;
+            font-weight: 800;
+            color: hsl(var(--primary));
+        }
+        .plan-price-lg .plan-interval {
+            font-size: 0.875rem;
             font-weight: 500;
+            color: hsl(var(--muted-foreground));
         }
-
-        .status-connected {
-            background-color: rgba(34, 197, 94, 0.1);
-            color: rgb(21, 128, 61);
+        .plan-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid hsl(var(--border));
+            font-size: 0.8125rem;
+            color: hsl(var(--muted-foreground));
         }
-
-        .status-disconnected {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: rgb(185, 28, 28);
-        }
-
-        .team-member {
+        .plan-meta-item {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
+            gap: 0.375rem;
         }
 
-        .member-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: hsl(var(--primary));
+        /* ── Usage Bars ────────────────────────────────────── */
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .usage-item {
+            background-color: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 1rem;
+        }
+        .usage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .usage-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .usage-label i {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 500;
+            font-size: 0.75rem;
         }
-
-        .member-info {
-            flex: 1;
-        }
-
-        .member-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .member-role {
-            font-size: 0.875rem;
+        .usage-value {
+            font-size: 0.75rem;
+            font-weight: 700;
             color: hsl(var(--muted-foreground));
         }
+        .usage-bar-bg {
+            height: 8px;
+            background-color: hsl(var(--muted));
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .usage-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
 
-        .member-actions {
+        /* ── Feature Grid ──────────────────────────────────── */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.75rem;
+        }
+        .feature-chip {
             display: flex;
-            gap: 0.5rem;
-        }
-
-        .role-badge {
-            display: inline-flex;
             align-items: center;
-            padding: 0.25rem 0.75rem;
+            gap: 0.5rem;
+            padding: 0.625rem 0.75rem;
             border-radius: var(--radius);
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
             font-weight: 500;
+            background-color: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            transition: all 0.2s;
+        }
+        .feature-chip-enabled {
+            border-color: rgba(16, 185, 129, 0.3);
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+        .feature-chip-disabled {
+            opacity: 0.5;
+        }
+        .feature-chip i.check {
+            color: #10b981;
+            font-size: 0.625rem;
+        }
+        .feature-chip i.lock {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.625rem;
+        }
+        .feature-chip i.feat-icon {
+            color: hsl(var(--primary));
+            width: 20px;
+            text-align: center;
+        }
+        .feature-chip .quota-badge {
+            margin-left: auto;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: hsl(var(--primary));
+            background-color: hsl(var(--primary) / 0.1);
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius);
         }
 
-        .role-admin {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: rgb(37, 99, 235);
+        /* ── Feature Group ─────────────────────────────────── */
+        .feature-group-title {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.375rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        .feature-group-section {
+            margin-bottom: 1.25rem;
+        }
+        .feature-group-section:last-child {
+            margin-bottom: 0;
         }
 
-        .role-member {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: rgb(5, 122, 85);
+        /* ── No Plan State ─────────────────────────────────── */
+        .no-plan-state {
+            text-align: center;
+            padding: 3rem;
+            color: hsl(var(--muted-foreground));
+        }
+        .no-plan-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .no-plan-state h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
+        }
+        .no-plan-state p {
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
         }
 
-        .role-viewer {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: rgb(180, 83, 9);
+        /* ── Toggle Switch ─────────────────────────────────── */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info {
+            flex: 1;
+        }
+        .toggle-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .toggle-desc {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+        }
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: hsl(var(--border));
+            border-radius: 22px;
+            transition: all 0.3s;
+        }
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: hsl(var(--primary));
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(18px);
         }
 
+        /* ── Danger Zone ───────────────────────────────────── */
+        .danger-zone {
+            border: 1px solid hsl(var(--destructive) / 0.4);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            background-color: hsl(var(--destructive) / 0.03);
+        }
+        .danger-zone-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: hsl(var(--destructive));
+            font-weight: 700;
+        }
+        .danger-zone p {
+            font-size: 0.8125rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 1rem;
+        }
+
+        /* ── Animations ────────────────────────────────────── */
+        @keyframes flashSlide {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Responsive ────────────────────────────────────── */
         @media (max-width: 1024px) {
-            .sidebar {
-                width: 70px;
-            }
-
-            .sidebar-header h2,
-            .nav-item span {
-                display: none;
-            }
-
             .settings-container {
                 flex-direction: column;
-                padding: 30px;
+                padding: 1.5rem;
             }
-
-            .settings-sidebar {
-                width: 100%;
+            .settings-sidebar { width: 100%; }
+            .settings-nav {
+                display: flex;
+                overflow-x: auto;
+                gap: 0;
+                position: static;
             }
-
-            .grid-2 {
-                grid-template-columns: 1fr;
+            .settings-nav-item {
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                padding: 0.75rem 1rem;
             }
+            .settings-nav-item.active {
+                border-bottom-color: hsl(var(--primary));
+                border-left-color: transparent;
+            }
+            .grid-2 { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 768px) {
-            .search-bar {
-                width: 200px;
-            }
-        }
-
         @media (max-width: 640px) {
-            .sidebar {
-                position: fixed;
-                left: -260px;
-                height: 100%;
-                z-index: 50;
-            }
-
-            .sidebar.open {
-                left: 0;
-            }
-
-            .header {
-                padding: 1rem;
-            }
-
-            .content {
-                padding: 1rem;
-            }
-
-            .search-bar {
-                display: none;
-            }
+            .settings-container { padding: 1rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .usage-grid { grid-template-columns: 1fr; }
+            .plan-meta { flex-direction: column; gap: 0.5rem; }
         }
     </style>
 
-    <div>
-        <div class="settings-container ">
-            <!-- Settings Sidebar -->
-            <div class="settings-sidebar ">
-                <div class="settings-nav border-gray-300 border-2">
-                    <a href="#" class="settings-nav-item active" data-section="general">
-                        <i class="fas fa-cog"></i>
-                        <span>General</span>
-                    </a>
-                    <a href="#" class="settings-nav-item" data-section="team">
-                        <i class="fas fa-users"></i>
-                        <span>Team</span>
-                    </a>
-                    <a href="#" class="settings-nav-item" data-section="billing">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Billing & Plans</span>
-                    </a>
-                    <a href="#" class="settings-nav-item" data-section="integrations">
-                        <i class="fas fa-puzzle-piece"></i>
-                        <span>Integrations</span>
-                    </a>
-                    <a href="#" class="settings-nav-item" data-section="api">
-                        <i class="fas fa-code"></i>
-                        <span>API Keys</span>
-                    </a>
-                    <a href="#" class="settings-nav-item" data-section="security">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Security</span>
-                    </a>
-                    <a href="#" class="settings-nav-item" data-section="notifications">
-                        <i class="fas fa-bell"></i>
-                        <span>Notifications</span>
-                    </a>
-                </div>
+    <div class="settings-container">
+        {{-- ═══════════════════════════════════════════════ --}}
+        {{-- SETTINGS SIDEBAR NAV                           --}}
+        {{-- ═══════════════════════════════════════════════ --}}
+        <div class="settings-sidebar">
+            <div class="settings-nav">
+                <button wire:click="switchSection('general')"
+                    class="settings-nav-item {{ $activeSection === 'general' ? 'active' : '' }}">
+                    <i class="fas fa-cog"></i>
+                    <span>General</span>
+                </button>
+                <button wire:click="switchSection('team')"
+                    class="settings-nav-item {{ $activeSection === 'team' ? 'active' : '' }}">
+                    <i class="fas fa-users"></i>
+                    <span>Team</span>
+                </button>
+                <button wire:click="switchSection('billing')"
+                    class="settings-nav-item {{ $activeSection === 'billing' ? 'active' : '' }}">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Billing & Plans</span>
+                </button>
+                <button wire:click="switchSection('features')"
+                    class="settings-nav-item {{ $activeSection === 'features' ? 'active' : '' }}">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <span>Features</span>
+                </button>
+                <button wire:click="switchSection('notifications')"
+                    class="settings-nav-item {{ $activeSection === 'notifications' ? 'active' : '' }}">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </button>
+                <button wire:click="switchSection('security')"
+                    class="settings-nav-item {{ $activeSection === 'security' ? 'active' : '' }}">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Security</span>
+                </button>
             </div>
+        </div>
 
-            <!-- Settings Content -->
-            <div class="settings-content border-gray-300 border">
-                <!-- General Settings -->
-                <div class="settings-section active" id="general">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">General Settings</div>
-                            <div class="card-description">Manage your account settings and preferences</div>
-                        </div>
+        {{-- ═══════════════════════════════════════════════ --}}
+        {{-- SETTINGS CONTENT                               --}}
+        {{-- ═══════════════════════════════════════════════ --}}
+        <div class="settings-content">
+
+            {{-- ─────────────── GENERAL SETTINGS ─────────────── --}}
+            @if($activeSection === 'general')
+                @if(session()->has('settings-success'))
+                    <div class="flash-msg flash-success">
+                        <i class="fas fa-check-circle"></i> {{ session('settings-success') }}
+                    </div>
+                @endif
+
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-building"></i> Company Information</div>
+                        <div class="s-card-desc">Manage your organization's basic details</div>
+                    </div>
+
+                    <form wire:submit.prevent="saveGeneralSettings">
                         <div class="grid-2">
                             <div class="form-group">
                                 <label class="form-label">Company Name</label>
-                                <input type="text" class="form-input" value="SaaS Admin Inc.">
+                                <input type="text" class="form-input" wire:model="companyName" placeholder="Your company name">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Contact Email</label>
-                                <input type="email" class="form-input" value="admin@saasadmin.com">
+                                <input type="email" class="form-input" wire:model="contactEmail" placeholder="admin@company.com">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Company Description</label>
-                            <textarea
-                                class="form-textarea">We provide a comprehensive SaaS administration platform for businesses of all sizes.</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Timezone</label>
-                            <select class="form-select">
-                                <option>Eastern Time (ET)</option>
-                                <option selected>Central Time (CT)</option>
-                                <option>Mountain Time (MT)</option>
-                                <option>Pacific Time (PT)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Date Format</label>
-                            <select class="form-select">
-                                <option>MM/DD/YYYY</option>
-                                <option selected>DD/MM/YYYY</option>
-                                <option>YYYY-MM-DD</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary">Save Changes</button>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Appearance</div>
-                            <div class="card-description">Customize the look and feel of your dashboard</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Theme</label>
-                            <div class="grid-2">
-                                <div class="plan-card selected">
-                                    <div class="plan-header">
-                                        <div class="plan-name">Light</div>
-                                    </div>
-                                    <div class="plan-features">
-                                        <div class="plan-feature">
-                                            <i class="fas fa-check"></i>
-                                            <span>Clean, bright interface</span>
-                                        </div>
-                                        <div class="plan-feature">
-                                            <i class="fas fa-check"></i>
-                                            <span>Reduced eye strain in well-lit environments</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="plan-card">
-                                    <div class="plan-header">
-                                        <div class="plan-name">Dark</div>
-                                    </div>
-                                    <div class="plan-features">
-                                        <div class="plan-feature">
-                                            <i class="fas fa-check"></i>
-                                            <span>Reduced eye strain in low light</span>
-                                        </div>
-                                        <div class="plan-feature">
-                                            <i class="fas fa-check"></i>
-                                            <span>Modern, sleek appearance</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Sidebar Style</label>
-                            <select class="form-select">
-                                <option selected>Expanded</option>
-                                <option>Collapsed</option>
-                                <option>Hidden</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary">Update Appearance</button>
-                    </div>
-                </div>
-
-                <!-- Team Settings -->
-                <div class="settings-section" id="team">
-                    @livewire('team-management')
-                </div>
-
-                <!-- Billing & Plans -->
-                <div class="settings-section" id="billing">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Current Plan</div>
-                            <div class="card-description">Manage your subscription and billing information</div>
-                        </div>
-                        <div class="plan-card selected">
-                            <div class="plan-header">
-                                <div class="plan-name">Business Plan</div>
-                                <div class="plan-price">$99/month</div>
-                            </div>
-                            <ul class="plan-features">
-                                <li class="plan-feature">
-                                    <i class="fas fa-check"></i>
-                                    <span>Up to 10 team members</span>
-                                </li>
-                                <li class="plan-feature">
-                                    <i class="fas fa-check"></i>
-                                    <span>Advanced analytics</span>
-                                </li>
-                                <li class="plan-feature">
-                                    <i class="fas fa-check"></i>
-                                    <span>Priority support</span>
-                                </li>
-                                <li class="plan-feature">
-                                    <i class="fas fa-check"></i>
-                                    <span>Custom integrations</span>
-                                </li>
-                            </ul>
-                            <div class="form-group">
-                                <label class="form-label">Billing Cycle</label>
-                                <select class="form-select">
-                                    <option>Monthly</option>
-                                    <option selected>Yearly (Save 15%)</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-outline" style="margin-right: 0.5rem;">Change Plan</button>
-                            <button class="btn btn-primary">Update Billing</button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Payment Method</div>
-                            <div class="card-description">Update your payment details</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Card Number</label>
-                            <input type="text" class="form-input" value="**** **** **** 4242">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-textarea" wire:model="companyDescription" rows="3"
+                                placeholder="Brief description of your business..."></textarea>
                         </div>
                         <div class="grid-2">
                             <div class="form-group">
-                                <label class="form-label">Expiration Date</label>
-                                <input type="text" class="form-input" value="12/2024">
+                                <label class="form-label">Timezone</label>
+                                <select class="form-select" wire:model="timezone">
+                                    <option value="UTC">UTC</option>
+                                    <option value="America/New_York">Eastern Time (ET)</option>
+                                    <option value="America/Chicago">Central Time (CT)</option>
+                                    <option value="America/Denver">Mountain Time (MT)</option>
+                                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                    <option value="Europe/London">London (GMT)</option>
+                                    <option value="Europe/Paris">Paris (CET)</option>
+                                    <option value="Asia/Karachi">Pakistan (PKT)</option>
+                                    <option value="Asia/Dubai">Dubai (GST)</option>
+                                    <option value="Asia/Tokyo">Tokyo (JST)</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Security Code</label>
-                                <input type="text" class="form-input" value="***">
+                                <label class="form-label">Date Format</label>
+                                <select class="form-select" wire:model="dateFormat">
+                                    <option value="Y-m-d">YYYY-MM-DD</option>
+                                    <option value="m/d/Y">MM/DD/YYYY</option>
+                                    <option value="d/m/Y">DD/MM/YYYY</option>
+                                    <option value="d-M-Y">DD-Mon-YYYY</option>
+                                </select>
                             </div>
                         </div>
-                        <button class="btn btn-primary">Update Payment Method</button>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Billing History</div>
-                            <div class="card-description">View and download your past invoices</div>
-                        </div>
-                        <div class="form-group">
-                            <p>Your billing history is available for download. You can access invoices from the past 24
-                                months.</p>
-                        </div>
-                        <button class="btn btn-outline">
-                            <i class="fas fa-download"></i>
-                            Download Invoices
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
                         </button>
-                    </div>
+                    </form>
                 </div>
+            @endif
 
-                <!-- Integrations -->
-                <div class="settings-section" id="integrations">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Connected Apps</div>
-                            <div class="card-description">Manage your third-party integrations</div>
-                        </div>
-                        <div class="integration-card">
-                            <div class="integration-icon" style="background-color: #4285F4;">
-                                <i class="fab fa-google" style="color: white;"></i>
-                            </div>
-                            <div class="integration-info">
-                                <div class="integration-name">Google Workspace</div>
-                                <div class="integration-description">Sync user accounts and manage permissions</div>
-                            </div>
-                            <div class="integration-status status-connected">Connected</div>
-                            <div class="member-actions">
-                                <button class="btn btn-outline btn-sm">Configure</button>
-                            </div>
-                        </div>
-                        <div class="integration-card">
-                            <div class="integration-icon" style="background-color: #00A4EF;">
-                                <i class="fab fa-microsoft" style="color: white;"></i>
-                            </div>
-                            <div class="integration-info">
-                                <div class="integration-name">Microsoft 365</div>
-                                <div class="integration-description">Single sign-on and directory sync</div>
-                            </div>
-                            <div class="integration-status status-connected">Connected</div>
-                            <div class="member-actions">
-                                <button class="btn btn-outline btn-sm">Configure</button>
-                            </div>
-                        </div>
-                        <div class="integration-card">
-                            <div class="integration-icon" style="background-color: #FF6B6B;">
-                                <i class="fab fa-slack" style="color: white;"></i>
-                            </div>
-                            <div class="integration-info">
-                                <div class="integration-name">Slack</div>
-                                <div class="integration-description">Receive notifications and alerts</div>
-                            </div>
-                            <div class="integration-status status-disconnected">Disconnected</div>
-                            <div class="member-actions">
-                                <button class="btn btn-outline btn-sm">Connect</button>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Add New Integration
-                        </button>
+            {{-- ─────────────── TEAM ─────────────────────────── --}}
+            @if($activeSection === 'team')
+                @livewire('team-management')
+            @endif
+
+            {{-- ─────────────── BILLING & PLANS ──────────────── --}}
+            @if($activeSection === 'billing')
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-crown"></i> Current Plan</div>
+                        <div class="s-card-desc">Your active subscription and billing details</div>
                     </div>
-                </div>
 
-                <!-- API Keys -->
-                <div class="settings-section" id="api">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">API Keys</div>
-                            <div class="card-description">Manage your API keys for programmatic access</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Primary API Key</label>
-                            <div class="api-key">
-                                <div class="api-key-value">sk_live_51Mn8s2KZqXr8x6Y9vA7bNc3...</div>
+                    @if($currentPlan)
+                        <div class="current-plan-card">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <span class="plan-badge-active">
+                                        <i class="fas fa-check-circle"></i>
+                                        {{ $currentSubscription ? ucfirst($currentSubscription->stripe_status) : 'Active' }}
+                                    </span>
+                                    <div class="plan-name-lg">{{ $currentPlan->name }}</div>
+                                    <div class="plan-price-lg">
+                                        ${{ number_format($currentPlan->amount / 100, 2) }}
+                                        <span class="plan-interval">/{{ $currentPlan->interval }}</span>
+                                    </div>
+                                </div>
                                 <button class="btn btn-outline btn-sm">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                                <button class="btn btn-outline btn-sm">
-                                    <i class="fas fa-redo"></i>
+                                    <i class="fas fa-exchange-alt"></i> Change Plan
                                 </button>
                             </div>
-                            <div class="form-hint">This key has full access to your account. Keep it secure.</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Create New API Key</label>
-                            <div class="grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">Key Name</label>
-                                    <input type="text" class="form-input" placeholder="e.g., Development Key">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Permissions</label>
-                                    <select class="form-select">
-                                        <option>Read Only</option>
-                                        <option>Read & Write</option>
-                                        <option>Full Access</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">Generate API Key</button>
-                    </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">API Usage</div>
-                            <div class="card-description">Monitor your API request usage and limits</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Current Usage</label>
-                            <div class="form-hint">12,458 requests this month (50,000 limit)</div>
-                            <div
-                                style="height: 8px; background-color: hsl(var(--muted)); border-radius: 4px; margin-top: 0.5rem; overflow: hidden;">
-                                <div style="width: 25%; height: 100%; background-color: #10b981; border-radius: 4px;">
+                            <div class="plan-meta">
+                                <div class="plan-meta-item">
+                                    <i class="fas fa-puzzle-piece"></i>
+                                    {{ $currentPlan->planFeatures->count() }} features included
+                                </div>
+                                <div class="plan-meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    Billing {{ ucfirst($currentPlan->interval) }}ly
+                                </div>
+                                @if($currentSubscription && $currentSubscription->trial_ends_at)
+                                    <div class="plan-meta-item">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        Trial ends {{ $currentSubscription->trial_ends_at->diffForHumans() }}
+                                    </div>
+                                @endif
+                                <div class="plan-meta-item">
+                                    <i class="fas fa-tag"></i>
+                                    {{ strtoupper($currentPlan->currency) }}
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Reset Date</label>
-                            <div class="form-hint">Your API usage will reset on July 1, 2023</div>
+                    @else
+                        <div class="no-plan-state">
+                            <i class="fas fa-gem"></i>
+                            <h3>No Active Plan</h3>
+                            <p>Subscribe to a plan to unlock features and grow your business.</p>
+                            <a href="{{ route('subscription.index') }}" class="btn btn-primary">
+                                <i class="fas fa-rocket"></i> View Plans
+                            </a>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
-                <!-- Security -->
-                <div class="settings-section" id="security">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Security Settings</div>
-                            <div class="card-description">Manage your account security and access controls</div>
+                {{-- Usage Stats --}}
+                @if($currentPlan)
+                    <div class="s-card">
+                        <div class="s-card-header">
+                            <div class="s-card-title"><i class="fas fa-chart-bar"></i> Usage Overview</div>
+                            <div class="s-card-desc">Track your resource usage against plan limits</div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Two-Factor Authentication</label>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="2fa" checked>
-                                <label class="form-check-label" for="2fa">Enable two-factor authentication</label>
-                            </div>
-                            <div class="form-hint">Add an extra layer of security to your account</div>
+
+                        <div class="usage-grid">
+                            @foreach($usageStats as $key => $stat)
+                                @php
+                                    $isUnlimited = $stat['limit'] === -1;
+                                    $percentage = $isUnlimited ? 15 : ($stat['limit'] > 0 ? min(100, ($stat['used'] / $stat['limit']) * 100) : 0);
+                                    $barColor = $percentage > 85 ? '#ef4444' : ($percentage > 60 ? '#f59e0b' : $stat['color']);
+                                @endphp
+                                <div class="usage-item">
+                                    <div class="usage-header">
+                                        <span class="usage-label">
+                                            <i class="fas {{ $stat['icon'] }}" style="background-color: {{ $stat['color'] }};"></i>
+                                            {{ $stat['label'] }}
+                                        </span>
+                                        <span class="usage-value">
+                                            {{ number_format($stat['used']) }}
+                                            /
+                                            {{ $isUnlimited ? '∞' : number_format($stat['limit']) }}
+                                        </span>
+                                    </div>
+                                    <div class="usage-bar-bg">
+                                        <div class="usage-bar-fill"
+                                             style="width: {{ $percentage }}%; background-color: {{ $barColor }};"></div>
+                                    </div>
+                                    @if(!$isUnlimited && $stat['limit'] !== null)
+                                        <div class="form-hint" style="margin-top: 0.375rem;">
+                                            {{ max(0, $stat['limit'] - $stat['used']) }} remaining
+                                        </div>
+                                    @elseif($isUnlimited)
+                                        <div class="form-hint" style="margin-top: 0.375rem; color: #10b981;">
+                                            Unlimited
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Session Timeout</label>
-                            <select class="form-select">
-                                <option>15 minutes</option>
-                                <option>30 minutes</option>
-                                <option selected>1 hour</option>
-                                <option>4 hours</option>
-                                <option>24 hours</option>
-                            </select>
-                            <div class="form-hint">Automatically log out after period of inactivity</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Login Notifications</label>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="login-notifications" checked>
-                                <label class="form-check-label" for="login-notifications">Send email notifications for
-                                    new
-                                    logins</label>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">Update Security Settings</button>
+                    </div>
+                @endif
+
+                {{-- Available Plans Comparison --}}
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-layer-group"></i> Available Plans</div>
+                        <div class="s-card-desc">Compare plans to find the best fit for your business</div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Active Sessions</div>
-                            <div class="card-description">Manage your active login sessions</div>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="current-session" checked>
-                                <label class="form-check-label" for="current-session">
-                                    <strong>Current Session</strong> - Chrome on Windows • New York, USA
-                                    <div class="form-hint">Active now • IP: 192.168.1.1</div>
-                                </label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                        @foreach($availablePlans as $plan)
+                            @php $isCurrentPlan = $currentPlan && $currentPlan->id === $plan->id; @endphp
+                            <div style="border: {{ $isCurrentPlan ? '2px solid hsl(var(--primary))' : '1px solid hsl(var(--border))' }};
+                                        border-radius: var(--radius);
+                                        padding: 1.25rem;
+                                        {{ $isCurrentPlan ? 'background-color: hsl(var(--primary) / 0.03);' : '' }}
+                                        position: relative;">
+                                @if($isCurrentPlan)
+                                    <div style="position: absolute; top: -8px; right: 12px;
+                                                background-color: hsl(var(--primary)); color: white;
+                                                font-size: 0.625rem; font-weight: 700; padding: 2px 8px;
+                                                border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                        Current
+                                    </div>
+                                @endif
+                                <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">{{ $plan->name }}</div>
+                                <div style="font-size: 1.5rem; font-weight: 800; color: hsl(var(--primary)); margin-bottom: 0.75rem;">
+                                    ${{ number_format($plan->amount / 100, 2) }}
+                                    <span style="font-size: 0.75rem; font-weight: 500; color: hsl(var(--muted-foreground));">/{{ $plan->interval }}</span>
+                                </div>
+                                <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-bottom: 0.75rem;">
+                                    {{ $plan->planFeatures->count() }} features included
+                                </div>
+                                @if(!$isCurrentPlan)
+                                    <button class="btn btn-outline btn-sm" style="width: 100%;">
+                                        <i class="fas fa-arrow-up"></i>
+                                        {{ $currentPlan && $plan->amount > $currentPlan->amount ? 'Upgrade' : 'Switch' }}
+                                    </button>
+                                @else
+                                    <button class="btn btn-sm" style="width: 100%; background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); cursor: default;">
+                                        <i class="fas fa-check"></i> Current Plan
+                                    </button>
+                                @endif
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="other-session">
-                                <label class="form-check-label" for="other-session">
-                                    <strong>Mobile Session</strong> - Safari on iPhone • Chicago, USA
-                                    <div class="form-hint">2 hours ago • IP: 192.168.1.2</div>
-                                </label>
-                            </div>
-                        </div>
-                        <button class="btn btn-outline">Sign Out Other Sessions</button>
-                    </div>
-
-                    <div class="danger-zone">
-                        <div class="danger-zone-header">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div class="danger-zone-title">Danger Zone</div>
-                        </div>
-                        <div class="danger-zone-description">
-                            Once you delete your account, there is no going back. Please be certain.
-                        </div>
-                        <button class="btn"
-                            style="background-color: hsl(var(--destructive)); color: hsl(var(--destructive-foreground));">
-                            Delete Account
-                        </button>
+                        @endforeach
                     </div>
                 </div>
+            @endif
 
-                <!-- Notifications -->
-                <div class="settings-section" id="notifications">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Notification Preferences</div>
-                            <div class="card-description">Configure how you receive notifications</div>
+            {{-- ─────────────── FEATURES ─────────────────────── --}}
+            @if($activeSection === 'features')
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-puzzle-piece"></i> Your Plan Features</div>
+                        <div class="s-card-desc">
+                            @if($currentPlan)
+                                Features included in your <strong>{{ $currentPlan->name }}</strong> plan
+                            @else
+                                Subscribe to a plan to unlock features
+                            @endif
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Email Notifications</label>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="email-security" checked>
-                                <label class="form-check-label" for="email-security">Security alerts</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="email-billing" checked>
-                                <label class="form-check-label" for="email-billing">Billing and invoices</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="email-product">
-                                <label class="form-check-label" for="email-product">Product updates</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="email-marketing">
-                                <label class="form-check-label" for="email-marketing">Marketing communications</label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Push Notifications</label>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="push-new-users" checked>
-                                <label class="form-check-label" for="push-new-users">New user signups</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="push-errors">
-                                <label class="form-check-label" for="push-errors">System errors</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="push-updates">
-                                <label class="form-check-label" for="push-updates">Feature updates</label>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">Save Preferences</button>
                     </div>
+
+                    @if(!empty($planFeatures))
+                        @foreach($planFeatures as $groupName => $features)
+                            <div class="feature-group-section">
+                                <div class="feature-group-title">{{ $groupName }}</div>
+                                <div class="feature-grid">
+                                    @foreach($features as $feature)
+                                        <div class="feature-chip feature-chip-enabled">
+                                            <i class="fas fa-check-circle check"></i>
+                                            <i class="fas {{ $feature['icon'] }} feat-icon"></i>
+                                            <span>{{ $feature['label'] }}</span>
+                                            @if($feature['type'] === 'quota' && $feature['value'] !== null)
+                                                <span class="quota-badge">
+                                                    {{ $feature['value'] == -1 ? '∞' : number_format((int) $feature['value']) }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="no-plan-state">
+                            <i class="fas fa-lock"></i>
+                            <h3>No Features Available</h3>
+                            <p>Subscribe to a plan to unlock powerful features.</p>
+                        </div>
+                    @endif
                 </div>
-            </div>
+
+                {{-- All Features Comparison --}}
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-th-list"></i> All Features</div>
+                        <div class="s-card-desc">Full list of available features — locked features require a plan upgrade</div>
+                    </div>
+
+                    @php $grouped = \App\Enums\PlanFeature::grouped(); @endphp
+                    @foreach($grouped as $groupName => $features)
+                        <div class="feature-group-section">
+                            <div class="feature-group-title">{{ $groupName }}</div>
+                            <div class="feature-grid">
+                                @foreach($features as $feature)
+                                    @php $hasIt = $this->tenantHasFeature($feature->value); @endphp
+                                    <div class="feature-chip {{ $hasIt ? 'feature-chip-enabled' : 'feature-chip-disabled' }}">
+                                        @if($hasIt)
+                                            <i class="fas fa-check-circle check"></i>
+                                        @else
+                                            <i class="fas fa-lock lock"></i>
+                                        @endif
+                                        <i class="fas {{ $feature->icon() }} feat-icon"></i>
+                                        <span>{{ $feature->label() }}</span>
+                                        @if($hasIt && $feature->type() === 'quota')
+                                            @php $limit = tenant()?->getFeatureLimit($feature); @endphp
+                                            <span class="quota-badge">
+                                                {{ $limit == -1 ? '∞' : number_format($limit ?? 0) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- ─────────────── NOTIFICATIONS ────────────────── --}}
+            @if($activeSection === 'notifications')
+                @if(session()->has('notification-success'))
+                    <div class="flash-msg flash-success">
+                        <i class="fas fa-check-circle"></i> {{ session('notification-success') }}
+                    </div>
+                @endif
+
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-bell"></i> Notification Preferences</div>
+                        <div class="s-card-desc">Configure how and when you receive notifications</div>
+                    </div>
+
+                    <form wire:submit.prevent="saveNotificationPrefs">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Security Alerts</div>
+                                <div class="toggle-desc">Get notified about suspicious login attempts and security events</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" wire:model="notifySecurityAlerts">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Billing & Invoices</div>
+                                <div class="toggle-desc">Receive notifications about payments, invoices, and subscription changes</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" wire:model="notifyBilling">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Product Updates</div>
+                                <div class="toggle-desc">Stay informed about new features and improvements</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" wire:model="notifyProductUpdates">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Low Stock Alerts</div>
+                                <div class="toggle-desc">Get notified when inventory items are running low</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" wire:model="notifyLowStock">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div style="margin-top: 1.25rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Preferences
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
+
+            {{-- ─────────────── SECURITY ─────────────────────── --}}
+            @if($activeSection === 'security')
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-shield-alt"></i> Security Settings</div>
+                        <div class="s-card-desc">Manage your account security and access controls</div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Two-Factor Authentication</div>
+                            <div class="toggle-desc">Add an extra layer of security to your account</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label class="form-label">Session Timeout</label>
+                        <select class="form-select" style="max-width: 200px;">
+                            <option>15 minutes</option>
+                            <option>30 minutes</option>
+                            <option selected>1 hour</option>
+                            <option>4 hours</option>
+                            <option>24 hours</option>
+                        </select>
+                        <div class="form-hint">Automatically log out after period of inactivity</div>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;">
+                        <i class="fas fa-save"></i> Update Security Settings
+                    </button>
+                </div>
+
+                <div class="danger-zone">
+                    <div class="danger-zone-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Danger Zone</span>
+                    </div>
+                    <p>Once you delete your account, there is no going back. All your data, stores, and team members will be permanently removed.</p>
+                    <button class="btn btn-danger-outline">
+                        <i class="fas fa-trash"></i> Delete Account
+                    </button>
+                </div>
+            @endif
+
         </div>
     </div>
-
-    @stack('scripts')
-    <script>
-        // Toggle sidebar
-        // document.querySelector('.toggle-sidebar').addEventListener('click', function() {
-        //     document.querySelector('.sidebar').classList.toggle('collapsed');
-        // });
-
-        // // Toggle theme
-        // document.querySelector('.theme-toggle').addEventListener('click', function() {
-        //     document.body.classList.toggle('dark');
-        //     const icon = this.querySelector('i');
-        //     if (document.body.classList.contains('dark')) {
-        //         icon.classList.remove('fa-moon');
-        //         icon.classList.add('fa-sun');
-        //     } else {
-        //         icon.classList.remove('fa-sun');
-        //         icon.classList.add('fa-moon');
-        //     }
-        // });
-
-        // Settings navigation
-        document.querySelectorAll('.settings-nav-item').forEach(item => {
-            item.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                // Remove active class from all nav items and sections
-                document.querySelectorAll('.settings-nav-item').forEach(nav => nav.classList.remove('active'));
-                document.querySelectorAll('.settings-section').forEach(section => section.classList.remove('active'));
-
-                // Add active class to clicked nav item and corresponding section
-                this.classList.add('active');
-                const sectionId = this.getAttribute('data-section');
-                document.getElementById(sectionId).classList.add('active');
-            });
-        });
-
-        // Plan selection
-        document.querySelectorAll('.plan-card').forEach(card => {
-            card.addEventListener('click', function () {
-                document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-
-        // Mobile sidebar toggle
-        // if (window.innerWidth <= 640) {
-        //     document.querySelector('.toggle-sidebar').addEventListener('click', function() {
-        //         document.querySelector('.sidebar').classList.toggle('open');
-        //     });
-        // }
-    </script>
 </div>

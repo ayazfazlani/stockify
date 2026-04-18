@@ -28,9 +28,9 @@ class Item extends Model
         'quantity'
     ];
 
-    public function team()
+    public function store()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Store::class);
     }
 
     public function user()

@@ -2,66 +2,94 @@
 
 namespace App\Services;
 
+use App\Enums\PlanFeature;
+use App\Models\Tenant;
+
 class FeatureService
 {
-    public function teamHasFeature($team, $feature)
+    /**
+     * Check if a tenant has a specific feature.
+     */
+    public function tenantHasFeature(?Tenant $tenant, PlanFeature|string $feature): bool
     {
-        if (!$team) {
+        if (! $tenant) {
             return false;
         }
 
-        // Super admin bypass
-        if ($team->owner && $team->owner->isSuperAdmin()) {
-            return true;
-        }
-
-        // Check if team has active subscription
-        if (!$team->hasActiveSubscription()) {
-            return false;
-        }
-
-        // Check if feature exists in team's features
-        return $team->hasFeature($feature);
+        return $tenant->hasFeature($feature);
     }
 
-    public function teamCanAddMember($team)
+    /**
+     * Check if a tenant can add more of a quota-limited resource.
+     */
+    public function tenantCanAdd(?Tenant $tenant, PlanFeature|string $feature, int $currentCount): bool
     {
-        if (!$team) {
+        if (! $tenant) {
             return false;
         }
 
-        // Super admin bypass
-        if ($team->owner && $team->owner->isSuperAdmin()) {
-            return true;
-        }
-
-        // Check if team has active subscription
-        if (!$team->hasActiveSubscription()) {
-            return false;
-        }
-
-        // Check member limit
-        return !$team->hasReachedMemberLimit();
+        return $tenant->canAdd($feature, $currentCount);
     }
 
-    public function teamHasStorageSpace($team, $size)
+    /**
+     * Get the feature limit for a tenant's plan.
+     */
+    public function getLimit(?Tenant $tenant, PlanFeature|string $feature): ?int
     {
-        if (!$team) {
+        if (! $tenant) {
+            return null;
+        }
+
+        return $tenant->getFeatureLimit($feature);
+    }
+
+    /**
+     * Get remaining quota for a tenant.
+     */
+    public function getRemaining(?Tenant $tenant, PlanFeature|string $feature, int $currentUsage): ?int
+    {
+        if (! $tenant) {
+            return null;
+        }
+
+        return $tenant->getRemainingQuota($feature, $currentUsage);
+    }
+
+    /**
+     * Check if a tenant can add a new store.
+     */
+    public function canAddStore(?Tenant $tenant): bool
+    {
+        if (! $tenant) {
             return false;
         }
 
-        // Super admin bypass
-        if ($team->owner && $team->owner->isSuperAdmin()) {
-            return true;
-        }
+        $currentStores = $tenant->stores()->count();
 
-        // Check if team has active subscription
-        if (!$team->hasActiveSubscription()) {
+        return $tenant->canAdd(PlanFeature::MAX_STORES, $currentStores);
+    }
+
+    /**
+     * Check if a store can add a new team member.
+     */
+    public function canAddTeamMember(?Tenant $tenant, int $currentMemberCount): bool
+    {
+        if (! $tenant) {
             return false;
         }
 
-        // Check if adding the size would exceed the limit
-        $currentUsage = $team->getStorageUsage();
-        return ($currentUsage + $size) <= $team->storage_limit;
+        return $tenant->canAdd(PlanFeature::MAX_TEAM_MEMBERS, $currentMemberCount);
+    }
+
+    /**
+     * Check if a tenant can add more items.
+     */
+    public function canAddItem(?Tenant $tenant, int $currentItemCount): bool
+    {
+        if (! $tenant) {
+            return false;
+        }
+
+        return $tenant->canAdd(PlanFeature::MAX_ITEMS, $currentItemCount);
     }
 }

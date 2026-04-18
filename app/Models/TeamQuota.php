@@ -23,7 +23,7 @@ class TeamQuota extends Model
 
     public function team()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Store::class, 'team_id');
     }
 
     public function getUsagePercentageAttribute()

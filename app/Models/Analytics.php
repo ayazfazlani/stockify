@@ -31,10 +31,10 @@ class Analytics extends Model
         return $this->belongsTo(Item::class);
     }
 
-    // Add team relationship
+    // Store relationship (column is team_id for legacy compatibility)
     public function team()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Store::class, 'team_id');
     }
 
     protected static function booted()

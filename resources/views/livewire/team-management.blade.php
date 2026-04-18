@@ -11,7 +11,7 @@
     <!-- Create Team Section -->
     <div class="mb-8 bg-gray-50 p-10">
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Create New Team</h2>
-        <form wire:submit.prevent="createTeam" class="space-y-4">
+        <form wire:submit.prevent="createStore" class="space-y-4">
             <div class="grid grid-cols-1 gap-4">
                 <div>
                     <label for="teamName" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
@@ -55,8 +55,8 @@
                 <select wire:model="selectedTeam"
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Select a Team</option>
-                    @foreach($teams as $team)
-                        <option value="{{ $team->id }}">{{ $team->name }}</option>
+                    @foreach($stores as $store)
+                        <option value="{{ $store->id }}">{{ $store->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -78,9 +78,9 @@
                 <select wire:model="selectedUser"
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Select a User</option>
-                    @foreach($teams as $team)
-                        @foreach($team->users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }} ({{ $team->name }})</option>
+                    @foreach($stores as $store)
+                        @foreach($store->users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }} ({{ $store->name }})</option>
                         @endforeach
                     @endforeach
                 </select>
@@ -108,21 +108,21 @@
     <div class="bg-white p-6">
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Existing Teams</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($teams as $team)
+            @foreach($stores as $store)
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $team->name }}</h3>
-                    {{-- <p class="text-sm text-gray-600 mb-2">Owner: {{ $team->owner->name }}</p> --}}
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $store->name }}</h3>
+                    {{-- <p class="text-sm text-gray-600 mb-2">Owner: {{ $store->owner->name }}</p> --}}
                     <div class="border-t pt-2">
                         <h4 class="text-sm font-semibold text-gray-700 mb-2">Team Members</h4>
                         <ul class="space-y-1">
-                            @foreach($team->users as $user)
+                            @foreach($store->users as $user)
                                 <li class="flex justify-between items-center text-sm">
                                     <span>{{ $user->name }}</span>
                                     <div class="flex items-center space-x-2">
                                         <span class="text-xs text-gray-500">
                                             {{ $user->getRoleNames()->first() ?? 'No Role' }}
                                         </span>
-                                        <button wire:click="removeUserFromTeam({{ $user->id }}, {{ $team->id }})"
+                                        <button wire:click="removeUserFromTeam({{ $user->id }}, {{ $store->id }})"
                                             class="text-red-600 hover:text-red-800 text-sm"
                                             onclick="return confirm('Are you sure you want to remove this user from the team?')">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
@@ -137,7 +137,7 @@
                         </ul>
                     </div>
                     <div class="mt-4 flex justify-end space-x-2">
-                        <button wire:click="deleteTeam({{ $team->id }})"
+                        <button wire:click="deleteTeam({{ $store->id }})"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                             Delete Team
                         </button>

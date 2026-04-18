@@ -30,13 +30,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         // Register @feature Blade directive
-        \Illuminate\Support\Facades\Blade::if('feature', function ($feature) {
-            $user = Auth::user();
-            if (! $user) {
+        // Usage: @feature('analytics') ... @else ... @endfeature
+        \Illuminate\Support\Facades\Blade::if('feature', function (string $feature) {
+            $tenant = tenant();
+            if (! $tenant) {
                 return false;
             }
 
-            return app(FeatureService::class)->teamHasFeature($user->currentTeam, $feature);
+            // Super admin bypass
+            $user = Auth::user();
+            if ($user && $user->isSuperAdmin()) {
+                return true;
+            }
+
+            return $tenant->hasFeature($feature);
         });
 
         Subscription::addGlobalScope('tenant', fn ($q) => $q->where('tenant_id', tenant('id')));

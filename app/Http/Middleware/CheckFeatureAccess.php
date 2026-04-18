@@ -3,25 +3,53 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Services\FeatureService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckFeatureAccess
 {
-    protected $featureService;
-
-    public function __construct(FeatureService $featureService)
+    /**
+     * Handle an incoming request.
+     *
+     * Check if the current tenant's plan has the required feature(s).
+     *
+     * Usage in routes:
+     *   ->middleware('feature:analytics')
+     *   ->middleware('feature:analytics,advanced-reports')
+     */
+    public function handle(Request $request, Closure $next, string ...$features): Response
     {
-        $this->featureService = $featureService;
-    }
+        $tenant = tenant();
 
-    public function handle(Request $request, Closure $next, string $feature)
-    {
-        $team = $request->user()->currentTeam;
+        if (! $tenant) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'No active tenant.',
+                ], 403);
+            }
 
-        if (!$this->featureService->teamHasFeature($team, $feature)) {
-            return redirect()->route('subscription.index')
-                ->with('error', 'This feature requires a higher subscription plan.');
+            return redirect()->route('login')
+                ->with('error', 'Please log in to access this feature.');
+        }
+
+        // Super admin bypass — they can access everything
+        if ($request->user()?->isSuperAdmin()) {
+            return $next($request);
+        }
+
+        foreach ($features as $feature) {
+            if (! $tenant->hasFeature($feature)) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'error' => 'This feature is not available on your current plan.',
+                        'feature' => $feature,
+                        'upgrade_url' => route('subscription.index'),
+                    ], 403);
+                }
+
+                return redirect()->route('subscription.index')
+                    ->with('error', 'This feature requires a plan upgrade.');
+            }
         }
 
         return $next($request);

@@ -11,7 +11,7 @@ class Role extends SpatieRole
 
     public function team()
     {
-        return $this->belongsTo(Team::class);
+        return $this->belongsTo(Store::class, 'team_id');
     }
 
     public static function boot()
