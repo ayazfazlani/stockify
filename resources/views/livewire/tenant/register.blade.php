@@ -1,66 +1,111 @@
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-    <h2 class="text-2xl font-bold mb-6 text-center">Register Your Company</h2>
+<div class="space-y-6">
+    <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold font-outfit text-gray-800">Create Your Account</h2>
+        <p class="text-gray-500 mt-2">Start your 14-day free trial today</p>
+    </div>
 
     @if (session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-        {{ session('success') }}
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 animate-fade-in-down">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-500"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-green-700">{{ session('success') }}</p>
+            </div>
+        </div>
     </div>
     @endif
 
-    <form wire:submit="register">
-        <!-- Subdomain (tenant identifier) -->
-        <div class="mb-4">
-            <label class="block text-gray-700">Subdomain</label>
-            <div class="flex">
-                <input wire:model.live="subdomain" type="text"
-                    class="flex-1 border rounded-l px-3 py-2 focus:outline-none focus:ring" placeholder="yourcompany">
-                <span class="inline-flex items-center px-3 bg-gray-200 border border-l-0 rounded-r text-gray-700">.{{
-                    config('tenancy.central_domains')[0] }}</span>
+    <form wire:submit.prevent="register" class="space-y-4">
+        <!-- Subdomain -->
+        <div>
+            <label for="subdomain" class="block text-sm font-medium text-gray-700 mb-1">Store Identifier (Subdomain)</label>
+            <div class="relative flex">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-globe text-gray-400"></i>
+                </div>
+                <input wire:model.live="subdomain" type="text" id="subdomain" 
+                    class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                    placeholder="my-company">
+                <span class="inline-flex items-center px-4 bg-gray-50 border border-l-0 border-gray-200 rounded-r-xl text-gray-500 text-sm font-medium">
+                    .{{ config('tenancy.central_domains')[0] }}
+                </span>
             </div>
-            @error('subdomain') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            @error('subdomain') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            <p class="mt-1 text-xs text-gray-400">This will be your unique store URL</p>
         </div>
 
         <!-- Company Name -->
-        <div class="mb-4">
-            <label class="block text-gray-700">Company Name</label>
-            <input wire:model.live="company_name" type="text"
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring" placeholder="Acme Trading Ltd">
-            @error('company_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        <div>
+            <label for="company_name" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-building text-gray-400"></i>
+                </div>
+                <input wire:model.live="company_name" type="text" id="company_name" 
+                    class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                    placeholder="Acme Trading Ltd">
+            </div>
+            @error('company_name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
 
-        <!-- Your Name -->
-        <div class="mb-4">
-            <label class="block text-gray-700">Your Full Name</label>
-            <input wire:model.live="name" type="text"
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring">
-            @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Full Name -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input wire:model.live="name" type="text" id="name" 
+                    class="block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                    placeholder="John Doe">
+                @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input wire:model.live="email" type="email" id="email" 
+                    class="block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                    placeholder="name@company.com">
+                @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
         </div>
 
-        <!-- Email -->
-        <div class="mb-4">
-            <label class="block text-gray-700">Email</label>
-            <input wire:model.live="email" type="email"
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring">
-            @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Password -->
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input wire:model.live="password" type="password" id="password" 
+                    class="block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                    placeholder="••••••••">
+                @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <input wire:model.live="password_confirmation" type="password" id="password_confirmation" 
+                    class="block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                    placeholder="••••••••">
+            </div>
         </div>
 
-        <!-- Password -->
-        <div class="mb-4">
-            <label class="block text-gray-700">Password</label>
-            <input wire:model.live="password" type="password"
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring">
-            @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+        <div class="flex items-start py-2">
+            <input type="checkbox" id="terms" required class="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 transition-all cursor-pointer">
+            <label for="terms" class="ml-2 text-sm text-gray-600 leading-tight">
+                I agree to the <a href="#" class="text-primary-600 hover:underline">Terms of Service</a> and <a href="#" class="text-primary-600 hover:underline">Privacy Policy</a>
+            </label>
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mb-6">
-            <label class="block text-gray-700">Confirm Password</label>
-            <input wire:model.live="password_confirmation" type="password"
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring">
-        </div>
-
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-            Create Company Account
+        <button type="submit" 
+            class="w-full gradient-bg text-white py-3 px-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+            Create My Store
         </button>
+
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-500">
+                Already have an account? 
+                <a href="{{ route('login') }}" class="text-primary-600 hover:text-primary-700 font-bold transition-colors">Sign In</a>
+            </p>
+        </div>
     </form>
 </div>

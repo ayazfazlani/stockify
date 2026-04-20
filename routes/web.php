@@ -117,8 +117,8 @@ Route::get('/', function () {
 
 Route::get('/invite', InviteUser::class)->name('invite');
 Route::get('/login', Login::class)->name('login');
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
+// Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+// Route::post('/register', [RegisterController::class, 'register']);
 
 Route::get('/forgot-password', App\Livewire\Auth\ForgotPassword::class)
     ->name('password.request')
@@ -126,6 +126,10 @@ Route::get('/forgot-password', App\Livewire\Auth\ForgotPassword::class)
 
 Route::get('/reset-password/{token}', App\Livewire\Auth\ResetPassword::class)
     ->name('password.reset')
+    ->middleware('guest');
+
+Route::get('/find-store', App\Livewire\Auth\FindStore::class)
+    ->name('find-store')
     ->middleware('guest');
 
 // Regular user Google OAuth routes
@@ -172,7 +176,11 @@ Route::get('/auth/google/callback', function () {
     }
 })->name('google.callback');
 
-// ---------------- Authenticated Routes ----------------
+/**
+ * Root-level authenticated routes are deprecated in favor of tenant-specific routes.
+ * See routes/tenant.php for the active routes.
+ */
+/*
 Route::middleware(['auth'])->group(function () {
     // Your existing authenticated routes...
     Route::get('/home', ItemList::class)->name('home');
@@ -203,6 +211,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/roles/{userId}', ManageRoles::class)->name('manage-roles');
 });
+*/
 
 Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenant.register.post');
 

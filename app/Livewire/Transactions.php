@@ -17,12 +17,10 @@ class Transactions extends Component
         'start' => '',
         'end' => ''
     ];
-    // app/Models/Transaction.php
-    protected $casts = [
-        'date' => 'datetime',
-    ];
+
     public function mount()
     {
+        $this->transactions = collect(); // Initialize as collection to prevent foreach errors
         $this->fetchTransactions();
     }
 
@@ -31,10 +29,10 @@ class Transactions extends Component
         try {
             $query = Transaction::query();
 
-            // Apply team filter for non-super admins
+            // Apply store filter for non-super admins
             if (!Auth::user()->hasRole('super admin')) {
-                $teamId = Auth::user()->getCurrentStoreId();
-                $query->when($teamId, fn($q) => $q->where('team_id', $teamId));
+                $storeId = Auth::user()->getCurrentStoreId();
+                $query->when($storeId, fn($q) => $q->where('store_id', $storeId));
             }
 
             // Apply search filter
@@ -47,17 +45,18 @@ class Transactions extends Component
 
             // Apply date range filter
             if (!empty($this->dateRange['start']) && !empty($this->dateRange['end'])) {
-                $query->whereBetween('date', [
-                    $this->dateRange['start'],
-                    $this->dateRange['end']
+                $query->whereBetween('created_at', [
+                    $this->dateRange['start'] . ' 00:00:00',
+                    $this->dateRange['end'] . ' 23:59:59'
                 ]);
             }
 
-            $this->transactions = $query->get();
-            $this->selectedTransaction = null; // Reset selection on new data
+            $this->transactions = $query->orderBy('created_at', 'desc')->get();
+            $this->selectedTransaction = null; 
 
         } catch (\Exception $e) {
             session()->flash('error', 'Error fetching transactions: ' . $e->getMessage());
+            $this->transactions = collect();
         }
     }
 
@@ -73,18 +72,19 @@ class Transactions extends Component
         }
     }
 
-    public function switchTeam($teamId)
+    public function switchStore($storeId)
     {
         try {
-            if (!Auth::user()->teams()->where('team_id', $teamId)->exists()) {
-                abort(403, 'Unauthorized team selection');
+            // Verify user belongs to this store
+            if (!Auth::user()->teams()->where('store_id', $storeId)->exists()) {
+                abort(403, 'Unauthorized store selection');
             }
 
-            session(['current_team_id' => $teamId]);
-            Auth::user()->update(['current_team_id' => $teamId]);
+            session(['current_store_id' => $storeId]);
+            Auth::user()->update(['current_team_id' => $storeId]);
             $this->fetchTransactions();
         } catch (\Exception $e) {
-            session()->flash('error', 'Error switching team: ' . $e->getMessage());
+            session()->flash('error', 'Error switching store: ' . $e->getMessage());
         }
     }
 
@@ -104,7 +104,7 @@ class Transactions extends Component
 
     public function exportToExcel()
     {
-        if ($this->transactions->isEmpty()) {
+        if (!$this->transactions || $this->transactions->isEmpty()) {
             session()->flash('error', 'No transactions available to export.');
             return;
         }

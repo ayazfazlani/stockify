@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 class Item extends Model
 {
     use HasFactory, TeamScope;
+    
+    const TRACKING_STANDARD = 'standard';
+    const TRACKING_SERIALIZED = 'serialized';
 
     public $timestamps = false;
 
@@ -25,12 +28,18 @@ class Item extends Model
         'price',
         'type',
         'brand',
-        'quantity'
+        'quantity',
+        'tracking_type'
     ];
 
     public function store()
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function serials()
+    {
+        return $this->hasMany(ItemSerial::class);
     }
 
     public function user()

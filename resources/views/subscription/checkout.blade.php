@@ -19,7 +19,7 @@
                     <h4 class="text-lg font-semibold">{{ $plan->name }} Plan</h4>
                     <p class="text-gray-600">${{ number_format($plan->price, 2) }}/month</p>
                   </div>
-                  <a href="{{ route('subscription.index') }}" class="text-indigo-600 hover:text-indigo-900">Change</a>
+                  <a href="{{ route('tenant.subscription.index', ['tenant' => tenant('slug')])  }}" class="text-indigo-600 hover:text-indigo-900">Change</a>
                 </div>
                 <div class="mt-4">
                   <h5 class="text-sm font-medium text-gray-700">Included Features:</h5>
@@ -64,7 +64,7 @@
             <!-- Payment Form -->
             <div>
               <h3 class="text-lg font-medium text-gray-900">Payment Method</h3>
-              <form action="{{ route('subscription.process') }}" method="POST" id="payment-form" class="mt-4">
+              <form action="{{ route('tenant.subscription.process', ['tenant' => tenant('slug')])  }}" method="POST" id="payment-form" class="mt-4">
                 @csrf
                 <input type="hidden" name="plan" value="{{ $plan->slug }}">
 

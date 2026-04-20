@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth; // Ensure you import Auth
 
@@ -10,6 +11,7 @@ class Login extends Component
     public $email; // Add properties for email and password
     public $password;
 
+    #[Layout('components.layouts.tenant-auth')]
     public function login() // Create a login method
     {
         $this->validate([ // Use $this->validate() for validation
@@ -19,7 +21,22 @@ class Login extends Component
 
         // Attempt to log the user in
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
-            // Redirect to intended page
+            $user = Auth::user();
+
+            // Handle Super Admin redirect
+            if ($user->is_super_admin) {
+                return redirect()->route('super-admin.dashboard');
+            }
+
+            // Handle Tenant redirect
+            $tenant = \App\Models\Tenant::find($user->tenant_id);
+            if ($tenant) {
+                // If they are on a specific tenant login, but belong to another, redirect them to THEIR tenant
+                // But usually, staying within the path-based intended URL is better if it exists.
+                return redirect()->to('/' . $tenant->slug . '/admin')->with('status', 'Login successful!');
+            }
+
+            // Fallback for users without a specific tenant (e.g., global users)
             return redirect()->intended('/')->with('status', 'Login successful!');
         }
 

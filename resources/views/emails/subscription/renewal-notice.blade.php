@@ -7,7 +7,7 @@ Dear {{ $team->owner->name }},
 Your trial period for {{ config('app.name') }} will end in 3 days. To continue using our services without interruption,
 please set up your payment method and choose a subscription plan.
 
-@component('mail::button', ['url' => route('subscription.show')])
+@component('mail::button', ['url' => route('tenant.subscription.show', ['tenant' => tenant('slug')]) ])
 Choose a Plan
 @endcomponent
 
@@ -20,7 +20,7 @@ the {{ $team->subscription_plan }} plan.
 
 To view or update your subscription details, please click the button below:
 
-@component('mail::button', ['url' => route('subscription.manage')])
+@component('mail::button', ['url' => route('tenant.subscription.manage', ['tenant' => tenant('slug')]) ])
 Manage Subscription
 @endcomponent
 

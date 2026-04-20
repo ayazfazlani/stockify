@@ -35,7 +35,11 @@ class StockInComponent extends Component
         'brand' => '',
         'quantity' => 0,
         'image' => null,
+        'tracking_type' => 'standard',
     ];
+
+    public $scannedSerials = [];
+    public $currentSerial = '';
 
     public $isScanningForSku = false;
 
@@ -140,9 +144,17 @@ class StockInComponent extends Component
             'newItem.price' => 'required|numeric|min:0',
             'newItem.type' => 'required|string',
             'newItem.brand' => 'required|string',
-            'newItem.quantity' => 'required|integer|min:0',
+            'newItem.quantity' => $this->newItem['tracking_type'] === 'standard' ? 'required|integer|min:0' : 'nullable|integer',
+            'newItem.tracking_type' => 'required|in:standard,serialized',
             'newItem.image' => 'nullable|image|max:2048',
         ]);
+
+        if ($this->newItem['tracking_type'] === 'serialized' && count($this->scannedSerials) === 0) {
+            $this->addError('scannedSerials', 'Please scan at least one serial number for serialized items.');
+            return;
+        }
+
+        $finalQuantity = $this->newItem['tracking_type'] === 'serialized' ? count($this->scannedSerials) : $this->newItem['quantity'];
 
         $imagePath = $this->newItem['image'] ? $this->newItem['image']->store('item_images', 'public') : null;
 
@@ -155,11 +167,24 @@ class StockInComponent extends Component
                 'price' => $this->newItem['price'],
                 'type' => $this->newItem['type'],
                 'brand' => $this->newItem['brand'],
-                'quantity' => $this->newItem['quantity'],
+                'quantity' => $finalQuantity,
+                'tracking_type' => $this->newItem['tracking_type'],
                 'image' => $imagePath,
                 'store_id' => $teamId,
                 'tenant_id' => Auth::user()->tenant_id,
             ]);
+
+            if ($this->newItem['tracking_type'] === 'serialized') {
+                foreach ($this->scannedSerials as $serialNumber) {
+                    \App\Models\ItemSerial::create([
+                        'item_id' => $item->id,
+                        'serial_number' => $serialNumber,
+                        'status' => 'available',
+                        'store_id' => $teamId,
+                        'tenant_id' => Auth::user()->tenant_id,
+                    ]);
+                }
+            }
 
             Transaction::create([
                 'item_id' => $item->id,
@@ -182,7 +207,7 @@ class StockInComponent extends Component
             session()->flash('error', 'Error adding item: ' . $e->getMessage());
         }
 
-        $this->reset('newItem');
+        $this->reset(['newItem', 'scannedSerials', 'currentSerial']);
         $this->loadItems();
         $this->isModalOpen = false;
     }
@@ -224,6 +249,26 @@ class StockInComponent extends Component
         $this->reset('selectedItems');
         $this->loadItems();
         $this->loadTransactions();
+    }
+
+    public function addSerial()
+    {
+        $this->currentSerial = trim($this->currentSerial);
+        if (!$this->currentSerial) return;
+
+        if (in_array($this->currentSerial, $this->scannedSerials)) {
+            $this->addError('currentSerial', 'This serial number is already in the list.');
+            return;
+        }
+
+        $this->scannedSerials[] = $this->currentSerial;
+        $this->currentSerial = '';
+    }
+
+    public function removeSerial($index)
+    {
+        unset($this->scannedSerials[$index]);
+        $this->scannedSerials = array_values($this->scannedSerials);
     }
 
     public function render()

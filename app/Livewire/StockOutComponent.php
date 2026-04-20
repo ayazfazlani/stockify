@@ -21,6 +21,9 @@ class StockOutComponent extends Component
         'end' => ''
     ];
 
+    public $showReceipt = false;
+    public $currentSale = null;
+
     protected $listeners = ['refreshComponent' => '$refresh'];
 
     public function mount()
@@ -75,6 +78,8 @@ class StockOutComponent extends Component
     public function handleScannedData($code, $scannerId = null)
     {
         $teamId = Auth::user()->getCurrentStoreId();
+        
+        // 1. Check if it's a SKU
         $item = Item::where('sku', $code)
             ->where('store_id', $teamId)
             ->first();
@@ -82,8 +87,39 @@ class StockOutComponent extends Component
         if ($item) {
             $this->toggleItemSelection($item->id);
             session()->flash('success', "Item auto-selected: {$item->name}");
+            return;
+        }
+
+        // 2. Check if it's a Serial Number
+        $serial = \App\Models\ItemSerial::where('serial_number', $code)
+            ->where('store_id', $teamId)
+            ->where('status', 'available')
+            ->first();
+
+        if ($serial) {
+            $this->addSerializedItem($serial);
+            session()->flash('success', "Serial detected: {$serial->serial_number} ({$serial->item->name})");
+            return;
+        }
+
+        session()->flash('error', "Code '{$code}' not recognized as SKU or Available Serial.");
+    }
+
+    public function addSerializedItem($serial)
+    {
+        $itemModel = $serial->item;
+        $key = array_search($itemModel->id, array_column($this->selectedItems, 'id'));
+
+        if ($key === false) {
+            $item = $itemModel->toArray();
+            $item['quantity'] = 1;
+            $item['selected_serials'] = [$serial->serial_number];
+            $this->selectedItems[] = $item;
         } else {
-            session()->flash('error', "Item with SKU '{$code}' not found.");
+            if (!in_array($serial->serial_number, $this->selectedItems[$key]['selected_serials'])) {
+                $this->selectedItems[$key]['selected_serials'][] = $serial->serial_number;
+                $this->selectedItems[$key]['quantity'] = count($this->selectedItems[$key]['selected_serials']);
+            }
         }
     }
 
@@ -98,6 +134,16 @@ class StockOutComponent extends Component
         } else {
             unset($this->selectedItems[$key]);
             $this->selectedItems = array_values($this->selectedItems);
+        }
+    }
+
+    public function viewReceipt($saleId)
+    {
+        $this->currentSale = \App\Models\Sale::with(['transactions', 'store', 'user'])->find($saleId);
+        if ($this->currentSale) {
+            $this->showReceipt = true;
+        } else {
+            session()->flash('error', 'Sale record not found.');
         }
     }
 
@@ -129,6 +175,19 @@ class StockOutComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         try {
+            // Create the Sale record
+            $totalAmount = 0;
+            foreach ($this->selectedItems as $item) {
+                $totalAmount += $item['price'] * $item['quantity'];
+            }
+
+            $sale = \App\Models\Sale::create([
+                'store_id' => $teamId,
+                'user_id' => Auth::id(),
+                'total_amount' => $totalAmount,
+                'tenant_id' => Auth::user()->tenant_id,
+            ]);
+
             foreach ($this->selectedItems as $item) {
                 $itemModel = Item::lockForUpdate()->find($item['id']);
 
@@ -140,15 +199,23 @@ class StockOutComponent extends Component
                     $itemModel->quantity -= $item['quantity'];
                     $itemModel->save();
 
+                    // If serialized, mark serials as sold
+                    if (isset($item['selected_serials'])) {
+                        \App\Models\ItemSerial::whereIn('serial_number', $item['selected_serials'])
+                            ->where('item_id', $itemModel->id)
+                            ->update(['status' => 'sold']);
+                    }
+
                     Transaction::create([
+                        'sale_id' => $sale->id,
                         'item_id' => $itemModel->id,
                         'store_id' => $teamId,
                         'user_id' => Auth::id(),
                         'item_name' => $itemModel->name,
                         'type' => 'stock out',
                         'quantity' => $item['quantity'],
-                        'unit_price' => $itemModel->cost,
-                        'total_price' => $itemModel->cost * $item['quantity'],
+                        'unit_price' => $itemModel->price,
+                        'total_price' => $itemModel->price * $item['quantity'],
                         'created_at' => now(),
                     ]);
 
@@ -157,6 +224,11 @@ class StockOutComponent extends Component
             }
 
             DB::commit();
+            
+            // Set data for receipt and show it
+            $this->currentSale = \App\Models\Sale::with(['transactions', 'store', 'user'])->find($sale->id);
+            $this->showReceipt = true;
+            
             session()->flash('message', 'Stock-out completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();

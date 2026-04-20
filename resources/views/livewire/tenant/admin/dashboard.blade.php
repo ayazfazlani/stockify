@@ -6,10 +6,12 @@
             gap: 2rem;
             padding: 2rem;
         }
+
         .settings-sidebar {
             width: 240px;
             flex-shrink: 0;
         }
+
         .settings-nav {
             background-color: hsl(var(--card));
             border: 1px solid hsl(var(--border));
@@ -19,6 +21,7 @@
             position: sticky;
             top: 2rem;
         }
+
         .settings-nav-item {
             display: flex;
             align-items: center;
@@ -35,19 +38,23 @@
             font-weight: 500;
             border-left: 3px solid transparent;
         }
+
         .settings-nav-item:hover {
             background-color: hsl(var(--accent));
         }
+
         .settings-nav-item.active {
             background-color: hsl(var(--primary) / 0.08);
             color: hsl(var(--primary));
             border-left-color: hsl(var(--primary));
             font-weight: 600;
         }
+
         .settings-nav-item i {
             width: 1.25rem;
             text-align: center;
         }
+
         .settings-content {
             flex: 1;
             min-width: 0;
@@ -62,9 +69,11 @@
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
             margin-bottom: 1.5rem;
         }
+
         .s-card-header {
             margin-bottom: 1.25rem;
         }
+
         .s-card-title {
             font-size: 1.125rem;
             font-weight: 700;
@@ -73,16 +82,21 @@
             align-items: center;
             gap: 0.5rem;
         }
+
         .s-card-title i {
             color: hsl(var(--primary));
         }
+
         .s-card-desc {
             color: hsl(var(--muted-foreground));
             font-size: 0.8125rem;
         }
 
         /* ── Forms ─────────────────────────────────────────── */
-        .form-group { margin-bottom: 1.25rem; }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
         .form-label {
             display: block;
             font-size: 0.8125rem;
@@ -90,7 +104,10 @@
             margin-bottom: 0.375rem;
             color: hsl(var(--foreground));
         }
-        .form-input, .form-select, .form-textarea {
+
+        .form-input,
+        .form-select,
+        .form-textarea {
             width: 100%;
             padding: 0.5rem 0.75rem;
             border: 1px solid hsl(var(--input));
@@ -100,17 +117,26 @@
             font-size: 0.875rem;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
             outline: none;
             border-color: hsl(var(--ring));
             box-shadow: 0 0 0 2px hsl(var(--ring) / 0.15);
         }
-        .form-textarea { min-height: 80px; resize: vertical; }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
         .form-hint {
             font-size: 0.6875rem;
             color: hsl(var(--muted-foreground));
             margin-top: 0.25rem;
         }
+
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -131,23 +157,37 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+
         .btn-primary {
             background-color: hsl(var(--primary));
             color: hsl(var(--primary-foreground));
         }
-        .btn-primary:hover { opacity: 0.9; }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
         .btn-outline {
             background-color: transparent;
             border: 1px solid hsl(var(--border));
             color: hsl(var(--foreground));
         }
-        .btn-outline:hover { background-color: hsl(var(--accent)); }
-        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+
+        .btn-outline:hover {
+            background-color: hsl(var(--accent));
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
         .btn-danger-outline {
             background-color: transparent;
             border: 1px solid hsl(var(--destructive));
             color: hsl(var(--destructive));
         }
+
         .btn-danger-outline:hover {
             background-color: hsl(var(--destructive) / 0.1);
         }
@@ -164,6 +204,7 @@
             font-weight: 500;
             animation: flashSlide 0.3s ease;
         }
+
         .flash-success {
             background-color: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.3);
@@ -179,6 +220,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .current-plan-card::before {
             content: '';
             position: absolute;
@@ -189,6 +231,7 @@
             border-radius: 50%;
             background: hsl(var(--primary) / 0.06);
         }
+
         .plan-badge-active {
             display: inline-flex;
             align-items: center;
@@ -202,21 +245,25 @@
             background-color: rgba(16, 185, 129, 0.15);
             color: #059669;
         }
+
         .plan-name-lg {
             font-size: 1.5rem;
             font-weight: 800;
             margin: 0.75rem 0 0.25rem;
         }
+
         .plan-price-lg {
             font-size: 2rem;
             font-weight: 800;
             color: hsl(var(--primary));
         }
+
         .plan-price-lg .plan-interval {
             font-size: 0.875rem;
             font-weight: 500;
             color: hsl(var(--muted-foreground));
         }
+
         .plan-meta {
             display: flex;
             gap: 1.5rem;
@@ -226,6 +273,7 @@
             font-size: 0.8125rem;
             color: hsl(var(--muted-foreground));
         }
+
         .plan-meta-item {
             display: flex;
             align-items: center;
@@ -238,18 +286,21 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
         }
+
         .usage-item {
             background-color: hsl(var(--background));
             border: 1px solid hsl(var(--border));
             border-radius: var(--radius);
             padding: 1rem;
         }
+
         .usage-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
+
         .usage-label {
             display: flex;
             align-items: center;
@@ -257,6 +308,7 @@
             font-size: 0.8125rem;
             font-weight: 600;
         }
+
         .usage-label i {
             width: 28px;
             height: 28px;
@@ -267,17 +319,20 @@
             color: white;
             font-size: 0.75rem;
         }
+
         .usage-value {
             font-size: 0.75rem;
             font-weight: 700;
             color: hsl(var(--muted-foreground));
         }
+
         .usage-bar-bg {
             height: 8px;
             background-color: hsl(var(--muted));
             border-radius: 4px;
             overflow: hidden;
         }
+
         .usage-bar-fill {
             height: 100%;
             border-radius: 4px;
@@ -290,6 +345,7 @@
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 0.75rem;
         }
+
         .feature-chip {
             display: flex;
             align-items: center;
@@ -302,26 +358,32 @@
             border: 1px solid hsl(var(--border));
             transition: all 0.2s;
         }
+
         .feature-chip-enabled {
             border-color: rgba(16, 185, 129, 0.3);
             background-color: rgba(16, 185, 129, 0.05);
         }
+
         .feature-chip-disabled {
             opacity: 0.5;
         }
+
         .feature-chip i.check {
             color: #10b981;
             font-size: 0.625rem;
         }
+
         .feature-chip i.lock {
             color: hsl(var(--muted-foreground));
             font-size: 0.625rem;
         }
+
         .feature-chip i.feat-icon {
             color: hsl(var(--primary));
             width: 20px;
             text-align: center;
         }
+
         .feature-chip .quota-badge {
             margin-left: auto;
             font-size: 0.6875rem;
@@ -343,9 +405,11 @@
             padding-bottom: 0.375rem;
             border-bottom: 1px solid hsl(var(--border));
         }
+
         .feature-group-section {
             margin-bottom: 1.25rem;
         }
+
         .feature-group-section:last-child {
             margin-bottom: 0;
         }
@@ -356,18 +420,21 @@
             padding: 3rem;
             color: hsl(var(--muted-foreground));
         }
+
         .no-plan-state i {
             font-size: 3rem;
             opacity: 0.3;
             margin-bottom: 1rem;
             display: block;
         }
+
         .no-plan-state h3 {
             font-size: 1.125rem;
             font-weight: 700;
             color: hsl(var(--foreground));
             margin-bottom: 0.5rem;
         }
+
         .no-plan-state p {
             font-size: 0.875rem;
             margin-bottom: 1.5rem;
@@ -381,29 +448,38 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid hsl(var(--border));
         }
-        .toggle-row:last-child { border-bottom: none; }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
         .toggle-info {
             flex: 1;
         }
+
         .toggle-label {
             font-size: 0.875rem;
             font-weight: 600;
         }
+
         .toggle-desc {
             font-size: 0.75rem;
             color: hsl(var(--muted-foreground));
         }
+
         .toggle-switch {
             position: relative;
             width: 40px;
             height: 22px;
             flex-shrink: 0;
         }
+
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
         .toggle-slider {
             position: absolute;
             cursor: pointer;
@@ -412,6 +488,7 @@
             border-radius: 22px;
             transition: all 0.3s;
         }
+
         .toggle-slider::before {
             content: "";
             position: absolute;
@@ -423,10 +500,12 @@
             border-radius: 50%;
             transition: all 0.3s;
         }
-        .toggle-switch input:checked + .toggle-slider {
+
+        .toggle-switch input:checked+.toggle-slider {
             background-color: hsl(var(--primary));
         }
-        .toggle-switch input:checked + .toggle-slider::before {
+
+        .toggle-switch input:checked+.toggle-slider::before {
             transform: translateX(18px);
         }
 
@@ -437,6 +516,7 @@
             padding: 1.25rem;
             background-color: hsl(var(--destructive) / 0.03);
         }
+
         .danger-zone-header {
             display: flex;
             align-items: center;
@@ -445,6 +525,7 @@
             color: hsl(var(--destructive));
             font-weight: 700;
         }
+
         .danger-zone p {
             font-size: 0.8125rem;
             color: hsl(var(--muted-foreground));
@@ -453,8 +534,15 @@
 
         /* ── Animations ────────────────────────────────────── */
         @keyframes flashSlide {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ── Responsive ────────────────────────────────────── */
@@ -463,36 +551,58 @@
                 flex-direction: column;
                 padding: 1.5rem;
             }
-            .settings-sidebar { width: 100%; }
+
+            .settings-sidebar {
+                width: 100%;
+            }
+
             .settings-nav {
                 display: flex;
                 overflow-x: auto;
                 gap: 0;
                 position: static;
             }
+
             .settings-nav-item {
                 white-space: nowrap;
                 border-left: none;
                 border-bottom: 3px solid transparent;
                 padding: 0.75rem 1rem;
             }
+
             .settings-nav-item.active {
                 border-bottom-color: hsl(var(--primary));
                 border-left-color: transparent;
             }
-            .grid-2 { grid-template-columns: 1fr; }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
         }
+
         @media (max-width: 640px) {
-            .settings-container { padding: 1rem; }
-            .feature-grid { grid-template-columns: 1fr; }
-            .usage-grid { grid-template-columns: 1fr; }
-            .plan-meta { flex-direction: column; gap: 0.5rem; }
+            .settings-container {
+                padding: 1rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .usage-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
     </style>
 
     <div class="settings-container">
         {{-- ═══════════════════════════════════════════════ --}}
-        {{-- SETTINGS SIDEBAR NAV                           --}}
+        {{-- SETTINGS SIDEBAR NAV --}}
         {{-- ═══════════════════════════════════════════════ --}}
         <div class="settings-sidebar">
             <div class="settings-nav">
@@ -530,7 +640,7 @@
         </div>
 
         {{-- ═══════════════════════════════════════════════ --}}
-        {{-- SETTINGS CONTENT                               --}}
+        {{-- SETTINGS CONTENT --}}
         {{-- ═══════════════════════════════════════════════ --}}
         <div class="settings-content">
 
@@ -552,11 +662,13 @@
                         <div class="grid-2">
                             <div class="form-group">
                                 <label class="form-label">Company Name</label>
-                                <input type="text" class="form-input" wire:model="companyName" placeholder="Your company name">
+                                <input type="text" class="form-input" wire:model="companyName"
+                                    placeholder="Your company name">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Contact Email</label>
-                                <input type="email" class="form-input" wire:model="contactEmail" placeholder="admin@company.com">
+                                <input type="email" class="form-input" wire:model="contactEmail"
+                                    placeholder="admin@company.com">
                             </div>
                         </div>
                         <div class="form-group">
@@ -655,7 +767,8 @@
                             <i class="fas fa-gem"></i>
                             <h3>No Active Plan</h3>
                             <p>Subscribe to a plan to unlock features and grow your business.</p>
-                            <a href="{{ route('subscription.index') }}" class="btn btn-primary">
+                            {{ $tenant = tenant('slug') }}
+                            <a href="{{$tenant}}/subscription" class="btn btn-primary">
                                 <i class="fas fa-rocket"></i> View Plans
                             </a>
                         </div>
@@ -691,7 +804,7 @@
                                     </div>
                                     <div class="usage-bar-bg">
                                         <div class="usage-bar-fill"
-                                             style="width: {{ $percentage }}%; background-color: {{ $barColor }};"></div>
+                                            style="width: {{ $percentage }}%; background-color: {{ $barColor }};"></div>
                                     </div>
                                     @if(!$isUnlimited && $stat['limit'] !== null)
                                         <div class="form-hint" style="margin-top: 0.375rem;">
@@ -719,22 +832,25 @@
                         @foreach($availablePlans as $plan)
                             @php $isCurrentPlan = $currentPlan && $currentPlan->id === $plan->id; @endphp
                             <div style="border: {{ $isCurrentPlan ? '2px solid hsl(var(--primary))' : '1px solid hsl(var(--border))' }};
-                                        border-radius: var(--radius);
-                                        padding: 1.25rem;
-                                        {{ $isCurrentPlan ? 'background-color: hsl(var(--primary) / 0.03);' : '' }}
-                                        position: relative;">
+                                                                        border-radius: var(--radius);
+                                                                        padding: 1.25rem;
+                                                                        {{ $isCurrentPlan ? 'background-color: hsl(var(--primary) / 0.03);' : '' }}
+                                                                        position: relative;">
                                 @if($isCurrentPlan)
-                                    <div style="position: absolute; top: -8px; right: 12px;
-                                                background-color: hsl(var(--primary)); color: white;
-                                                font-size: 0.625rem; font-weight: 700; padding: 2px 8px;
-                                                border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    <div
+                                        style="position: absolute; top: -8px; right: 12px;
+                                                                                                background-color: hsl(var(--primary)); color: white;
+                                                                                                font-size: 0.625rem; font-weight: 700; padding: 2px 8px;
+                                                                                                border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
                                         Current
                                     </div>
                                 @endif
                                 <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem;">{{ $plan->name }}</div>
-                                <div style="font-size: 1.5rem; font-weight: 800; color: hsl(var(--primary)); margin-bottom: 0.75rem;">
+                                <div
+                                    style="font-size: 1.5rem; font-weight: 800; color: hsl(var(--primary)); margin-bottom: 0.75rem;">
                                     ${{ number_format($plan->amount / 100, 2) }}
-                                    <span style="font-size: 0.75rem; font-weight: 500; color: hsl(var(--muted-foreground));">/{{ $plan->interval }}</span>
+                                    <span
+                                        style="font-size: 0.75rem; font-weight: 500; color: hsl(var(--muted-foreground));">/{{ $plan->interval }}</span>
                                 </div>
                                 <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-bottom: 0.75rem;">
                                     {{ $plan->planFeatures->count() }} features included
@@ -745,7 +861,8 @@
                                         {{ $currentPlan && $plan->amount > $currentPlan->amount ? 'Upgrade' : 'Switch' }}
                                     </button>
                                 @else
-                                    <button class="btn btn-sm" style="width: 100%; background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); cursor: default;">
+                                    <button class="btn btn-sm"
+                                        style="width: 100%; background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); cursor: default;">
                                         <i class="fas fa-check"></i> Current Plan
                                     </button>
                                 @endif
@@ -802,7 +919,8 @@
                 <div class="s-card">
                     <div class="s-card-header">
                         <div class="s-card-title"><i class="fas fa-th-list"></i> All Features</div>
-                        <div class="s-card-desc">Full list of available features — locked features require a plan upgrade</div>
+                        <div class="s-card-desc">Full list of available features — locked features require a plan upgrade
+                        </div>
                     </div>
 
                     @php $grouped = \App\Enums\PlanFeature::grouped(); @endphp
@@ -852,7 +970,8 @@
                         <div class="toggle-row">
                             <div class="toggle-info">
                                 <div class="toggle-label">Security Alerts</div>
-                                <div class="toggle-desc">Get notified about suspicious login attempts and security events</div>
+                                <div class="toggle-desc">Get notified about suspicious login attempts and security events
+                                </div>
                             </div>
                             <label class="toggle-switch">
                                 <input type="checkbox" wire:model="notifySecurityAlerts">
@@ -863,7 +982,8 @@
                         <div class="toggle-row">
                             <div class="toggle-info">
                                 <div class="toggle-label">Billing & Invoices</div>
-                                <div class="toggle-desc">Receive notifications about payments, invoices, and subscription changes</div>
+                                <div class="toggle-desc">Receive notifications about payments, invoices, and subscription
+                                    changes</div>
                             </div>
                             <label class="toggle-switch">
                                 <input type="checkbox" wire:model="notifyBilling">
@@ -943,7 +1063,8 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>Danger Zone</span>
                     </div>
-                    <p>Once you delete your account, there is no going back. All your data, stores, and team members will be permanently removed.</p>
+                    <p>Once you delete your account, there is no going back. All your data, stores, and team members will be
+                        permanently removed.</p>
                     <button class="btn btn-danger-outline">
                         <i class="fas fa-trash"></i> Delete Account
                     </button>

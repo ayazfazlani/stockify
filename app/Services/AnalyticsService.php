@@ -23,25 +23,24 @@ class AnalyticsService
       ['item_id' => $item->id],
       [
         'item_name' => $item->name,
-        'current_quantity' => 0,
-        'team_id' => Auth::user()->getCurrentStoreId(),
-        'inventory_assets' => 0,
-        'average_quantity' => 0,
+        'current_quantity' => $item->quantity, // Sync with physical stock on first creation
+        'store_id' => $item->store_id ?? Auth::user()->getCurrentStoreId(),
+        'inventory_assets' => $item->cost * $item->quantity,
+        'average_quantity' => $item->quantity,
         'turnover_ratio' => 0,
         'stock_out_days_estimate' => 0,
         'total_stock_out' => 0,
         'total_stock_in' => 0,
         'avg_daily_stock_in' => 0,
-        'avg_daily_stock_out' => 0
+        'avg_daily_stock_out' => 0,
+        'user_id' => $item->user_id ?? Auth::id()
       ]
     );
 
     // Update analytics based on the operation type
     switch ($operation) {
       case 'created':
-        // When an item is created, set initial values
-        $analytics->current_quantity = $quantity;
-        $analytics->inventory_assets = $item->cost * $quantity;
+        // Values already set during firstOrCreate for new items or synced for existing ones
         break;
 
       case 'stock_in':
@@ -60,9 +59,15 @@ class AnalyticsService
         // When stock-out operation happens, decrease quantity
         if ($analytics->current_quantity >= $quantity) {
           $analytics->current_quantity -= $quantity;
-          $analytics->total_stock_out += $quantity;
+          $analytics->total_stock_out = (float)($analytics->total_stock_out + $quantity);
         } else {
-          throw new \Exception("Not enough stock to perform stock-out.");
+          // If out of sync, force a re-sync with the physical item count
+          if ($item->quantity >= $quantity) {
+             $analytics->current_quantity = $item->quantity - $quantity;
+             $analytics->total_stock_out = (float)($analytics->total_stock_out + $quantity);
+          } else {
+             throw new \Exception("Not enough stock to perform stock-out (Analytics: {$analytics->current_quantity}, Physical: {$item->quantity}).");
+          }
         }
         break;
 
@@ -90,12 +95,15 @@ class AnalyticsService
    */
   private function updateAnalyticsMetrics(Analytics $analytics, Item $item, $quantity, $operation)
   {
+    // Update inventory assets based on current cost and quantity
+    $analytics->inventory_assets = $item->cost * $analytics->current_quantity;
+
     // Calculate days since first stock-in
     $firstStockInDate = $analytics->created_at ?? now();
     $daysSinceFirstStockIn = max($firstStockInDate->diffInDays(now()), 1);
 
     // Calculate days since first stock-out
-    $firstStockOutDate = $analytics->updated_at ?? now(); // Assuming last update is stock-out date
+    $firstStockOutDate = $analytics->updated_at ?? now(); 
     $daysSinceFirstStockOut = max($firstStockOutDate->diffInDays(now()), 1);
 
     // Avg daily stock-in
@@ -105,17 +113,17 @@ class AnalyticsService
 
     // Avg daily stock-out
     if ($analytics->total_stock_out > 0) {
-      $analytics->avg_daily_stock_out = $analytics->total_stock_out / $daysSinceFirstStockOut;
+      $analytics->avg_daily_stock_out = (float)($analytics->total_stock_out / $daysSinceFirstStockOut);
     }
 
-    // Calculate turnover ratio (example logic)
+    // Calculate turnover ratio (COGS / Average Inventory)
     if ($analytics->inventory_assets > 0) {
-      $analytics->turnover_ratio = $analytics->total_stock_out / $analytics->inventory_assets;
+      $analytics->turnover_ratio = (float)(($analytics->total_stock_out * $item->cost) / max($analytics->inventory_assets, 1));
     }
 
     // Estimate stock-out days (based on current stock and daily stock-out)
     if ($analytics->avg_daily_stock_out > 0) {
-      $analytics->stock_out_days_estimate = $analytics->current_quantity / $analytics->avg_daily_stock_out;
+      $analytics->stock_out_days_estimate = ceil($analytics->current_quantity / $analytics->avg_daily_stock_out);
     }
   }
 }

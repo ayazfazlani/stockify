@@ -31,18 +31,17 @@ class Analytics extends Model
         return $this->belongsTo(Item::class);
     }
 
-    // Store relationship (column is team_id for legacy compatibility)
-    public function team()
+    // Store relationship
+    public function store()
     {
-        return $this->belongsTo(Store::class, 'team_id');
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     protected static function booted()
     {
         static::creating(function ($analytics) {
             if ($analytics->item) {
-                $analytics->team_id = $analytics->item->team_id;
-                // $analytics->user_id = $analytics->item->user_id;
+                $analytics->store_id = $analytics->item->store_id;
             }
         });
     }

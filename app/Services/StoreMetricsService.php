@@ -2,17 +2,17 @@
 
 namespace App\Services;
 
-use App\Models\Team;
-use App\Models\TeamMetric;
-use App\Models\TeamQuota;
+use App\Models\Store;
+use App\Models\StoreMetric;
+use App\Models\StoreQuota;
 use Carbon\Carbon;
 
-class TeamMetricsService
+class StoreMetricsService
 {
-    public function recordMetric(Team $team, string $metricName, float $value, array $metadata = [])
+    public function recordMetric(Store $store, string $metricName, float $value, array $metadata = [])
     {
-        return TeamMetric::create([
-            'team_id' => $team->id,
+        return StoreMetric::create([
+            'store_id' => $store->id,
             'metric_name' => $metricName,
             'value' => $value,
             'metadata' => $metadata,
@@ -20,25 +20,25 @@ class TeamMetricsService
         ]);
     }
 
-    public function updateQuota(Team $team, string $quotaName, float $used)
+    public function updateQuota(Store $store, string $quotaName, float $used)
     {
-        return TeamQuota::updateOrCreate(
-            ['team_id' => $team->id, 'quota_name' => $quotaName],
+        return StoreQuota::updateOrCreate(
+            ['store_id' => $store->id, 'quota_name' => $quotaName],
             [
                 'used' => $used,
-                'limit' => $this->getQuotaLimit($team, $quotaName),
+                'limit' => $this->getQuotaLimit($store, $quotaName),
                 'reset_at' => $this->getNextResetDate($quotaName),
             ]
         );
     }
 
-    public function incrementQuota(Team $team, string $quotaName, float $increment)
+    public function incrementQuota(Store $store, string $quotaName, float $increment)
     {
-        $quota = TeamQuota::firstOrCreate(
-            ['team_id' => $team->id, 'quota_name' => $quotaName],
+        $quota = StoreQuota::firstOrCreate(
+            ['store_id' => $store->id, 'quota_name' => $quotaName],
             [
                 'used' => 0,
-                'limit' => $this->getQuotaLimit($team, $quotaName),
+                'limit' => $this->getQuotaLimit($store, $quotaName),
                 'reset_at' => $this->getNextResetDate($quotaName),
             ]
         );
@@ -49,9 +49,9 @@ class TeamMetricsService
         return $quota;
     }
 
-    public function checkQuota(Team $team, string $quotaName, float $additional = 0): bool
+    public function checkQuota(Store $store, string $quotaName, float $additional = 0): bool
     {
-        $quota = TeamQuota::where('team_id', $team->id)
+        $quota = StoreQuota::where('store_id', $store->id)
             ->where('quota_name', $quotaName)
             ->first();
 
@@ -69,9 +69,9 @@ class TeamMetricsService
         return ($quota->used + $additional) <= $quota->limit;
     }
 
-    protected function getQuotaLimit(Team $team, string $quotaName): float
+    protected function getQuotaLimit(Store $store, string $quotaName): float
     {
-        $plan = config("saas.plans.{$team->subscription_plan}");
+        $plan = config("saas.plans.{$store->subscription_plan}");
 
         switch ($quotaName) {
             case 'storage':
@@ -97,18 +97,18 @@ class TeamMetricsService
         }
     }
 
-    public function getTeamMetrics(Team $team, string $metricName, Carbon $from, Carbon $to)
+    public function getStoreMetrics(Store $store, string $metricName, Carbon $from, Carbon $to)
     {
-        return TeamMetric::where('team_id', $team->id)
+        return StoreMetric::where('store_id', $store->id)
             ->where('metric_name', $metricName)
             ->whereBetween('recorded_at', [$from, $to])
             ->orderBy('recorded_at')
             ->get();
     }
 
-    public function getDailyMetrics(Team $team, string $metricName, int $days = 30)
+    public function getDailyMetrics(Store $store, string $metricName, int $days = 30)
     {
-        return TeamMetric::where('team_id', $team->id)
+        return StoreMetric::where('store_id', $store->id)
             ->where('metric_name', $metricName)
             ->where('recorded_at', '>=', now()->subDays($days))
             ->orderBy('recorded_at')
@@ -121,8 +121,8 @@ class TeamMetricsService
             });
     }
 
-    public function getAllQuotas(Team $team)
+    public function getAllQuotas(Store $store)
     {
-        return TeamQuota::where('team_id', $team->id)->get();
+        return StoreQuota::where('store_id', $store->id)->get();
     }
 }

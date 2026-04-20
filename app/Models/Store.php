@@ -66,4 +66,14 @@ class Store extends Model
 
         return $user->save();
     }
+
+    public function quotas()
+    {
+        return $this->hasMany(StoreQuota::class, 'store_id');
+    }
+
+    public function quota()
+    {
+        return $this->hasOne(StoreQuota::class, 'store_id')->ofMany('id', 'max');
+    }
 }

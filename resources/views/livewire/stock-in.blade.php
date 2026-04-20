@@ -172,7 +172,6 @@
                 <h3 class="text-xl font-semibold">Add New Item</h3>
             </div>
             <div class="p-6 space-y-4">
-                <!-- SKU Selection with Modal Scanner -->
                 <div class="border rounded-md p-3 bg-gray-50">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Product SKU / Barcode</label>
                     <div class="flex gap-2 mb-2">
@@ -188,6 +187,14 @@
                         </div>
                     @endif
                     @error('newItem.sku') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tracking Type</label>
+                    <select wire:model.live="newItem.tracking_type" class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="standard">Standard (Bulk)</option>
+                        <option value="serialized">Serialized (Unique Barcodes)</option>
+                    </select>
                 </div>
     
                 <div>
@@ -227,12 +234,43 @@
                     </div>
                 </div>
     
+                @if($newItem['tracking_type'] === 'standard')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Initial Quantity</label>
                     <input type="number" wire:model="newItem.quantity" placeholder="Quantity" 
                         class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
                     @error('newItem.quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
+                @else
+                <div class="border rounded-md p-3 bg-blue-50">
+                    <label class="block text-sm font-medium text-blue-800 mb-1 font-bold">Rapid Serial Scan</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" wire:model="currentSerial" 
+                            wire:keydown.enter.prevent="addSerial"
+                            placeholder="Scan or type serial..." 
+                            class="flex-1 p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <button type="button" wire:click="addSerial" class="px-3 py-1 bg-blue-600 text-white rounded-md text-xs">
+                            Add
+                        </button>
+                    </div>
+                    @error('currentSerial') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    @error('scannedSerials') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+                    @if(count($scannedSerials) > 0)
+                    <div class="mt-2">
+                        <span class="text-xs font-semibold text-gray-600 uppercase">Captured: {{ count($scannedSerials) }}</span>
+                        <div class="flex flex-wrap gap-2 mt-1 max-h-32 overflow-y-auto p-1 border rounded bg-white">
+                            @foreach($scannedSerials as $index => $serial)
+                            <div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs">
+                                <span>{{ $serial }}</span>
+                                <button wire:click="removeSerial({{ $index }})" class="text-red-500 hover:text-red-700">×</button>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endif
     
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Image</label>

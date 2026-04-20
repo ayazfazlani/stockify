@@ -25,8 +25,8 @@ class Kernel extends ConsoleKernel
         // Process subscription renewals daily at midnight
         $schedule->command('subscriptions:process-renewals')->daily();
         
-        // Process team quotas daily at 1 AM
-        $schedule->command('teams:process-quotas')->dailyAt('01:00');
+        // Process store quotas daily at 1 AM
+        $schedule->command('stores:process-quotas')->dailyAt('01:00');
     }
 
     /**

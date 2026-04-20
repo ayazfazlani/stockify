@@ -3,75 +3,80 @@
 namespace App\Observers;
 
 use App\Models\Item;
-use App\Services\TeamMetricsService;
+use App\Services\StoreMetricsService;
 use Illuminate\Support\Facades\Storage;
 
 class ItemMetricsObserver
 {
     protected $metricsService;
 
-    public function __construct(TeamMetricsService $metricsService)
+    public function __construct(StoreMetricsService $metricsService)
     {
         $this->metricsService = $metricsService;
     }
 
     public function created(Item $item)
     {
-        $team = $item->team;
+        $store = $item->store;
+        if (!$store) return;
         
         // Record item creation metric
-        $this->metricsService->recordMetric($team, 'items', 1, [
+        $this->metricsService->recordMetric($store, 'items', 1, [
             'action' => 'created',
         ]);
 
         // Track storage usage
-        $this->updateStorageQuota($team);
+        $this->updateStorageQuota($store);
     }
 
     public function updated(Item $item)
     {
-        $team = $item->team;
+        $store = $item->store;
+        if (!$store) return;
         
         // Track storage changes if relevant fields were updated
         if ($item->isDirty(['image', 'attachments'])) {
-            $this->updateStorageQuota($team);
+            $this->updateStorageQuota($store);
         }
     }
 
     public function deleted(Item $item)
     {
-        $team = $item->team;
+        $store = $item->store;
+        if (!$store) return;
         
         // Record item deletion metric
-        $this->metricsService->recordMetric($team, 'items', -1, [
+        $this->metricsService->recordMetric($store, 'items', -1, [
             'action' => 'deleted',
         ]);
 
         // Update storage usage
-        $this->updateStorageQuota($team);
+        $this->updateStorageQuota($store);
     }
 
-    protected function updateStorageQuota($team)
+    protected function updateStorageQuota($store)
     {
-        // Calculate total storage used by the team's items
-        $storageUsed = Item::where('team_id', $team->id)
-            ->sum(function ($item) {
-                $storage = 0;
-                if ($item->image) {
-                    $storage += Storage::size($item->image);
-                }
-                if ($item->attachments) {
-                    foreach ($item->attachments as $attachment) {
-                        $storage += Storage::size($attachment);
+        // Calculate total storage used by the store's items
+        $items = Item::where('store_id', $store->id)->get();
+        
+        $storageUsed = 0;
+        foreach ($items as $item) {
+            if ($item->image && Storage::disk('public')->exists($item->image)) {
+                $storageUsed += Storage::disk('public')->size($item->image);
+            }
+            if (!empty($item->attachments) && is_array($item->attachments)) {
+                foreach ($item->attachments as $attachment) {
+                    if (Storage::disk('public')->exists($attachment)) {
+                        $storageUsed += Storage::disk('public')->size($attachment);
                     }
                 }
-                return $storage;
-            });
+            }
+        }
 
         // Convert to MB
         $storageUsedMB = ceil($storageUsed / 1024 / 1024);
         
         // Update storage quota
-        $this->metricsService->updateQuota($team, 'storage', $storageUsedMB);
+        $this->metricsService->updateQuota($store, 'storage', $storageUsedMB);
     }
 }

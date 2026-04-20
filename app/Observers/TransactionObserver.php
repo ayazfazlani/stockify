@@ -3,13 +3,13 @@
 namespace App\Observers;
 
 use App\Models\Transaction;
-use App\Services\TeamMetricsService;
+use App\Services\StoreMetricsService;
 
 class TransactionObserver
 {
     protected $metricsService;
 
-    public function __construct(TeamMetricsService $metricsService)
+    public function __construct(StoreMetricsService $metricsService)
     {
         $this->metricsService = $metricsService;
     }
@@ -21,7 +21,7 @@ class TransactionObserver
         // Record transaction metrics
         $this->metricsService->recordMetric($team, 'transactions', 1, [
             'type' => $transaction->type,
-            'amount' => $transaction->amount,
+            'amount' => $transaction->total_price,
         ]);
 
         // Update transaction count quota if applicable

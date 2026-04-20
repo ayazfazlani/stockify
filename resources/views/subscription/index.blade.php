@@ -27,7 +27,7 @@
                 Current Plan
               </button>
               @else --}}
-              <a href="{{ route('subscription.checkout', ['plan' => $plan->id]) }}"
+              <a href="{{ route('tenant.subscription.checkout', ['tenant' => tenant('slug'), 'plan' => $plan->id])  }}"
                 class="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white rounded-md py-2 px-4">
                 Select Plan
               </a>

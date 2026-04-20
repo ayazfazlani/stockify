@@ -208,8 +208,8 @@
             class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Testimonials</a>
           <a href="#faq"
             class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">FAQ</a>
-          <a href="#" class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Login</a>
-          <a href="#pricing"
+          <a href="{{ route('find-store') }}" class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Login</a>
+          <a href="{{ route('tenant.register.post') }}"
             class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium hover:from-primary-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Start
             Free Trial</a>
         </div>
@@ -235,9 +235,9 @@
           class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Testimonials</a>
         <a href="#faq"
           class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">FAQ</a>
-        <a href="#"
+        <a href="{{ route('find-store') }}"
           class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Login</a>
-        <a href="#pricing"
+        <a href="{{ route('tenant.register.post') }}"
           class="block mx-3 mt-4 bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-3 rounded-lg font-medium text-center shadow-md hover:shadow-lg transition-all duration-300">Start
           Free Trial</a>
       </div>
@@ -259,7 +259,7 @@
           <p class="text-xl md:text-2xl mb-8 opacity-90">Streamline your operations, reduce costs, and boost efficiency
             with our intelligent inventory platform.</p>
           <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <a href="#pricing"
+            <a href="{{ route('tenant.register.post') }}"
               class="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-center shadow-lg hover-lift transition-all duration-300 transform hover:-translate-y-1">Start
               Free Trial</a>
             <a href="#features"

@@ -95,7 +95,7 @@ class TeamManagement extends Component
             'selectedStore' => 'required|exists:stores,id',
         ]);
 
-        $user = User::findOrFail($this->selectedUsers)->where('tenant_id', Auth::user()->tenant_id);
+        $user = User::where('tenant_id', Auth::user()->tenant_id)->findOrFail($this->selectedUsers);
         $store = Store::findOrFail($this->selectedStore);
 
         if ($store->users()->where('user_id', $user->id)->exists()) {

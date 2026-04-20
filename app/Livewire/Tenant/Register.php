@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
 use Livewire\Component;
 
 class Register extends Component
 {
+    #[Layout('components.layouts.tenant-auth')]
     #[Rule('required|string|max:255|regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/')]
     public $subdomain = '';
 

@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Services\TeamMetricsService;
+use App\Services\StoreMetricsService;
 use Carbon\Carbon;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -13,27 +13,29 @@ class TeamMetricsDashboard extends Component
     public $selectedMetric = 'transactions';
     public $metrics = [];
     public $quotas = [];
-    public $team;
+    public $store;
 
     protected $metricsService;
 
-    public function boot(TeamMetricsService $metricsService)
+    public function boot(StoreMetricsService $metricsService)
     {
         $this->metricsService = $metricsService;
     }
 
     public function mount()
     {
-        $this->team = Auth::user()->currentTeam;
+        $this->store = Auth::user()->currentTeam; // Points to Store model via current_team_id
         $this->loadData();
     }
 
     public function loadData()
     {
+        if (!$this->store) return;
+
         // Get metrics for the selected timeframe
         $from = now()->subDays((int)$this->timeframe);
-        $metrics = $this->metricsService->getTeamMetrics(
-            $this->team,
+        $metrics = $this->metricsService->getStoreMetrics(
+            $this->store,
             $this->selectedMetric,
             $from,
             now()
@@ -46,7 +48,7 @@ class TeamMetricsDashboard extends Component
         })->toArray();
 
         // Get all quotas
-        $this->quotas = $this->metricsService->getAllQuotas($this->team)->map(function($quota) {
+        $this->quotas = $this->metricsService->getAllQuotas($this->store)->map(function($quota) {
             return [
                 'name' => $quota->quota_name,
                 'used' => $quota->used,

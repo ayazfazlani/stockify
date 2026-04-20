@@ -2,48 +2,54 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Team;
-use App\Models\TeamQuota;
+use App\Models\Store;
+use App\Models\StoreQuota;
 use App\Notifications\QuotaResetNotification;
 use Illuminate\Console\Command;
 
 class ProcessTeamQuotas extends Command
 {
-    protected $signature = 'teams:process-quotas';
-    protected $description = 'Process team quotas and reset usage counters for new billing cycles';
+    protected $signature = 'stores:process-quotas';
+    protected $description = 'Process store quotas and reset usage counters for new billing cycles';
 
     public function handle()
     {
-        $teams = Team::whereHas('subscription', function ($query) {
+        // Get all active stores (stores with active subscriptions)
+        $stores = Store::whereHas('subscriptions', function ($query) {
             $query->where('stripe_status', 'active');
         })->get();
 
-        foreach ($teams as $team) {
-            $quota = $team->quota;
+        foreach ($stores as $store) {
+            $quota = StoreQuota::where('store_id', $store->id)->first();
             
             if (!$quota) {
-                $quota = TeamQuota::create([
-                    'team_id' => $team->id,
-                    'billing_cycle_start' => now(),
-                    'billing_cycle_end' => now()->addMonth(),
+                $quota = StoreQuota::create([
+                    'store_id' => $store->id,
+                    'quota_name' => 'default', // Using dummy quota name for now as the logic is broad
+                    'used' => 0,
+                    'limit' => 0,
+                    'reset_at' => now()->addMonth(),
                 ]);
             }
 
-            // Check if billing cycle has ended
-            if (now()->greaterThan($quota->billing_cycle_end)) {
+            // Check if billing cycle has ended (reset_at)
+            if ($quota->reset_at && now()->greaterThan($quota->reset_at)) {
                 // Reset usage counters
-                $quota->resetUsage();
+                $quota->used = 0;
                 
                 // Update billing cycle dates
-                $quota->updateBillingCycle();
+                $quota->reset_at = now()->addMonth();
+                $quota->save();
                 
-                // Notify team owner
-                $team->owner->notify(new QuotaResetNotification($team));
+                // Notify store owner
+                if ($store->owner) {
+                    $store->owner->notify(new QuotaResetNotification($store));
+                }
                 
-                $this->info("Processed quotas for team: {$team->name}");
+                $this->info("Processed quotas for store: {$store->name}");
             }
         }
 
-        $this->info('Team quotas processing completed.');
+        $this->info('Store quotas processing completed.');
     }
 }

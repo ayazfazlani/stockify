@@ -16,12 +16,12 @@ class Analytic extends Component
     public $filterName = '';
     public $dateFrom = '';
     public $dateTo = '';
-    public $team_id;
+    public $store_id;
 
     public function mount()
     {
-        // Initialize team_id during mount
-        $this->team_id =  Auth::user()->getCurrentStoreId();
+        // Initialize store_id during mount
+        $this->store_id =  Auth::user()->getCurrentStoreId();
         $this->fetchData();
     }
 
@@ -40,41 +40,12 @@ class Analytic extends Component
         $this->fetchData();
     }
 
-    // public function fetchData()
-    // {
-    //     // Fetch items based on user role
-    //     $items = auth()->user()->hasRole('super admin')
-    //         ? Item::all()
-    //         : Item::where('team_id', $this->team_id)->get();
-
-    //     // Convert items to JSON and assign
-    //     $this->itemsDataJsn = $items->toJson();
-
-    //     // Build analytics query
-    //     $query = Analytics::query();
-
-    //     if (!empty($this->filterName)) {
-    //         $query->where('item_name', 'like', '%' . $this->filterName . '%');
-    //     }
-
-    //     if (!empty($this->dateFrom)) {
-    //         $query->where('date', '>=', $this->dateFrom);
-    //     }
-
-    //     if (!empty($this->dateTo)) {
-    //         $query->where('date', '<=', $this->dateTo);
-    //     }
-
-    //     // Fetch analytics data and convert to JSON
-    //     $this->filteredAnalyticsDataJsn = $query->get()->toJson();
-    // }
-
     public function fetchData()
     {
         // Fetch items based on user role
         $items = Auth::user()->hasRole('super admin')
             ? Item::all()
-            : Item::where('team_id', $this->team_id)->get();
+            : Item::where('store_id', $this->store_id)->get();
 
         // Convert items to JSON and assign
         $this->itemsDataJsn = $items->toJson();
@@ -83,7 +54,7 @@ class Analytic extends Component
         $query = Analytics::query();
 
         if (!Auth::user()->hasRole('super admin')) {
-            $query->where('team_id', $this->team_id);
+            $query->where('store_id', $this->store_id);
         }
 
         // Apply additional filters for analytics
@@ -92,15 +63,15 @@ class Analytic extends Component
         }
 
         if (!empty($this->dateFrom)) {
-            $query->where('date', '>=', $this->dateFrom);
+            $query->where('created_at', '>=', $this->dateFrom . ' 00:00:00');
         }
 
         if (!empty($this->dateTo)) {
-            $query->where('date', '<=', $this->dateTo);
+            $query->where('created_at', '<=', $this->dateTo . ' 23:59:59');
         }
 
         // Fetch analytics data and convert to JSON
-        $this->filteredAnalyticsDataJsn = $query->get()->toJson();
+        $this->filteredAnalyticsDataJsn = $query->orderBy('created_at', 'desc')->get()->toJson();
     }
 
     public function exportExcel()
@@ -114,6 +85,8 @@ class Analytic extends Component
     {
         // Decode analytics data and calculate total
         $data = json_decode($this->filteredAnalyticsDataJsn, true);
+        if (empty($data)) return 0;
+        
         $total = array_sum(array_column($data, $column));
         return $total;
     }
@@ -123,8 +96,6 @@ class Analytic extends Component
         return view('livewire.analytic', [
             'itemsDataJson' => $this->itemsDataJsn,
             'filteredAnalyticsDataJson' => $this->filteredAnalyticsDataJsn,
-
-            // dd($this->filteredAnalyticsDataJsn)
         ]);
     }
 }

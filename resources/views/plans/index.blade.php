@@ -145,7 +145,7 @@
                 24/7 Dedicated support
               </li>
             </ul>
-            <a href="{{ route('subscription.checkout', ['plan' => 'enterprise']) }}"
+            <a href="{{ route('tenant.subscription.checkout', ['plan' => 'enterprise']) }}"
               class="mt-8 block rounded-md bg-indigo-600 px-3.5 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
               Contact Sales
             </a>

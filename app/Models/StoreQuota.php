@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class TeamQuota extends Model
+class StoreQuota extends Model
 {
     use HasFactory;
 
+    protected $table = 'store_quotas';
+
     protected $fillable = [
-        'team_id',
+        'store_id',
         'quota_name',
         'used',
         'limit',
@@ -21,9 +23,9 @@ class TeamQuota extends Model
         'reset_at' => 'datetime',
     ];
 
-    public function team()
+    public function store()
     {
-        return $this->belongsTo(Store::class, 'team_id');
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     public function getUsagePercentageAttribute()

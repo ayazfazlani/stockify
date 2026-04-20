@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class TeamMetric extends Model
+class StoreMetric extends Model
 {
     use HasFactory;
 
+    protected $table = 'store_metrics';
+
     protected $fillable = [
-        'team_id',
+        'store_id',
         'metric_name',
         'value',
         'metadata',
@@ -22,8 +24,8 @@ class TeamMetric extends Model
         'recorded_at' => 'datetime',
     ];
 
-    public function team()
+    public function store()
     {
-        return $this->belongsTo(Store::class, 'team_id');
+        return $this->belongsTo(Store::class, 'store_id');
     }
 }

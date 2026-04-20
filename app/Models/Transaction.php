@@ -36,7 +36,7 @@ class Transaction extends Model
 
     public function team()
     {
-        return $this->belongsTo(Store::class, 'team_id');
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     public function user()
@@ -44,15 +44,20 @@ class Transaction extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class);
+    }
+
     protected static function booted()
     {
         static::creating(function ($transaction) {
-            // Set team_id from item or current user's team
-            if (empty($transaction->team_id)) {
+            // Set store_id from item or current user's team
+            if (empty($transaction->store_id)) {
                 if ($transaction->item) {
-                    $transaction->team_id = $transaction->item->team_id;
+                    $transaction->store_id = $transaction->item->store_id;
                 } elseif (Auth::check() && Auth::user()->current_team_id) {
-                    $transaction->team_id = Auth::user()->current_team_id;
+                    $transaction->store_id = Auth::user()->current_team_id;
                 }
             }
 

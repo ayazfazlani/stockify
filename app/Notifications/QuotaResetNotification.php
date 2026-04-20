@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Team;
+use App\Models\Store;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -12,11 +12,11 @@ class QuotaResetNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $team;
+    protected $store;
 
-    public function __construct(Team $team)
+    public function __construct(Store $store)
     {
-        $this->team = $team;
+        $this->store = $store;
     }
 
     public function via($notifiable)
@@ -27,13 +27,9 @@ class QuotaResetNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Usage Quotas Reset for ' . $this->team->name)
+            ->subject('Usage Quotas Reset for ' . $this->store->name)
             ->greeting('Hello ' . $notifiable->name . '!')
-            ->line('Your team\'s usage quotas have been reset for the new billing cycle.')
-            ->line('Here are your current limits:')
-            ->line('- Items: ' . $this->team->quota->items_limit)
-            ->line('- Storage: ' . $this->team->quota->storage_limit . 'MB')
-            ->line('- Users: ' . $this->team->quota->users_limit)
+            ->line('Your store\'s usage quotas have been reset for the new billing cycle.')
             ->action('View Dashboard', url('/dashboard'))
             ->line('Thank you for using our application!');
     }

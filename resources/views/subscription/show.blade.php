@@ -14,7 +14,7 @@
           </div>
           @endif
 
-          <form action="{{ route('subscription.subscribe') }}" method="POST" id="payment-form">
+          <form action="{{ route('tenant.subscription.subscribe', ['tenant' => tenant('slug')])  }}" method="POST" id="payment-form">
             @csrf
             <input type="hidden" name="plan" value="{{ $tenant->subscription_plan ?? '' }}">
 
