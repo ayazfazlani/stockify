@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'stripe/*',
             '*/stripe/webhook',
         ]);
+
+        $middleware->alias([
+            'feature' => \App\Http\Middleware\CheckFeatureAccess::class,
+            'super-admin' => \App\Http\Middleware\SuperAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

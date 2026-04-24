@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\ProcessSubscriptionRenewals::class,
         Commands\ProcessTeamQuotas::class,
+        Commands\SendLowStockAlerts::class,
     ];
 
     /**
@@ -27,6 +28,9 @@ class Kernel extends ConsoleKernel
         
         // Process store quotas daily at 1 AM
         $schedule->command('stores:process-quotas')->dailyAt('01:00');
+
+        // Queue supplier low-stock alerts daily
+        $schedule->command('alerts:send-low-stock')->dailyAt('08:00');
     }
 
     /**

@@ -5,9 +5,11 @@
             {{-- <h1 class="text-xl text-gray-500">Reports</h1>
             <h2 class="text-2xl font-bold text-gray-500">Summary</h2> --}}
         </div>
+        @feature('bulk-export')
         <button class="bg-green-500 text-white px-4 py-2 max-sm:px-1 max-sm:py-1 rounded hover:bg-green-600" wire:click="exportExcel">
             Export excel
         </button>
+        @endfeature
     </div>
 
     <div class="flex flex-wrap w-full items-center gap-2 mb-4">

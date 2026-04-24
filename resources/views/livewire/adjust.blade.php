@@ -233,6 +233,27 @@
                             class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         @error('newItem.quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <input type="number" min="0" wire:model="newItem.reorder_level" placeholder="Reorder Level"
+                                class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            @error('newItem.reorder_level') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <input type="number" min="1" wire:model="newItem.reorder_quantity" placeholder="Reorder Qty"
+                                class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            @error('newItem.reorder_quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div>
+                        <select wire:model="newItem.supplier_id" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Supplier</option>
+                            @foreach($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('newItem.supplier_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
         
                     <div>
                         

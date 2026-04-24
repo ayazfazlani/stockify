@@ -2,23 +2,37 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Analytics;
+use App\Models\InventoryAudit;
 use App\Models\Item;
+use App\Models\Supplier;
+use App\Mail\LowStockAlertMail;
+use App\Services\Notifications\WhatsAppNotifier;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Livewire\Component;
 
 class Dashboard extends Component
 {
     public $summary = [];
     public $totalInventoryData = [];
     public $lowStockItems = [];
+    public array $marginLeaders = [];
+    public $recentAudits = [];
     public $topBrandsData = [];
+    public string $summaryJson = '{}';
+    public string $topBrandsJson = '[]';
+    public string $stockFlowJson = '{}';
 
     public function mount()
     {
         $this->fetchSummary();
         $this->fetchTotalInventoryData();
         $this->fetchLowStockItems();
+        $this->fetchMarginLeaders();
+        $this->fetchRecentAudits();
+        $this->syncChartPayloads();
     }
 
     public function fetchSummary()
@@ -28,20 +42,24 @@ class Dashboard extends Component
             
             if (!auth()->user()->hasRole('super admin')) {
                 $teamId = Auth::user()->getCurrentStoreId();
-                $query->where('team_id', $teamId);
+                $query->where('analytics.store_id', $teamId);
             }
 
-            $analyticsData = $query->with('item')->get();
+            $totalInventory = clone $query;
+            $stockIn = clone $query;
+            $stockOut = clone $query;
+            $inventoryEquity = clone $query;
 
-            $totalInventory = $analyticsData->sum('current_quantity');
-            $stockIn = $analyticsData->sum('total_stock_in');
-            $stockOut = $analyticsData->sum('total_stock_out');
-            $inventoryEquity = $analyticsData->sum('inventory_assets');
+            $totalInventory = $totalInventory->sum('current_quantity');
+            $stockIn = $stockIn->sum('total_stock_in');
+            $stockOut = $stockOut->sum('total_stock_out');
+            $inventoryEquity = $inventoryEquity->sum('inventory_assets');
             
             // Potential Revenue = Current Quantity * Item Price
-            $potentialRevenue = $analyticsData->sum(function($stat) {
-                return $stat->current_quantity * ($stat->item->price ?? 0);
-            });
+            $potentialRevenueQuery = clone $query;
+            $potentialRevenue = (float) $potentialRevenueQuery
+                ->join('items', 'analytics.item_id', '=', 'items.id')
+                ->sum(DB::raw('analytics.current_quantity * items.price'));
 
             // Potential Profit = Potential Revenue - Inventory Equity
             $potentialProfit = $potentialRevenue - $inventoryEquity;
@@ -64,6 +82,8 @@ class Dashboard extends Component
                 'potentialProfit' => 0,
             ];
         }
+
+        $this->syncChartPayloads();
     }
 
     public function fetchTotalInventoryData()
@@ -73,7 +93,7 @@ class Dashboard extends Component
             
             if (!auth()->user()->hasRole('super admin')) {
                 $teamId = Auth::user()->getCurrentStoreId();
-                $query->where('team_id', $teamId);
+                $query->where('store_id', $teamId);
             }
 
             $data = $query->with('item')
@@ -86,7 +106,7 @@ class Dashboard extends Component
                     'name' => $stat->item->name ?? 'Unknown',
                     'quantity' => $stat->current_quantity,
                 ];
-            });
+            })->values()->all();
 
             // Brand-wise distribution
             $this->topBrandsData = $data->groupBy(function($stat) {
@@ -96,27 +116,117 @@ class Dashboard extends Component
                     'brand' => $brand,
                     'count' => $group->sum('current_quantity')
                 ];
-            })->values();
+            })->values()->all();
         }
+
+        $this->syncChartPayloads();
     }
 
     public function fetchLowStockItems()
     {
         if (auth()->check()) {
-            $query = Analytics::query();
+            $query = Item::query();
             
             if (!auth()->user()->hasRole('super admin')) {
                 $teamId = Auth::user()->getCurrentStoreId();
-                $query->where('team_id', $teamId);
+                $query->where('store_id', $teamId);
             }
 
-            $this->lowStockItems = $query->with('item')
-                ->where('current_quantity', '<', 10) // Threshold can be dynamic later
-                ->where('current_quantity', '>', 0)
-                ->orderBy('current_quantity', 'asc')
+            $this->lowStockItems = $query
+                ->with('supplier')
+                ->whereColumn('quantity', '<=', 'reorder_level')
+                ->orderBy('quantity', 'asc')
                 ->take(5)
                 ->get();
         }
+    }
+
+    public function fetchMarginLeaders(): void
+    {
+        $query = Item::query();
+
+        if (auth()->check() && !auth()->user()->hasRole('super admin')) {
+            $query->where('store_id', Auth::user()->getCurrentStoreId());
+        }
+
+        $this->marginLeaders = $query
+            ->where('quantity', '>', 0)
+            ->orderByRaw('(price - cost) * quantity DESC')
+            ->take(8)
+            ->get()
+            ->map(function ($item) {
+                $marginValue = max(0, (float) $item->price - (float) $item->cost);
+                $marginPct = $item->price > 0 ? ($marginValue / (float) $item->price) * 100 : 0;
+                return [
+                    'name' => $item->name,
+                    'sku' => $item->sku,
+                    'qty' => (int) $item->quantity,
+                    'margin_value' => $marginValue,
+                    'margin_pct' => round($marginPct, 2),
+                    'profit_pool' => round($marginValue * (int) $item->quantity, 2),
+                ];
+            })
+            ->all();
+    }
+
+    public function fetchRecentAudits(): void
+    {
+        $query = InventoryAudit::with(['item', 'user'])->latest();
+
+        if (auth()->check() && !auth()->user()->hasRole('super admin')) {
+            $query->where('store_id', Auth::user()->getCurrentStoreId());
+        }
+
+        $this->recentAudits = $query->take(10)->get();
+    }
+
+    public function sendLowStockAlerts(): void
+    {
+        $alerts = collect($this->lowStockItems)->map(function ($item) {
+            return [
+                'name' => $item->name,
+                'sku' => $item->sku,
+                'current' => (int) $item->quantity,
+                'reorder_level' => (int) $item->reorder_level,
+                'suggested_order' => max(1, (int) $item->reorder_quantity),
+                'supplier_email' => $item->supplier?->email,
+                'supplier_whatsapp' => $item->supplier?->whatsapp,
+            ];
+        })->all();
+
+        if (empty($alerts)) {
+            session()->flash('error', 'No low stock items to alert.');
+            return;
+        }
+
+        $emails = collect($alerts)->pluck('supplier_email')->filter()->unique()->values();
+        if ($emails->isNotEmpty()) {
+            foreach ($emails as $email) {
+                Mail::to($email)->send(new LowStockAlertMail($alerts));
+            }
+        }
+
+        $whatsAppNotifier = app(WhatsAppNotifier::class);
+        collect($alerts)->pluck('supplier_whatsapp')->filter()->unique()->each(function ($phone) use ($whatsAppNotifier, $alerts) {
+            $message = 'Low stock alert: '.collect($alerts)->take(3)->map(fn($a) => "{$a['name']} ({$a['current']} left)").implode(', ');
+            $whatsAppNotifier->send($phone, $message);
+        });
+
+        session()->flash('message', 'Low stock alerts dispatched via email/WhatsApp integrations.');
+    }
+
+    protected function syncChartPayloads(): void
+    {
+        $this->summaryJson = json_encode($this->summary, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
+        $this->topBrandsJson = json_encode($this->topBrandsData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '[]';
+        $this->stockFlowJson = json_encode([
+            'labels' => ['Total Inventory', 'Stock In', 'Stock Out'],
+            'values' => [
+                (int) ($this->summary['totalInventory'] ?? 0),
+                (int) ($this->summary['stockIn'] ?? 0),
+                (int) ($this->summary['stockOut'] ?? 0),
+            ],
+        ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
     }
 
     public function render()

@@ -15,6 +15,7 @@
             <div class="flex gap-2 max-sm:w-full max-sm:justify-between">
                 @role('viewer')
                 @else
+                @feature('bulk-import')
                 <button
                     wire:click="toggleImportModal"
                     class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
@@ -24,6 +25,7 @@
                     </svg>
                     <span>Import</span>
                 </button>
+                @endfeature
                 <button
                     wire:click="toggleModal"
                     class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
@@ -154,7 +156,20 @@
                                             {{ $selectedItem->quantity }}
                                         </p>
                                     </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Reorder Level</label>
+                                        <p class="text-gray-900">{{ $selectedItem->reorder_level ?? 0 }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Reorder Qty</label>
+                                        <p class="text-gray-900">{{ $selectedItem->reorder_quantity ?? 0 }}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 mb-1">Supplier</label>
+                                        <p class="text-gray-900">{{ $selectedItem->supplier?->name ?? 'N/A' }}</p>
+                                    </div>
                                 </div>
+                                <button wire:click="openEditModal" class="px-3 py-2 bg-blue-600 text-white rounded-md">Edit Reorder/Supplier</button>
                             </div>
                         @else
                             <div class="h-full flex items-center justify-center text-gray-500">
@@ -257,6 +272,48 @@
             
         @endif
 
+        @if($isEditModalOpen)
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-xl font-semibold">Edit Item Fields</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="text-sm text-gray-600">Selling Price</label>
+                            <input type="number" step="0.01" min="0" wire:model="editForm.price" class="w-full p-2 border rounded-md">
+                            @error('editForm.price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600">Reorder Level</label>
+                            <input type="number" min="0" wire:model="editForm.reorder_level" class="w-full p-2 border rounded-md">
+                            @error('editForm.reorder_level') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600">Reorder Quantity</label>
+                            <input type="number" min="1" wire:model="editForm.reorder_quantity" class="w-full p-2 border rounded-md">
+                            @error('editForm.reorder_quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600">Supplier</label>
+                            <select wire:model="editForm.supplier_id" class="w-full p-2 border rounded-md">
+                                <option value="">No supplier</option>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                @endforeach
+                            </select>
+                            @error('editForm.supplier_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
+                        <button wire:click="$set('isEditModalOpen', false)" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Cancel</button>
+                        <button wire:click="saveItemEdit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @feature('bulk-import')
         @if($isImportModalOpen)
             <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
@@ -274,5 +331,6 @@
                 </div>
             </div>
         @endif
+        @endfeature
     </div>
 </div>

@@ -2,7 +2,7 @@
 
 // app/Livewire/Subscriptions/Subscribe.php
 
-namespace app\Livewire\Subscriptions;
+namespace App\Livewire\Subscriptions;
 
 use App\Models\Plan;
 use App\Services\PaymentService;

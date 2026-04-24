@@ -5,14 +5,18 @@ namespace App\Livewire;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithFileUploads;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 
 class TeamManagement extends Component
 {
+    use WithFileUploads;
+
     // Store Creation
     public $storeName;
     public $storeDescription;
+    public $image;
 
     // Add User to Store
     public $selectedUsers;
@@ -56,17 +60,21 @@ class TeamManagement extends Component
         $this->validate([
             'storeName' => 'required|unique:stores,name',
             'storeDescription' => 'nullable|string|max:255',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        $logoPath = $this->image ? $this->image->store('logos', 'public') : null;
 
         Store::create([
             'name' => $this->storeName,
             'description' => $this->storeDescription,
+            'logo' => $logoPath,
             'owner_id' => Auth::id(),
             'tenant_id' => Auth::user()->tenant_id,
         ]);
 
         session()->flash('status', 'Store created successfully!');
-        $this->reset(['storeName', 'storeDescription']);
+        $this->reset(['storeName', 'storeDescription', 'image']);
         $this->loadData();
     }
 

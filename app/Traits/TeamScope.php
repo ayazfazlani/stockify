@@ -38,15 +38,15 @@ trait TeamScope
       $currentStoreId = $user->current_team_id; // Still stored in current_team_id column in users table
 
       if ($currentStoreId) {
-        $builder->where(function ($query) use ($user, $currentStoreId, $scopeColumn, $hasUserIdColumn) {
+        $builder->where(function ($query) use ($user, $currentStoreId, $scopeColumn, $hasUserIdColumn, $table) {
           if ($scopeColumn) {
-            $query->where($scopeColumn, $currentStoreId);
+            $query->where($table . '.' . $scopeColumn, $currentStoreId);
           }
           if ($hasUserIdColumn) {
             if ($scopeColumn) {
-               $query->orWhere('user_id', $user->id);
+               $query->orWhere($table . '.user_id', $user->id);
             } else {
-               $query->where('user_id', $user->id);
+               $query->where($table . '.user_id', $user->id);
             }
           }
         });
@@ -55,9 +55,9 @@ trait TeamScope
 
       // Fallback if no store is selected
       if ($hasUserIdColumn) {
-        $builder->where('user_id', $user->id);
+        $builder->where($table . '.user_id', $user->id);
       } elseif ($scopeColumn) {
-        $builder->whereNull($scopeColumn);
+        $builder->whereNull($table . '.' . $scopeColumn);
       }
     });
 

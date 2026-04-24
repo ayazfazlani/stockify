@@ -31,6 +31,15 @@ class Login extends Component
             // Handle Tenant redirect
             $tenant = \App\Models\Tenant::find($user->tenant_id);
             if ($tenant) {
+                $isTenantBlocked = ! (bool) ($tenant->is_active ?? false)
+                    || in_array(strtolower((string) ($tenant->status ?? '')), ['blocked', 'inactive', 'suspended'], true);
+
+                if ($isTenantBlocked) {
+                    Auth::logout();
+
+                    return redirect()->back()->with('error', 'Your company access is currently blocked. Contact support.');
+                }
+
                 // If they are on a specific tenant login, but belong to another, redirect them to THEIR tenant
                 // But usually, staying within the path-based intended URL is better if it exists.
                 return redirect()->to('/' . $tenant->slug . '/admin')->with('status', 'Login successful!');

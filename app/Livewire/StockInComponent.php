@@ -3,11 +3,13 @@
 namespace App\Livewire;
 
 use App\Models\Item;
+use App\Models\ItemBarcode;
 use App\Models\StockIn;
 use Livewire\Component;
 use App\Models\Transaction;
 use Livewire\WithFileUploads;
 use App\Services\AnalyticsService;
+use App\Services\InventoryAuditService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
@@ -42,6 +44,7 @@ class StockInComponent extends Component
     public $currentSerial = '';
 
     public $isScanningForSku = false;
+    public $additionalCodes = '';
 
     public function mount()
     {
@@ -103,9 +106,7 @@ class StockInComponent extends Component
 
         // Default: Stock selection scanner
         $teamId = Auth::user()->getCurrentStoreId();
-        $item = Item::where('sku', $code)
-            ->where('store_id', $teamId)
-            ->first();
+        $item = Item::resolveByCode($code, $teamId);
 
         if ($item) {
             $this->toggleItemSelection($item->id);
@@ -147,6 +148,7 @@ class StockInComponent extends Component
             'newItem.quantity' => $this->newItem['tracking_type'] === 'standard' ? 'required|integer|min:0' : 'nullable|integer',
             'newItem.tracking_type' => 'required|in:standard,serialized',
             'newItem.image' => 'nullable|image|max:2048',
+            'additionalCodes' => 'nullable|string',
         ]);
 
         if ($this->newItem['tracking_type'] === 'serialized' && count($this->scannedSerials) === 0) {
@@ -186,6 +188,33 @@ class StockInComponent extends Component
                 }
             }
 
+            $codes = collect(explode(',', (string) $this->additionalCodes))
+                ->map(fn($value) => trim($value))
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($codes->isNotEmpty()) {
+                $existingCodes = ItemBarcode::query()
+                    ->where('store_id', $teamId)
+                    ->whereIn('code', $codes->all())
+                    ->pluck('code')
+                    ->all();
+
+                if (! empty($existingCodes)) {
+                    throw new \RuntimeException('These barcodes are already in use: '.implode(', ', $existingCodes));
+                }
+
+                foreach ($codes as $code) {
+                    ItemBarcode::create([
+                        'item_id' => $item->id,
+                        'tenant_id' => Auth::user()->tenant_id,
+                        'store_id' => $teamId,
+                        'code' => $code,
+                    ]);
+                }
+            }
+
             Transaction::create([
                 'item_id' => $item->id,
                 'store_id' => $teamId,
@@ -207,7 +236,7 @@ class StockInComponent extends Component
             session()->flash('error', 'Error adding item: ' . $e->getMessage());
         }
 
-        $this->reset(['newItem', 'scannedSerials', 'currentSerial']);
+        $this->reset(['newItem', 'scannedSerials', 'currentSerial', 'additionalCodes']);
         $this->loadItems();
         $this->isModalOpen = false;
     }
@@ -220,6 +249,7 @@ class StockInComponent extends Component
             foreach ($this->selectedItems as $item) {
                 $itemModel = Item::find($item['id']);
                 if ($itemModel) {
+                    $beforeQty = (int) $itemModel->quantity;
                     $itemModel->quantity += $item['quantity'];
                     $itemModel->save();
 
@@ -236,6 +266,13 @@ class StockInComponent extends Component
                     ]);
 
                     (new AnalyticsService())->updateAllAnalytics($itemModel, $item['quantity'], 'stock_in');
+                    app(InventoryAuditService::class)->log(
+                        $itemModel,
+                        'stock_in',
+                        $beforeQty,
+                        (int) $item['quantity'],
+                        'Manual stock in'
+                    );
                 }
             }
 

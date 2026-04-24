@@ -61,4 +61,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT'),
     ],
 
+    'whatsapp' => [
+        'webhook_url' => env('WHATSAPP_WEBHOOK_URL'),
+    ],
+
 ];

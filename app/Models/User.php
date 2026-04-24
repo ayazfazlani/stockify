@@ -101,16 +101,16 @@ class User extends Authenticatable
 
     public function getCurrentStoreId()
     {
-        // Get store ID from session (for multi-store users)
-        $storeId = (int) session('current_store_id');
+        // Get store ID from session, fallback to store_id
+        $storeId = session('current_store_id') ?: $this->store_id;
 
-        // Validate store membership via pivot table
-        if ($storeId && $this->teams()->where('store_id', $storeId)->exists()) {
-            return $storeId;
+        // Validate store membership/ownership
+        if ($storeId && $this->accessibleTeams()->contains('id', $storeId)) {
+            return (int) $storeId;
         }
 
-        // Fallback for single-store users (get first store from pivot)
-        return $this->teams()->first()->id ?? null;
+        // Fallback for single-store users (get first available store)
+        return $this->accessibleTeams()->first()->id ?? null;
     }
 
     // Get all teams user has access to
@@ -120,7 +120,10 @@ class User extends Authenticatable
             return Store::all();
         }
 
-        return $this->teams;
+        $ownedTeams = Store::where('owner_id', $this->id)->get();
+        $memberTeams = $this->teams;
+
+        return $ownedTeams->merge($memberTeams)->unique('id');
     }
 
     // Subscribtion fields

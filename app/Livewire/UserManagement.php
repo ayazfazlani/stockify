@@ -60,6 +60,7 @@ class UserManagement extends Component
         InvitationToken::create([
             'email' => $this->email,
             'token' => $token,
+            'tenant_id' => Auth::user()->tenant_id,
             'expires_at' => now()->addHours($expirationTime),
         ]);
 

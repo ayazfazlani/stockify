@@ -24,17 +24,21 @@
                     </div>
                 </div>
 
-                <!-- Team Switcher -->
-                @if(auth()->user()->teams->count() > 1)
-                    <div class="relative">
-                        @livewire('team-switcher') <!-- Assuming you have a Livewire component for team switching -->
-                    </div>
-                @endif
+
 
                 <!-- User Profile -->
                 <div class="relative">
+                    @php
+                        $user = auth()->user();
+                        $tenantAvatarPath = $user && isset($user->tenant_id)
+                            ? \App\Models\Tenant::where('id', $user->tenant_id)->value('avatar')
+                            : null;
+                        $profileImage = $tenantAvatarPath
+                            ? \Illuminate\Support\Facades\Storage::disk('public')->url($tenantAvatarPath)
+                            : 'https://th.bing.com/th/id/OIP.x7X2oAehk5M9IvGwO_K0PgHaHa?rs=1&pid=ImgDetMain';
+                    @endphp
                     <button id="userButton" class="flex items-center focus:outline-none space-x-2">
-                        <img src="https://th.bing.com/th/id/OIP.x7X2oAehk5M9IvGwO_K0PgHaHa?rs=1&pid=ImgDetMain"
+                        <img src="{{ $profileImage }}"
                             alt="User Image" class="w-10 h-10 rounded-full border border-gray-300">
                         <span class="hidden md:block text-gray-700">{{ Auth::user()->name ?? 'John Doe' }}</span>
                     </button>
@@ -42,7 +46,6 @@
                     <div id="userDropdown"
                         class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
                         @php
-                            $user = auth()->user();
                             $adminUrl = '#';
                             if ($user->isSuperAdmin()) {
                                 $adminUrl = route('super-admin.dashboard');

@@ -33,6 +33,7 @@ class InviteUser extends Component
         InvitationToken::create([
             'email' => $this->email,
             'token' => $token,
+            'tenant_id' => auth()->user()?->tenant_id,
             'expires_at' => now()->addHours(24), // Token valid for 24 hours
         ]);
 

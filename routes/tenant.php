@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\SubscriptionController;
+use App\Livewire\Adjust;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
+use App\Livewire\Dashboard as AnalyticsDashboard;
 use App\Livewire\ItemList;
+use App\Livewire\PurchaseOrders;
 use App\Livewire\StockInComponent;
 use App\Livewire\StockOutComponent;
+use App\Livewire\Summary;
 use App\Livewire\SubscriptionManagement;
 use App\Livewire\TeamManagement;
-use App\Livewire\Tenant\Admin\Dashboard;
+use App\Livewire\Tenant\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Transactions;
+use App\Livewire\ExpenseTracker;
 use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
@@ -51,17 +56,32 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
     Route::get('/login', Login::class)->name('login');
 
     Route::middleware(['auth'])->group(function () {
-        // Your existing authenticated routes...
+        // Core inventory (included in all plans)
         Route::get('/home', ItemList::class)->name('home');
         Route::get('/itemlist', ItemList::class)->name('items');
         Route::get('/stockin', StockInComponent::class)->name('stock-in');
         Route::get('/stockout', StockOutComponent::class)->name('stock-out');
+        Route::get('/adjust', Adjust::class)->name('adjust');
         Route::get('/transactions', Transactions::class)->name('transactions');
-        Route::get('/analytics', Analytic::class)->name('analytics');
-        Route::get('/user', UserManagement::class)->name('user');
-        Route::get('/admin', Dashboard::class)->name('admin');
+        Route::get('/expenses', ExpenseTracker::class)->name('expenses');
+        Route::get('/purchase-orders', PurchaseOrders::class)->name('purchase-orders');
+        Route::get('/dashboard', AnalyticsDashboard::class)->name('dashboard');
+        Route::get('/admin', AdminDashboard::class)->name('admin');
         Route::get('/plans', [PlansController::class, 'index'])->name('plans.index');
         Route::get('/plans/{plan}', [PlansController::class, 'show'])->name('plans.show');
+
+        // Plan-gated modules (matches PlanFeature enum keys in plan_features)
+        Route::middleware(['feature:analytics'])->group(function () {
+            Route::get('/analytics', Analytic::class)->name('analytics');
+        });
+
+        Route::middleware(['feature:advanced-reports'])->group(function () {
+            Route::get('/summary', Summary::class)->name('summary');
+        });
+
+        Route::middleware(['feature:custom-roles'])->group(function () {
+            Route::get('/user', UserManagement::class)->name('user');
+        });
 
         // Route::stripeWebhooks('stripe/webhook');   // ← this is the Cashier default
         // // Subscriptions

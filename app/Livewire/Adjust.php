@@ -3,12 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\Item;
+use App\Models\Supplier;
 use App\Models\Summary;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Analytics;
 use App\Models\Transaction;
 use App\Services\AnalyticsService;
+use App\Services\InventoryAuditService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,11 +27,13 @@ class Adjust extends Component
     public $loading = false;
     public $search = '';
     public $dateRange = ['start' => '', 'end' => ''];
+    public $suppliers = [];
 
     public function mount()
     {
         $this->resetNewItem();
         $this->fetchItems();
+        $this->loadSuppliers();
     }
 
     private function resetNewItem()
@@ -43,7 +47,21 @@ class Adjust extends Component
             'brand' => '',
             'image' => null,
             'quantity' => 0,
+            'reorder_level' => 0,
+            'reorder_quantity' => 1,
+            'supplier_id' => null,
         ];
+    }
+
+    private function loadSuppliers(): void
+    {
+        $teamId = Auth::user()->getCurrentStoreId();
+        $this->suppliers = Supplier::query()
+            ->where('tenant_id', Auth::user()->tenant_id)
+            ->where('store_id', $teamId)
+            ->orderBy('name')
+            ->get()
+            ->all();
     }
 
     public function fetchItems()
@@ -51,7 +69,7 @@ class Adjust extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $this->loading = true;
 
-        $query = Item::query()->when(!Auth::user()->hasRole('super admin'), fn($q) => $q->where('team_id', $teamId));
+        $query = Item::query()->when(!Auth::user()->hasRole('super admin'), fn($q) => $q->where('store_id', $teamId));
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -108,6 +126,9 @@ class Adjust extends Component
             'newItem.type' => 'nullable|string|max:255',
             'newItem.brand' => 'nullable|string|max:255',
             'newItem.quantity' => 'required|numeric|min:0',
+            'newItem.reorder_level' => 'required|integer|min:0',
+            'newItem.reorder_quantity' => 'required|integer|min:1',
+            'newItem.supplier_id' => 'nullable|exists:suppliers,id',
             'newItem.image' => 'nullable|image|max:3072',
         ];
     }
@@ -139,11 +160,18 @@ class Adjust extends Component
             if ($quantityDifference != 0) {
                 $this->logTransaction($item, 'adjusted', $quantityDifference);
                 (new AnalyticsService())->updateAllAnalytics($item, $item->quantity, 'update');
+                app(InventoryAuditService::class)->log(
+                    $item,
+                    'adjust',
+                    (int) $originalQuantity,
+                    (int) $quantityDifference,
+                    'Manual adjustment'
+                );
             }
             session()->flash('success', 'Item updated successfully!');
         } else {
             $this->newItem['image'] = $this->handleImageUpload($this->newItem['image']);
-            $this->newItem['team_id'] = $teamId;
+            $this->newItem['store_id'] = $teamId;
 
             $item = Item::create($this->newItem);
             $this->logTransaction($item, 'created', $item->quantity);
@@ -160,7 +188,7 @@ class Adjust extends Component
         Transaction::create([
             'item_id' => $item->id,
             'user_id' => Auth::user()->id,
-            'team_id' => Auth::user()->getCurrentStoreId(),
+            'store_id' => Auth::user()->getCurrentStoreId(),
             'item_name' => $item->name,
             'type' => $type,
             'quantity' => $quantityDifference,

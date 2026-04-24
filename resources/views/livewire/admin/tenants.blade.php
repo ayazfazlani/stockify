@@ -52,18 +52,18 @@
                         <td class="px-6 py-4 whitespace-nowrap font-medium">{{ $tenant->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $tenant->slug }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{-- {{ $tenant->owner?->name ?? '—' }} --}}
+                            {{ $tenant->owner?->name ?? '—' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $tenant->plan_name ?? '—' }}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $tenant->subscription_plan ?? '—' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                            {{-- {{ Str::limit($tenant->stripe_price_id ?? '—', 18, '...') }} --}}
+                            {{ \Illuminate\Support\Str::limit(optional($tenant->subscription('default'))->stripe_price ?? '—', 18, '...') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <button wire:click="toggleActive({{ $tenant->id }})"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        {{ $tenant->active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $tenant->active ? 'Active' : 'Inactive' }}
+                                        {{ $tenant->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ $tenant->is_active ? 'Active' : 'Blocked' }}
                             </button>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

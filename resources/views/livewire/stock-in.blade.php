@@ -25,10 +25,16 @@
     </div>
 
     <!-- Main Scanner (for Selection) -->
+    @feature('barcode-scanning')
     <div class="mb-6">
         <h3 class="text-sm font-medium text-gray-500 mb-2">Scan to auto-select product</h3>
         <livewire:qr-scanner :scannerId="'selection-scanner'" />
     </div>
+    @else
+    <div class="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-900">
+        Camera barcode scanning is not included in your current plan. You can still search and select products below.
+    </div>
+    @endfeature
 
     <div class="flex items-center gap-4 mb-6 max-sm:flex-wrap">
         <div class="flex-1">
@@ -177,15 +183,19 @@
                     <div class="flex gap-2 mb-2">
                         <input type="text" wire:model="newItem.sku" placeholder="SKU" 
                             class="flex-1 p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        @feature('barcode-scanning')
                         <button type="button" wire:click="$toggle('isScanningForSku')" class="px-3 py-1 bg-gray-800 text-white rounded-md text-xs">
                             {{ $isScanningForSku ? 'Hide Scanner' : 'Scan SKU' }}
                         </button>
+                        @endfeature
                     </div>
+                    @feature('barcode-scanning')
                     @if($isScanningForSku)
                         <div class="mt-2 border-t pt-2">
                             <livewire:qr-scanner :scannerId="'modal-scanner'" />
                         </div>
                     @endif
+                    @endfeature
                     @error('newItem.sku') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
 
@@ -202,6 +212,14 @@
                     <input type="text" wire:model="newItem.name" placeholder="Name" 
                         class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
                     @error('newItem.name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Additional Barcodes (optional)</label>
+                    <input type="text" wire:model="additionalCodes" placeholder="Comma separated, e.g. 890123, 890124"
+                        class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Any barcode here will scan to this same product and quantity.</p>
+                    @error('additionalCodes') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 </div>
     
                 <div class="grid grid-cols-2 gap-4">

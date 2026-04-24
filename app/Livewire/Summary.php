@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\PlanFeature;
 use Livewire\Component;
 use App\Models\Analytics;
 use App\Exports\ReportsExport;
@@ -27,7 +28,7 @@ class Summary extends Component
     public function fetchReports()
     {
         $query = Analytics::query()
-            ->select('id', 'item_name', 'total_stock_in', 'total_stock_out', 'current_quantity', 'inventory_assets', 'team_id', 'created_at');
+            ->select('id', 'item_name', 'total_stock_in', 'total_stock_out', 'current_quantity', 'inventory_assets', 'store_id', 'created_at');
 
         // Check user role and apply team-based filtering
         if (auth()->check()) {
@@ -38,7 +39,7 @@ class Summary extends Component
                 $currentTeamId = $teamId = Auth::user()->getCurrentStoreId();
 
                 if ($currentTeamId) {
-                    $query->where('team_id', $currentTeamId);
+                    $query->where('store_id', $currentTeamId);
                 } else {
                     // Handle missing or invalid team ID
                     $this->reports = collect();
@@ -83,6 +84,15 @@ class Summary extends Component
      */
     public function exportExcel()
     {
+        if (! auth()->user()?->isSuperAdmin()) {
+            $tenant = tenant();
+            if (! $tenant || ! $tenant->hasFeature(PlanFeature::BULK_EXPORT)) {
+                session()->flash('error', 'Export is not included in your current plan.');
+
+                return;
+            }
+        }
+
         if ($this->reports->isEmpty()) {
             session()->flash('error', 'No reports available to export.');
             return;

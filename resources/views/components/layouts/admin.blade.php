@@ -289,6 +289,7 @@
       padding: 1.5rem;
       margin-bottom: 2rem;
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      min-height: 320px;
     }
 
     .chart-header {
@@ -447,8 +448,12 @@
 
     .tabs {
       display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
       border-bottom: 1px solid hsl(var(--border));
       margin-bottom: 1.5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .tab {
@@ -459,6 +464,7 @@
       color: hsl(var(--muted-foreground));
       border-bottom: 2px solid transparent;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .tab.active {
@@ -549,6 +555,11 @@
 
       .grid-2 {
         grid-template-columns: 1fr;
+      }
+
+      .tab {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8125rem;
       }
 
       .search-bar {
@@ -708,37 +719,44 @@
         });
 
         // Chart initialization
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctx, {
-            type: 'line',
-            data: {
+        const chartCanvas = document.getElementById('revenueChart');
+        if (chartCanvas) {
+            const chartData = window.revenueChartData || {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Revenue ($)',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000],
-                    borderColor: 'rgb(59, 130, 246)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: false
-                    }
+                data: [12000, 19000, 15000, 25000, 22000, 30000]
+            };
+            const ctx = chartCanvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: chartData.data,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // Mobile sidebar toggle
         if (window.innerWidth <= 640) {

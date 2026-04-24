@@ -39,7 +39,7 @@ class Tenants extends Component
 
     public function mount()
     {
-        $this->tenants = Tenant::latest()->get();
+        $this->tenants = Tenant::with('owner')->latest()->get();
     }
 
     public function create()
@@ -56,9 +56,9 @@ class Tenants extends Component
         $this->name = $tenant->name;
         $this->slug = $tenant->slug;
         $this->owner = $tenant->owner?->email ?? $tenant->owner?->name ?? '';
-        $this->plan_name = $tenant->plan_name;
-        $this->stripe_price_id = $tenant->stripe_price_id;
-        $this->active = $tenant->active;
+        $this->plan_name = $tenant->subscription_plan;
+        $this->stripe_price_id = optional($tenant->subscription('default'))->stripe_price;
+        $this->active = (bool) $tenant->is_active;
 
         $this->showModal = true;
     }
@@ -72,16 +72,30 @@ class Tenants extends Component
 
         if ($this->editingId) {
             $tenant = Tenant::findOrFail($this->editingId);
-            $tenant->update($validated);
+            $tenant->update([
+                'name' => $validated['name'],
+                'slug' => $validated['slug'],
+                'subscription_plan' => $validated['plan_name'] ?: null,
+                'is_active' => (bool) $validated['active'],
+                'status' => (bool) $validated['active'] ? 'active' : 'blocked',
+            ]);
             session()->flash('message', 'Tenant updated successfully.');
         } else {
-            Tenant::create($validated);
+            Tenant::create([
+                'name' => $validated['name'],
+                'slug' => $validated['slug'],
+                'subscription_plan' => $validated['plan_name'] ?: null,
+                'is_active' => (bool) $validated['active'],
+                'status' => (bool) $validated['active'] ? 'active' : 'blocked',
+                'owner_id' => null,
+                'data' => [],
+            ]);
             session()->flash('message', 'Tenant created successfully.');
         }
 
         $this->resetForm();
         $this->showModal = false;
-        $this->tenants = Tenant::latest()->get(); // refresh
+        $this->tenants = Tenant::with('owner')->latest()->get(); // refresh
     }
 
     public function delete($id)
@@ -96,7 +110,11 @@ class Tenants extends Component
     public function toggleActive($id)
     {
         $tenant = Tenant::findOrFail($id);
-        $tenant->update(['active' => ! $tenant->active]);
+        $nextState = ! (bool) $tenant->is_active;
+        $tenant->update([
+            'is_active' => $nextState,
+            'status' => $nextState ? 'active' : 'blocked',
+        ]);
 
         session()->flash('message', 'Tenant status updated.');
         $this->tenants = Tenant::with('owner')->latest()->get();

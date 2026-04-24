@@ -79,7 +79,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         })->name('google.callback');
     });
 
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'super-admin'])->group(function () {
         Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('dashboard');
         Route::get('subscriptionManager', \App\Livewire\SuperAdmin\SubscriptionManager::class)->name('subscription-manager');
         Route::get('/users', Users::class)->name('users');

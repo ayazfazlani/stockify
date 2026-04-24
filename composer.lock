@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eca328b2db72f860d883bc92b956807d",
+    "content-hash": "43315fef207808007f8809a3ba310f66",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
-            "version": "v3.0.3",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Bacon/BaconQrCode.git",
-                "reference": "36a1cb2b81493fa5b82e50bf8068bf84d1542563"
+                "reference": "4da2233e72eeecd9be3b62e0dc2cc9ed8e2e31c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/36a1cb2b81493fa5b82e50bf8068bf84d1542563",
-                "reference": "36a1cb2b81493fa5b82e50bf8068bf84d1542563",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/4da2233e72eeecd9be3b62e0dc2cc9ed8e2e31c2",
+                "reference": "4da2233e72eeecd9be3b62e0dc2cc9ed8e2e31c2",
                 "shasum": ""
             },
             "require": {
@@ -57,9 +57,9 @@
             "homepage": "https://github.com/Bacon/BaconQrCode",
             "support": {
                 "issues": "https://github.com/Bacon/BaconQrCode/issues",
-                "source": "https://github.com/Bacon/BaconQrCode/tree/v3.0.3"
+                "source": "https://github.com/Bacon/BaconQrCode/tree/v3.1.1"
             },
-            "time": "2025-11-19T17:15:36+00:00"
+            "time": "2026-04-05T21:06:35+00:00"
         },
         {
             "name": "barryvdh/laravel-dompdf",
@@ -930,21 +930,21 @@
         },
         {
             "name": "endroid/qr-code",
-            "version": "5.1.0",
+            "version": "6.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/endroid/qr-code.git",
-                "reference": "393fec6c4cbdc1bd65570ac9d245704428010122"
+                "reference": "21e888e8597440b2205e2e5c484b6c8e556bcd1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/endroid/qr-code/zipball/393fec6c4cbdc1bd65570ac9d245704428010122",
-                "reference": "393fec6c4cbdc1bd65570ac9d245704428010122",
+                "url": "https://api.github.com/repos/endroid/qr-code/zipball/21e888e8597440b2205e2e5c484b6c8e556bcd1a",
+                "reference": "21e888e8597440b2205e2e5c484b6c8e556bcd1a",
                 "shasum": ""
             },
             "require": {
                 "bacon/bacon-qr-code": "^3.0",
-                "php": "^8.1"
+                "php": "^8.2"
             },
             "require-dev": {
                 "endroid/quality": "dev-main",
@@ -961,7 +961,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "5.x-dev"
+                    "dev-main": "6.x-dev"
                 }
             },
             "autoload": {
@@ -990,7 +990,7 @@
             ],
             "support": {
                 "issues": "https://github.com/endroid/qr-code/issues",
-                "source": "https://github.com/endroid/qr-code/tree/5.1.0"
+                "source": "https://github.com/endroid/qr-code/tree/6.0.9"
             },
             "funding": [
                 {
@@ -998,7 +998,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-09-08T08:52:55+00:00"
+            "time": "2025-07-13T19:59:45+00:00"
         },
         {
             "name": "evenement/evenement",
@@ -3500,25 +3500,24 @@
         },
         {
             "name": "nativephp/mobile",
-            "version": "3.0.4",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NativePHP/mobile-air.git",
-                "reference": "f626c1aa604a8b1096e2c630dfdb7eb7e273a6bc"
+                "reference": "866a6dd9896cfdee3f33bfb3a95d568711a6ff02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NativePHP/mobile-air/zipball/f626c1aa604a8b1096e2c630dfdb7eb7e273a6bc",
-                "reference": "f626c1aa604a8b1096e2c630dfdb7eb7e273a6bc",
+                "url": "https://api.github.com/repos/NativePHP/mobile-air/zipball/866a6dd9896cfdee3f33bfb3a95d568711a6ff02",
+                "reference": "866a6dd9896cfdee3f33bfb3a95d568711a6ff02",
                 "shasum": ""
             },
             "require": {
-                "endroid/qr-code": "^5.0",
                 "ext-dom": "*",
                 "ext-simplexml": "*",
                 "guzzlehttp/guzzle": "^7.9",
-                "illuminate/contracts": "^10.0|^11.0|^12.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
+                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
                 "laravel/prompts": "^0.1.1|^0.2|^0.3",
                 "php": "^8.3",
                 "react/datagram": "^1.10",
@@ -3526,11 +3525,12 @@
                 "workerman/workerman": "^4.1"
             },
             "require-dev": {
+                "endroid/qr-code": "^5.0",
                 "larastan/larastan": "^2.0",
                 "laravel/pint": "^1.0",
                 "nunomaduro/collision": "^7.9",
                 "orchestra/testbench": "^8.18",
-                "pestphp/pest": "^2.7",
+                "pestphp/pest": "^2.7|^3.0|^4.0",
                 "pestphp/pest-plugin-arch": "^2.0",
                 "pestphp/pest-plugin-laravel": "^2.0",
                 "phpstan/extension-installer": "^1.1",
@@ -3577,9 +3577,9 @@
             ],
             "support": {
                 "issues": "https://github.com/NativePHP/mobile-air/issues",
-                "source": "https://github.com/NativePHP/mobile-air/tree/3.0.4"
+                "source": "https://github.com/NativePHP/mobile-air/tree/3.2.2"
             },
-            "time": "2026-02-17T14:41:23+00:00"
+            "time": "2026-04-04T20:00:18+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -10867,12 +10867,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }

@@ -8,8 +8,8 @@
                     <i class="fas fa-users"></i>
                 </div>
             </div>
-            <div class="stat-card-value">1,248</div>
-            <div class="stat-card-desc">+12% from last month</div>
+            <div class="stat-card-value">{{ number_format($stats['total_users'] ?? 0) }}</div>
+            <div class="stat-card-desc">{{ number_format($stats['active_tenants'] ?? 0) }} active tenants</div>
         </div>
         <div class="stat-card">
             <div class="stat-card-header">
@@ -18,8 +18,8 @@
                     <i class="fas fa-credit-card"></i>
                 </div>
             </div>
-            <div class="stat-card-value">892</div>
-            <div class="stat-card-desc">+8% from last month</div>
+            <div class="stat-card-value">{{ number_format($stats['active_subscriptions'] ?? 0) }}</div>
+            <div class="stat-card-desc">Live active/trialing subscriptions</div>
         </div>
         <div class="stat-card">
             <div class="stat-card-header">
@@ -28,8 +28,8 @@
                     <i class="fas fa-dollar-sign"></i>
                 </div>
             </div>
-            <div class="stat-card-value">$24,580</div>
-            <div class="stat-card-desc">+15% from last month</div>
+            <div class="stat-card-value">${{ number_format((float) ($stats['monthly_revenue'] ?? 0), 2) }}</div>
+            <div class="stat-card-desc">Estimated recurring monthly revenue</div>
         </div>
         <div class="stat-card">
             <div class="stat-card-header">
@@ -38,8 +38,8 @@
                     <i class="fas fa-chart-line"></i>
                 </div>
             </div>
-            <div class="stat-card-value">3.2%</div>
-            <div class="stat-card-desc">-0.5% from last month</div>
+            <div class="stat-card-value">{{ number_format((float) ($stats['churn_rate'] ?? 0), 1) }}%</div>
+            <div class="stat-card-desc">{{ number_format($stats['blocked_tenants'] ?? 0) }} blocked tenants</div>
         </div>
     </div>
 
@@ -53,87 +53,66 @@
 
     <!-- Overview Tab -->
     <div class="tab-content active" id="overview">
-        <!-- Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Revenue Overview</div>
-                <div>
-                    <button class="btn btn-outline btn-sm">Last 7 days</button>
-                    <button class="btn btn-primary btn-sm">Last 30 days</button>
+        <div class="grid-2">
+            <!-- Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Revenue Overview</div>
+                    <div>
+                        <button class="btn btn-outline btn-sm">Last 7 days</button>
+                        <button class="btn btn-primary btn-sm">Last 30 days</button>
+                    </div>
                 </div>
+                <canvas id="revenueChart"></canvas>
             </div>
-            <canvas id="revenueChart"></canvas>
-        </div>
 
-        <!-- Users Table -->
-        <div class="users-table-container">
-            <div class="table-header">
-                <div class="table-title">Recent Subscribers</div>
+            <!-- Users Table -->
+            <div class="users-table-container">
+                <div class="table-header">
+                <div class="table-title">Recent Tenants</div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tenant</th>
+                            <th>Email</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($recentTenants as $tenant)
+                            @php
+                                $planClass = match (strtolower((string) ($tenant->subscription_plan ?? 'basic'))) {
+                                    'enterprise' => 'plan-enterprise',
+                                    'pro' => 'plan-pro',
+                                    default => 'plan-basic',
+                                };
+                            @endphp
+                            <tr>
+                                <td>{{ $tenant->name }}</td>
+                                <td>{{ $tenant->owner?->email ?? 'N/A' }}</td>
+                                <td><span class="plan-badge {{ $planClass }}">{{ ucfirst($tenant->subscription_plan ?? 'Free') }}</span></td>
+                                <td>
+                                    <span class="status-badge {{ $tenant->is_active ? 'status-active' : 'status-inactive' }}">
+                                        {{ $tenant->is_active ? 'Active' : 'Blocked' }}
+                                    </span>
+                                </td>
+                                <td>{{ optional($tenant->created_at)->format('M d, Y') }}</td>
+                                <td>
+                                    <a href="{{ route('super-admin.tenants') }}" class="btn btn-outline btn-sm">View</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6">No tenants found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Plan</th>
-                        <th>Status</th>
-                        <th>Join Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>John Smith</td>
-                        <td>john.smith@example.com</td>
-                        <td><span class="plan-badge plan-pro">Pro</span></td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>Apr 15, 2023</td>
-                        <td>
-                            <button class="btn btn-outline btn-sm">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Sarah Johnson</td>
-                        <td>sarah.j@example.com</td>
-                        <td><span class="plan-badge plan-enterprise">Enterprise</span></td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>Mar 28, 2023</td>
-                        <td>
-                            <button class="btn btn-outline btn-sm">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Michael Brown</td>
-                        <td>m.brown@example.com</td>
-                        <td><span class="plan-badge plan-basic">Basic</span></td>
-                        <td><span class="status-badge status-inactive">Inactive</span></td>
-                        <td>May 02, 2023</td>
-                        <td>
-                            <button class="btn btn-outline btn-sm">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Emily Davis</td>
-                        <td>emily.davis@example.com</td>
-                        <td><span class="plan-badge plan-pro">Pro</span></td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>Apr 22, 2023</td>
-                        <td>
-                            <button class="btn btn-outline btn-sm">View</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Robert Wilson</td>
-                        <td>robert.w@example.com</td>
-                        <td><span class="plan-badge plan-enterprise">Enterprise</span></td>
-                        <td><span class="status-badge status-active">Active</span></td>
-                        <td>Mar 15, 2023</td>
-                        <td>
-                            <button class="btn btn-outline btn-sm">View</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
@@ -191,3 +170,12 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        window.revenueChartData = {
+            labels: @json($revenueSeries['labels'] ?? []),
+            data: @json($revenueSeries['data'] ?? []),
+        };
+    </script>
+@endpush

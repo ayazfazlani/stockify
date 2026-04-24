@@ -7,12 +7,18 @@ use App\Models\Item;
 use App\Models\Plan;
 use App\Models\Store;
 use App\Models\Subscription;
+use App\Models\InventoryAudit;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Dashboard extends Component
 {
+    use WithFileUploads;
+
     // ── Active Settings Tab ─────────────────────────
     public string $activeSection = 'general';
 
@@ -22,6 +28,9 @@ class Dashboard extends Component
     public string $companyDescription = '';
     public string $timezone = 'UTC';
     public string $dateFormat = 'Y-m-d';
+    public string $tenantSlug = '';
+    public $avatar;
+    public ?string $currentAvatar = null;
 
     // ── Notification Preferences ────────────────────
     public bool $notifySecurityAlerts = true;
@@ -29,18 +38,65 @@ class Dashboard extends Component
     public bool $notifyProductUpdates = false;
     public bool $notifyLowStock = true;
 
+    // ── Analytics ───────────────────────────────────
+    public array $marginLeaders = [];
+    public $recentAudits = [];
+
     public function mount()
     {
-        $tenant = tenant();
+        $this->syncPlanFromActiveSubscription();
+
+        $tenant = $this->resolveTenant();
         $user = Auth::user();
 
         if ($tenant) {
+            $this->tenantSlug = (string) $tenant->slug;
             $this->companyName = $tenant->name ?? '';
             $this->contactEmail = $user->email ?? '';
             $this->companyDescription = $tenant->description ?? '';
             $this->timezone = $tenant->timezone ?? 'UTC';
             $this->dateFormat = $tenant->date_format ?? 'Y-m-d';
+            $this->currentAvatar = $tenant->avatar ? Storage::disk('public')->url($tenant->avatar) : null;
+            
+            $this->fetchMarginLeaders($tenant->id);
+            $this->fetchRecentAudits($tenant->id);
         }
+    }
+
+    public function fetchMarginLeaders(string $tenantId): void
+    {
+        $storeIds = Store::where('tenant_id', $tenantId)->pluck('id');
+
+        $this->marginLeaders = Item::query()
+            ->whereIn('store_id', $storeIds)
+            ->where('quantity', '>', 0)
+            ->orderByRaw('(price - cost) * quantity DESC')
+            ->take(8)
+            ->get()
+            ->map(function ($item) {
+                $marginValue = max(0, (float) $item->price - (float) $item->cost);
+                $marginPct = $item->price > 0 ? ($marginValue / (float) $item->price) * 100 : 0;
+                return [
+                    'name' => $item->name,
+                    'sku' => $item->sku,
+                    'qty' => (int) $item->quantity,
+                    'margin_value' => $marginValue,
+                    'margin_pct' => round($marginPct, 2),
+                    'profit_pool' => round($marginValue * (int) $item->quantity, 2),
+                ];
+            })
+            ->all();
+    }
+
+    public function fetchRecentAudits(string $tenantId): void
+    {
+        $storeIds = Store::where('tenant_id', $tenantId)->pluck('id');
+
+        $this->recentAudits = InventoryAudit::with(['item', 'user'])
+            ->whereIn('store_id', $storeIds)
+            ->latest()
+            ->take(10)
+            ->get();
     }
 
     /**
@@ -62,16 +118,28 @@ class Dashboard extends Component
             'companyDescription' => 'nullable|string|max:1000',
             'timezone' => 'required|string',
             'dateFormat' => 'required|string',
+            'avatar' => 'nullable|image|max:2048',
         ]);
 
         $tenant = tenant();
         if ($tenant) {
-            $tenant->update([
+            $updates = [
                 'name' => $this->companyName,
                 'description' => $this->companyDescription,
                 'timezone' => $this->timezone,
                 'date_format' => $this->dateFormat,
-            ]);
+            ];
+
+            if ($this->avatar) {
+                if ($tenant->avatar && Storage::disk('public')->exists($tenant->avatar)) {
+                    Storage::disk('public')->delete($tenant->avatar);
+                }
+                $updates['avatar'] = $this->avatar->store('avatars', 'public');
+            }
+
+            $tenant->update($updates);
+            $this->currentAvatar = $tenant->avatar ? Storage::disk('public')->url($tenant->avatar) : null;
+            $this->reset('avatar');
         }
 
         session()->flash('settings-success', 'General settings saved successfully!');
@@ -100,12 +168,31 @@ class Dashboard extends Component
      */
     public function getCurrentPlanProperty()
     {
-        $tenant = tenant();
-        if (!$tenant || !$tenant->plan_id) {
+        $tenant = $this->resolveTenant();
+        if (!$tenant) {
             return null;
         }
 
-        return Plan::with('planFeatures')->find($tenant->plan_id);
+        if ($tenant->plan_id) {
+            $plan = Plan::with('planFeatures')->find($tenant->plan_id);
+            if ($plan) {
+                return $plan;
+            }
+        }
+
+        $subscription = $this->currentSubscription;
+        if (!$subscription) {
+            return null;
+        }
+
+        if ($subscription->plan_id) {
+            $plan = Plan::with('planFeatures')->find($subscription->plan_id);
+            if ($plan) {
+                return $plan;
+            }
+        }
+
+        return Plan::with('planFeatures')->where('stripe_price_id', $subscription->stripe_price)->first();
     }
 
     /**
@@ -113,15 +200,113 @@ class Dashboard extends Component
      */
     public function getCurrentSubscriptionProperty()
     {
-        $tenant = tenant();
+        $tenant = $this->resolveTenant();
         if (!$tenant) {
             return null;
         }
 
         return Subscription::where('tenant_id', $tenant->id)
-            ->where('stripe_status', 'active')
+            ->whereIn('stripe_status', ['active', 'trialing', 'past_due'])
             ->latest()
             ->first();
+    }
+
+    public function changePlan(int $planId): void
+    {
+        $tenant = tenant();
+        if (!$tenant) {
+            session()->flash('settings-error', 'Tenant not found.');
+            return;
+        }
+
+        $plan = Plan::where('active', true)->find($planId);
+        if (!$plan) {
+            session()->flash('settings-error', 'Selected plan is not available.');
+            return;
+        }
+
+        if (! $tenant->subscribed('default')) {
+            session()->flash('settings-error', 'No active subscription found. Please subscribe first.');
+            return;
+        }
+
+        $currentSubscription = $tenant->subscription('default');
+        if (! $currentSubscription) {
+            session()->flash('settings-error', 'Subscription record not found.');
+            return;
+        }
+
+        if ($currentSubscription->stripe_price === $plan->stripe_price_id) {
+            session()->flash('settings-success', 'You are already on this plan.');
+            return;
+        }
+
+        try {
+            $currentSubscription->swap($plan->stripe_price_id);
+
+            Subscription::query()
+                ->where('tenant_id', $tenant->id)
+                ->where('type', 'default')
+                ->latest()
+                ->first()?->update([
+                    'plan_id' => $plan->id,
+                    'stripe_status' => 'active',
+                ]);
+
+            $tenant->update([
+                'plan_id' => $plan->id,
+                'subscription_plan' => $plan->slug,
+                'is_active' => true,
+            ]);
+
+            session()->flash('settings-success', "Plan changed to {$plan->name} successfully.");
+        } catch (\Throwable $e) {
+            report($e);
+            session()->flash('settings-error', 'Unable to change plan right now. Please try again.');
+        }
+    }
+
+    protected function syncPlanFromActiveSubscription(): void
+    {
+        $tenant = $this->resolveTenant();
+        if (!$tenant) {
+            return;
+        }
+
+        $activeSubscription = Subscription::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereIn('stripe_status', ['active', 'trialing', 'past_due'])
+            ->latest()
+            ->first();
+
+        if (!$activeSubscription) {
+            return;
+        }
+
+        $plan = null;
+        if ($activeSubscription->plan_id) {
+            $plan = Plan::find($activeSubscription->plan_id);
+        }
+
+        if (!$plan && $activeSubscription->stripe_price) {
+            $plan = Plan::where('stripe_price_id', $activeSubscription->stripe_price)->first();
+        }
+
+        if (!$plan) {
+            return;
+        }
+
+        if ((int) $activeSubscription->plan_id !== (int) $plan->id) {
+            $activeSubscription->update(['plan_id' => $plan->id]);
+        }
+
+        if ((int) $tenant->plan_id !== (int) $plan->id || !$tenant->is_active || $tenant->subscription_plan !== $plan->slug) {
+            $tenant->update([
+                'plan_id' => $plan->id,
+                'subscription_plan' => $plan->slug,
+                'is_active' => true,
+            ]);
+        }
     }
 
     /**
@@ -212,8 +397,23 @@ class Dashboard extends Component
      */
     public function tenantHasFeature(string $feature): bool
     {
-        $tenant = tenant();
+        $tenant = $this->resolveTenant();
         return $tenant ? $tenant->hasFeature($feature) : false;
+    }
+
+    protected function resolveTenant(): ?Tenant
+    {
+        $resolved = tenant();
+        if ($resolved) {
+            return $resolved;
+        }
+
+        $tenantId = Auth::user()?->tenant_id;
+        if (!$tenantId) {
+            return null;
+        }
+
+        return Tenant::query()->find($tenantId);
     }
 
     public function render()
@@ -225,6 +425,7 @@ class Dashboard extends Component
             'availablePlans' => $this->availablePlans,
             'planFeatures' => $this->planFeatures,
             'allFeatures' => PlanFeature::cases(),
+            'tenantSlug' => $this->tenantSlug,
         ]);
     }
 }

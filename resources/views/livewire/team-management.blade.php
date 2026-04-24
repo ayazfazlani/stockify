@@ -26,6 +26,16 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter store description" rows="3"></textarea>
             </div>
+            <div>
+                <label for="storeImage" class="block text-sm font-medium text-gray-700 mb-1">Store Logo</label>
+                <input id="storeImage" type="file" wire:model="image" accept="image/*"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 2MB.</p>
+                @error('image')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+                <div wire:loading wire:target="image" class="text-xs text-blue-600 mt-1">Uploading...</div>
+            </div>
         </div>
         <button type="submit"
             class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
@@ -108,7 +118,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach($stores as $store)
             <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">{{ $store->name }}</h3>
+                <div class="flex items-center gap-3 mb-2">
+                    <img
+                        src="{{ $store->logo ? \Illuminate\Support\Facades\Storage::disk('public')->url($store->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($store->name) }}"
+                        alt="{{ $store->name }} logo"
+                        class="w-10 h-10 rounded-lg object-cover border border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800">{{ $store->name }}</h3>
+                </div>
                 {{-- <p class="text-sm text-gray-600 mb-2">Owner: {{ $store->owner->name }}</p> --}}
                 <div class="border-t pt-2">
                     <h4 class="text-sm font-semibold text-gray-700 mb-2">Store Members</h4>

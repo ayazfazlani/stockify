@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckFeatureAccess
@@ -39,19 +40,34 @@ class CheckFeatureAccess
 
         foreach ($features as $feature) {
             if (! $tenant->hasFeature($feature)) {
+                $upgradeUrl = $this->upgradePlansUrl($request);
+
                 if ($request->expectsJson()) {
                     return response()->json([
                         'error' => 'This feature is not available on your current plan.',
                         'feature' => $feature,
-                        'upgrade_url' => route('subscription.index'),
+                        'upgrade_url' => $upgradeUrl,
                     ], 403);
                 }
 
-                return redirect()->route('subscription.index')
+                return redirect()->to($upgradeUrl)
                     ->with('error', 'This feature requires a plan upgrade.');
             }
         }
 
         return $next($request);
+    }
+
+    protected function upgradePlansUrl(Request $request): string
+    {
+        if (function_exists('tenancy') && tenancy()->initialized && tenant('slug')) {
+            return route('tenant.plans.index', ['tenant' => tenant('slug')]);
+        }
+
+        if (Route::has('subscription.index')) {
+            return route('subscription.index');
+        }
+
+        return url('/');
     }
 }

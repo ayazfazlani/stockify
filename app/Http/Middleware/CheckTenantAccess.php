@@ -35,6 +35,19 @@ class CheckTenantAccess
       abort(403, 'Unauthorized access to this company.');
     }
 
+    // 4. Block suspended/inactive tenants for all tenant users.
+    $tenant = tenant();
+    $isActive = (bool) ($tenant?->is_active ?? false);
+    $status = strtolower((string) ($tenant?->status ?? ''));
+    if (! $isActive || in_array($status, ['blocked', 'inactive', 'suspended'], true)) {
+      auth()->logout();
+      $request->session()->invalidate();
+      $request->session()->regenerateToken();
+
+      return redirect()->route('login')
+        ->with('error', 'Your company access is currently blocked. Contact support.');
+    }
+
     return $next($request);
   }
 }

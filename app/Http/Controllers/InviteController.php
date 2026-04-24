@@ -24,8 +24,8 @@ class InviteController extends Controller
         InvitationToken::create([
             'email' => $request->email,
             'token' => $token,
+            'tenant_id' => auth()->user()?->tenant_id,
             'expires_at' => now()->addMinutes(20),
-            dd($request->email) // Token valid for 24 hours
         ]);
 
 

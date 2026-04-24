@@ -49,29 +49,33 @@ class TeamSwitcher extends Component
   // }
   public function loadTeams()
   {
-    // Get teams from pivot relationship
-    $this->teams = Auth::user()->teams;
-
-    // Set current team: session → user's current → first team
-    $this->currentTeamId = session(
-      'current_team_id',
-      Auth::user()->current_team_id ?? optional($this->teams->first())->id
-    );
+    $currentTenantId = tenant('id');
+    $this->teams = Auth::user()->accessibleTeams()->where('tenant_id', $currentTenantId)->values();
+    $this->currentTeamId = Auth::user()->getCurrentStoreId();
   }
 
   public function switchTeam()
   {
-    // Validate team belongs to user
-    if (!$this->teams->contains('id', $this->currentTeamId)) {
+    // Validate team belongs to user's accessible teams
+    if (!collect($this->teams)->contains('id', $this->currentTeamId)) {
       abort(403, 'Unauthorized team selection');
     }
 
+    $store = collect($this->teams)->where('id', $this->currentTeamId)->first();
+    $tenant = \App\Models\Tenant::find($store->tenant_id);
+
     // Update session and database
-    session(['current_team_id' => $this->currentTeamId]);
-    Auth::user()->update(['current_team_id' => $this->currentTeamId]);
+    session([
+        'current_store_id' => $this->currentTeamId
+    ]);
+    Auth::user()->update(['store_id' => $this->currentTeamId]);
     session()->flash('status', 'Team switched successfully!');
-    // Force refresh of all components
-    return redirect()->route("home"); // Adjust to your route
+    
+    if ($tenant) {
+        return redirect()->route('tenant.items', ['tenant' => $tenant->slug]);
+    }
+    
+    return redirect()->route("home"); // Fallback
   }
   public function render()
   {

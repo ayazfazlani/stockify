@@ -25,6 +25,7 @@ class Tenant extends BaseTenant
         'subscription_plan',
         'is_active',
         'plan_id',
+        'avatar',
     ];
 
     public function getTenantKeyName(): string
@@ -50,6 +51,7 @@ class Tenant extends BaseTenant
         'subscription_plan',
         'is_active',
         'plan_id',
+        'avatar',
     ];
 
     /**

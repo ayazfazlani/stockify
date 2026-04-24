@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\TeamScope;
-use Illuminate\Support\Facades\Auth;
 
 class Item extends Model
 {
@@ -29,7 +28,10 @@ class Item extends Model
         'type',
         'brand',
         'quantity',
-        'tracking_type'
+        'tracking_type',
+        'reorder_level',
+        'reorder_quantity',
+        'supplier_id',
     ];
 
     public function store()
@@ -40,6 +42,11 @@ class Item extends Model
     public function serials()
     {
         return $this->hasMany(ItemSerial::class);
+    }
+
+    public function barcodes()
+    {
+        return $this->hasMany(ItemBarcode::class);
     }
 
     public function user()
@@ -55,6 +62,11 @@ class Item extends Model
     public function stockOuts()
     {
         return $this->hasMany(StockOut::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function transactions()
@@ -74,5 +86,23 @@ class Item extends Model
                 $item->sku = 'SKU-' . strtoupper(Str::random(8));
             }
         });
+    }
+
+    public static function resolveByCode(string $code, ?int $storeId = null): ?self
+    {
+        $normalizedCode = trim($code);
+        if ($normalizedCode === '') {
+            return null;
+        }
+
+        return static::query()
+            ->when($storeId, fn($query) => $query->where('store_id', $storeId))
+            ->where(function ($query) use ($normalizedCode) {
+                $query->where('sku', $normalizedCode)
+                    ->orWhereHas('barcodes', function ($barcodeQuery) use ($normalizedCode) {
+                        $barcodeQuery->where('code', $normalizedCode);
+                    });
+            })
+            ->first();
     }
 }

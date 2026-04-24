@@ -14,7 +14,9 @@ class Sale extends Model
         'store_id',
         'user_id',
         'total_amount',
-        'tenant_id'
+        'tenant_id',
+        'customer_name',
+        'customer_phone',
     ];
 
     public function transactions()

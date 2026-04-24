@@ -561,6 +561,8 @@
                 overflow-x: auto;
                 gap: 0;
                 position: static;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
             }
 
             .settings-nav-item {
@@ -568,6 +570,7 @@
                 border-left: none;
                 border-bottom: 3px solid transparent;
                 padding: 0.75rem 1rem;
+                flex: 0 0 auto;
             }
 
             .settings-nav-item.active {
@@ -583,6 +586,31 @@
         @media (max-width: 640px) {
             .settings-container {
                 padding: 1rem;
+            }
+
+            .settings-nav {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                overflow-x: visible;
+            }
+
+            .settings-nav-item {
+                white-space: normal;
+                border-bottom: 1px solid hsl(var(--border));
+                border-right: 1px solid hsl(var(--border));
+                border-left: none;
+                padding: 0.75rem;
+                justify-content: center;
+                text-align: center;
+                font-size: 0.8rem;
+            }
+
+            .settings-nav-item:nth-child(2n) {
+                border-right: none;
+            }
+
+            .settings-nav-item.active {
+                border-bottom-color: hsl(var(--primary));
             }
 
             .feature-grid {
@@ -611,11 +639,13 @@
                     <i class="fas fa-cog"></i>
                     <span>General</span>
                 </button>
+           
                 <button wire:click="switchSection('team')"
                     class="settings-nav-item {{ $activeSection === 'team' ? 'active' : '' }}">
                     <i class="fas fa-users"></i>
                     <span>Team</span>
                 </button>
+            
                 <button wire:click="switchSection('billing')"
                     class="settings-nav-item {{ $activeSection === 'billing' ? 'active' : '' }}">
                     <i class="fas fa-credit-card"></i>
@@ -651,6 +681,86 @@
                         <i class="fas fa-check-circle"></i> {{ session('settings-success') }}
                     </div>
                 @endif
+                @if(session()->has('settings-error'))
+                    <div class="flash-msg"
+                        style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #dc2626;">
+                        <i class="fas fa-exclamation-circle"></i> {{ session('settings-error') }}
+                    </div>
+                @endif
+
+                <div class="grid-2" style="margin-bottom: 1.5rem;">
+                    <div class="s-card" style="margin-bottom: 0;">
+                        <div class="s-card-header">
+                            <div class="s-card-title"><i class="fas fa-chart-line"></i> Profit & Margin Leaders</div>
+                            <div class="s-card-desc">Top performing items across your stores</div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; text-align: left; font-size: 0.8125rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid hsl(var(--border));">
+                                        <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground));">Item</th>
+                                        <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground));">Margin %</th>
+                                        <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground));">Profit Pool</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($marginLeaders as $leader)
+                                        <tr style="border-bottom: 1px solid hsl(var(--border));">
+                                            <td style="padding: 0.5rem 0;">
+                                                <div style="font-weight: 600; color: hsl(var(--foreground));">
+                                                    {{ $leader['name'] }}</div>
+                                                <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">
+                                                    {{ $leader['sku'] }} · Qty {{ $leader['qty'] }}</div>
+                                            </td>
+                                            <td style="padding: 0.5rem 0; color: hsl(var(--foreground));">
+                                                {{ number_format($leader['margin_pct'], 1) }}%</td>
+                                            <td style="padding: 0.5rem 0; color: #059669; font-weight: 600;">
+                                                ${{ number_format($leader['profit_pool'], 2) }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3"
+                                                style="padding: 1rem 0; color: hsl(var(--muted-foreground)); text-align: center;">
+                                                No margin data available.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="s-card" style="margin-bottom: 0;">
+                        <div class="s-card-header">
+                            <div class="s-card-title"><i class="fas fa-history"></i> Inventory Audit Trail</div>
+                            <div class="s-card-desc">Recent movements across your stores</div>
+                        </div>
+                        <div style="max-height: 250px; overflow-y: auto; padding-right: 0.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                @forelse($recentAudits as $audit)
+                                    <div
+                                        style="padding: 0.75rem; border: 1px solid hsl(var(--border)); border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-size: 0.8125rem; font-weight: 600; color: hsl(var(--foreground));">
+                                                {{ $audit->item?->name ?? 'Item' }} · {{ strtoupper($audit->action) }}</div>
+                                            <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">
+                                                {{ $audit->user?->name ?? 'System' }} ·
+                                                {{ $audit->created_at?->diffForHumans() }}</div>
+                                        </div>
+                                        <div style="text-align: right; font-size: 0.8125rem;">
+                                            <div style="color: hsl(var(--foreground)); font-weight: 500;">
+                                                {{ $audit->before_qty }} &rarr; {{ $audit->after_qty }}</div>
+                                            <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">
+                                                {{ $audit->reason ?: 'No reason' }}</div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div style="padding: 1rem 0; color: hsl(var(--muted-foreground)); text-align: center;">No
+                                        audit events yet.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="s-card">
                     <div class="s-card-header">
@@ -675,6 +785,22 @@
                             <label class="form-label">Description</label>
                             <textarea class="form-textarea" wire:model="companyDescription" rows="3"
                                 placeholder="Brief description of your business..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tenant Avatar</label>
+                            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+                                <img src="{{ $avatar ? $avatar->temporaryUrl() : ($currentAvatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($companyName ?: 'Tenant')) }}"
+                                    alt="Tenant avatar preview"
+                                    style="width:48px; height:48px; border-radius:9999px; object-fit:cover; border:1px solid hsl(var(--border));">
+                                <span class="form-hint">Shown in team/admin contexts for your tenant profile.</span>
+                            </div>
+                            <input type="file" class="form-input" wire:model="avatar" accept="image/*">
+                            <div class="form-hint">PNG, JPG, WEBP up to 2MB.</div>
+                            @error('avatar')
+                                <div class="form-hint" style="color:#dc2626;">{{ $message }}</div>
+                            @enderror
+                            <div wire:loading wire:target="avatar" class="form-hint" style="color:#2563eb;">Uploading
+                                avatar...</div>
                         </div>
                         <div class="grid-2">
                             <div class="form-group">
@@ -711,11 +837,35 @@
 
             {{-- ─────────────── TEAM ─────────────────────────── --}}
             @if($activeSection === 'team')
+            @livewire('team-management')
+            <!-- @feature('custom-roles')
                 @livewire('team-management')
+            @else
+            <div class="s-card">
+                <div class="s-card-title"><i class="fas fa-lock"></i> Team management</div>
+                <p class="s-card-desc">Your current plan does not include advanced team and role management.</p>
+                <a href="{{ route('tenant.plans.index', ['tenant' => $tenantSlug ?? tenant('slug')]) }}"
+                    class="btn btn-primary mt-2">
+                    <i class="fas fa-arrow-up"></i> View plans
+                </a>
+            </div>
+            @endfeature -->
             @endif
 
             {{-- ─────────────── BILLING & PLANS ──────────────── --}}
             @if($activeSection === 'billing')
+                @if(session()->has('settings-success'))
+                    <div class="flash-msg flash-success">
+                        <i class="fas fa-check-circle"></i> {{ session('settings-success') }}
+                    </div>
+                @endif
+                @if(session()->has('settings-error'))
+                    <div class="flash-msg"
+                        style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #dc2626;">
+                        <i class="fas fa-exclamation-circle"></i> {{ session('settings-error') }}
+                    </div>
+                @endif
+
                 <div class="s-card">
                     <div class="s-card-header">
                         <div class="s-card-title"><i class="fas fa-crown"></i> Current Plan</div>
@@ -736,9 +886,10 @@
                                         <span class="plan-interval">/{{ $currentPlan->interval }}</span>
                                     </div>
                                 </div>
-                                <button class="btn btn-outline btn-sm">
-                                    <i class="fas fa-exchange-alt"></i> Change Plan
-                                </button>
+                                <a href="{{ route('tenant.subscription.show', ['tenant' => $tenantSlug]) }}"
+                                    class="btn btn-outline btn-sm">
+                                    <i class="fas fa-exchange-alt"></i> Manage Payment
+                                </a>
                             </div>
 
                             <div class="plan-meta">
@@ -832,16 +983,16 @@
                         @foreach($availablePlans as $plan)
                             @php $isCurrentPlan = $currentPlan && $currentPlan->id === $plan->id; @endphp
                             <div style="border: {{ $isCurrentPlan ? '2px solid hsl(var(--primary))' : '1px solid hsl(var(--border))' }};
-                                                                        border-radius: var(--radius);
-                                                                        padding: 1.25rem;
-                                                                        {{ $isCurrentPlan ? 'background-color: hsl(var(--primary) / 0.03);' : '' }}
-                                                                        position: relative;">
+                                                                                border-radius: var(--radius);
+                                                                                padding: 1.25rem;
+                                                                                {{ $isCurrentPlan ? 'background-color: hsl(var(--primary) / 0.03);' : '' }}
+                                                                                position: relative;">
                                 @if($isCurrentPlan)
                                     <div
                                         style="position: absolute; top: -8px; right: 12px;
-                                                                                                background-color: hsl(var(--primary)); color: white;
-                                                                                                font-size: 0.625rem; font-weight: 700; padding: 2px 8px;
-                                                                                                border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                                                                                            background-color: hsl(var(--primary)); color: white;
+                                                                                                            font-size: 0.625rem; font-weight: 700; padding: 2px 8px;
+                                                                                                            border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
                                         Current
                                     </div>
                                 @endif
@@ -856,10 +1007,11 @@
                                     {{ $plan->planFeatures->count() }} features included
                                 </div>
                                 @if(!$isCurrentPlan)
-                                    <button class="btn btn-outline btn-sm" style="width: 100%;">
+                                    <a href="{{ route('tenant.subscription.checkout', ['tenant' => $tenantSlug, 'plan' => $plan->id]) }}"
+                                        class="btn btn-outline btn-sm" style="width: 100%;">
                                         <i class="fas fa-arrow-up"></i>
                                         {{ $currentPlan && $plan->amount > $currentPlan->amount ? 'Upgrade' : 'Switch' }}
-                                    </button>
+                                    </a>
                                 @else
                                     <button class="btn btn-sm"
                                         style="width: 100%; background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); cursor: default;">
