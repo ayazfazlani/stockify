@@ -66,8 +66,8 @@
                         @endphp
                         <a wire:navigate href="{{ $adminUrl }}"
                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
-                        <a wire:navigate href="{{ $logoutUrl }}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        <a wire:click.prevent="logout" href="#"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Logout</a>
                     </div>
                 </div>
             @endauth
