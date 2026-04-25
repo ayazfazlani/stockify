@@ -24,7 +24,7 @@ class RegisterController extends Controller
             ->first();
 
         if (!$invitation) {
-            return redirect('/')->with('error', 'Invalid or expired invitation link.');
+            return redirect()->route('tenant.login')->with('error', 'Invalid or expired invitation link.');
         }
 
         return view('auth.register', ['email' => $invitation->email, 'token' => $token]);
@@ -48,7 +48,7 @@ class RegisterController extends Controller
             ->first();
 
         if (!$invitation || $invitation->email !== $request->email) {
-            return redirect('/')->with('error', 'Invalid or expired invitation link.');
+            return redirect()->route('tenant.login')->with('error', 'Invalid or expired invitation link.');
         }
 
         // Create the user
@@ -65,6 +65,6 @@ class RegisterController extends Controller
         // Log the user in
         Auth::login($user);
 
-        return redirect()->back()->with('status', 'Registration successful!');
+        return redirect()->route('tenant.dashboard')->with('status', 'Registration successful!');
     }
 }

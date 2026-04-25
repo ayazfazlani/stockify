@@ -52,8 +52,10 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
         return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
 
-    // / ---------------- Authenticated Routes ----------------
+    // / ---------------- Authenticated & Guest Routes ----------------
     Route::get('/login', Login::class)->name('login');
+    Route::get('/register', [\App\Http\Controllers\RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\RegisterController::class, 'register']);
 
     Route::middleware(['auth'])->group(function () {
         // Core inventory (included in all plans)

@@ -38,7 +38,13 @@ class InviteUser extends Component
         ]);
 
         // Send the invitation email
-        Mail::to($this->email)->send(new InviteUserMail($token));
+        $tenantSlug = tenant('slug');
+        if (! $tenantSlug && auth()->user()?->tenant_id) {
+            $tenant = \App\Models\Tenant::find(auth()->user()->tenant_id);
+            $tenantSlug = $tenant ? $tenant->slug : null;
+        }
+        
+        Mail::to($this->email)->send(new InviteUserMail($token, $tenantSlug));
 
         // Show a success message
         session()->flash('message', 'Invitation sent successfully!');

@@ -35,7 +35,7 @@ trait TeamScope
       }
 
       // Get the current store ID from the user context
-      $currentStoreId = $user->current_team_id; // Still stored in current_team_id column in users table
+      $currentStoreId = method_exists($user, 'getCurrentStoreId') ? $user->getCurrentStoreId() : $user->store_id;
 
       if ($currentStoreId) {
         $builder->where(function ($query) use ($user, $currentStoreId, $scopeColumn, $hasUserIdColumn, $table) {
@@ -66,7 +66,7 @@ trait TeamScope
       $table = $model->getTable();
       $hasStoreId = Schema::hasColumn($table, 'store_id');
       $hasTeamId = Schema::hasColumn($table, 'team_id');
-      $currentStoreId = Auth::check() ? Auth::user()->current_team_id : null;
+      $currentStoreId = Auth::check() && method_exists(Auth::user(), 'getCurrentStoreId') ? Auth::user()->getCurrentStoreId() : (Auth::check() ? Auth::user()->store_id : null);
 
       if ($currentStoreId) {
         if ($hasStoreId && !isset($model->store_id)) {

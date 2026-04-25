@@ -32,6 +32,11 @@ class UserManagement extends Component
 
     public function mount()
     {
+        $user = auth()->user();
+        if (!$user->isStoreAdmin() && !$user->isSuperAdmin() && tenant('owner_id') !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $this->users = User::with('roles')->where('tenant_id', Auth::user()->tenant_id)->get();
         $this->availableRoles = Role::all();
     }
@@ -66,7 +71,13 @@ class UserManagement extends Component
 
         // Send the invitation email
         try {
-            Mail::to($this->email)->send(new InviteUserMail($token));
+            $tenantSlug = tenant('slug');
+            if (! $tenantSlug && Auth::user()?->tenant_id) {
+                $tenant = \App\Models\Tenant::find(Auth::user()->tenant_id);
+                $tenantSlug = $tenant ? $tenant->slug : null;
+            }
+            
+            Mail::to($this->email)->send(new InviteUserMail($token, $tenantSlug));
             session()->flash('status', 'Invitation sent successfully!');
         } catch (\Exception $e) {
             // Handle mail sending failure

@@ -127,6 +127,13 @@ class TeamManagement extends Component
     public function removeUserFromStore($userId, $storeId)
     {
         $user = User::findOrFail($userId);
+
+        // Prevent non-super admins from removing a super admin from any store
+        if ($user->hasRole('super admin') && !Auth::user()->hasRole('super admin')) {
+            session()->flash('status', 'Unauthorized: You cannot remove a super admin from the store.');
+            return;
+        }
+
         $store = Store::findOrFail($storeId);
 
         // Detach user from store through pivot

@@ -104,6 +104,12 @@ class Dashboard extends Component
      */
     public function switchSection(string $section)
     {
+        if ($section === 'billing') {
+            $user = auth()->user();
+            if (!$user->isStoreAdmin() && !$user->isSuperAdmin() && tenant('owner_id') !== $user->id) {
+                abort(403, 'Unauthorized access to billing.');
+            }
+        }
         $this->activeSection = $section;
     }
 

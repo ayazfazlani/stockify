@@ -115,6 +115,7 @@
                 </li>
 
                 @feature('custom-roles')
+                @if(auth()->check() && (auth()->user()->isStoreAdmin() || auth()->user()->isSuperAdmin() || tenant('owner_id') === auth()->id()))
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'user')}}"
                         class="{{ request()->routeIs($routePrefix . 'user') ? 'active' : '' }}">
@@ -122,6 +123,7 @@
                         <span class="text nav-text">Users</span>
                     </a>
                 </li>
+                @endif
                 @endfeature
 
             </div>

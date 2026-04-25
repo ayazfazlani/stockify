@@ -13,13 +13,15 @@ class InviteUserMail extends Mailable
     use Queueable, SerializesModels;
 
     public $token;
+    public $tenant;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($token)
+    public function __construct($token, $tenant = null)
     {
         $this->token = $token;
+        $this->tenant = $tenant;
     }
 
     /**
@@ -37,9 +39,11 @@ class InviteUserMail extends Mailable
      */
     public function content(): Content
     {
+        $path = $this->tenant ? "/{$this->tenant}/register" : '/register';
+        
         return new Content(
             view: 'emails.invite-user', // Make sure this view exists
-            with: ['link' => url('/register?token=' . $this->token)],
+            with: ['link' => url($path . '?token=' . $this->token)],
         );
     }
 

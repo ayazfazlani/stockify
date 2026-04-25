@@ -7,7 +7,7 @@
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
 
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('tenant.register') }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
 
@@ -60,7 +60,7 @@
         </form>
 
         <div class="mt-4 text-center">
-            <a href="{{ route('login') }}" class="text-sm text-blue-600 hover:text-blue-500">
+            <a href="{{ route('tenant.login') }}" class="text-sm text-blue-600 hover:text-blue-500">
                 Already have an account? Login
             </a>
         </div>

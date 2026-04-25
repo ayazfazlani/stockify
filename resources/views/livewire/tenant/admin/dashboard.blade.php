@@ -646,11 +646,13 @@
                     <span>Team</span>
                 </button>
             
+                @if(auth()->check() && (auth()->user()->isStoreAdmin() || auth()->user()->isSuperAdmin() || tenant('owner_id') === auth()->id()))
                 <button wire:click="switchSection('billing')"
                     class="settings-nav-item {{ $activeSection === 'billing' ? 'active' : '' }}">
                     <i class="fas fa-credit-card"></i>
                     <span>Billing & Plans</span>
                 </button>
+                @endif
                 <button wire:click="switchSection('features')"
                     class="settings-nav-item {{ $activeSection === 'features' ? 'active' : '' }}">
                     <i class="fas fa-puzzle-piece"></i>
