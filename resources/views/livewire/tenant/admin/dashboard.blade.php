@@ -974,6 +974,63 @@
                     </div>
                 @endif
 
+                {{-- Billing History --}}
+                <div class="s-card">
+                    <div class="s-card-header">
+                        <div class="s-card-title"><i class="fas fa-file-invoice-dollar"></i> Billing History</div>
+                        <div class="s-card-desc">Recent payments and subscription transactions</div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; text-align: left; font-size: 0.8125rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid hsl(var(--border));">
+                                    <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground));">Date</th>
+                                    <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground));">Amount</th>
+                                    <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground));">Status</th>
+                                    <th style="padding-bottom: 0.5rem; color: hsl(var(--foreground)); text-align: right;">Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($paymentHistory as $payment)
+                                    <tr style="border-bottom: 1px solid hsl(var(--border));">
+                                        <td style="padding: 0.75rem 0; color: hsl(var(--foreground));">
+                                            {{ $payment->paid_at ? $payment->paid_at->format('M d, Y') : $payment->created_at->format('M d, Y') }}
+                                        </td>
+                                        <td style="padding: 0.75rem 0; font-weight: 600; color: hsl(var(--foreground));">
+                                            {{ strtoupper($payment->currency) }} {{ number_format($payment->amount / 100, 2) }}
+                                        </td>
+                                        <td style="padding: 0.75rem 0;">
+                                            @if($payment->status === 'succeeded' || $payment->status === 'paid')
+                                                <span style="background-color: rgba(16, 185, 129, 0.1); color: #059669; padding: 2px 8px; border-radius: 9999px; font-size: 0.6875rem; font-weight: 600;">Paid</span>
+                                            @elseif($payment->status === 'failed')
+                                                <span style="background-color: rgba(239, 68, 68, 0.1); color: #dc2626; padding: 2px 8px; border-radius: 9999px; font-size: 0.6875rem; font-weight: 600;">Failed</span>
+                                            @else
+                                                <span style="background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); padding: 2px 8px; border-radius: 9999px; font-size: 0.6875rem; font-weight: 600;">{{ ucfirst($payment->status) }}</span>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 0.75rem 0; text-align: right;">
+                                            @if($payment->stripe_invoice_id)
+                                                <a href="{{ route('tenant.invoices.download', ['tenant' => $tenantSlug, 'payment' => $payment->id]) }}" class="text-indigo-600 hover:text-indigo-900 font-medium flex items-center justify-end gap-1" title="Download PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    {{ strtoupper(substr($payment->stripe_invoice_id, -8)) }}
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" style="padding: 1.5rem 0; color: hsl(var(--muted-foreground)); text-align: center;">
+                                            No payment history available yet.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 {{-- Available Plans Comparison --}}
                 <div class="s-card">
                     <div class="s-card-header">

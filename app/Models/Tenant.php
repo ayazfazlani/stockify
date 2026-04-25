@@ -33,39 +33,25 @@ class Tenant extends BaseTenant
         return 'slug';
     }
 
-    /**
-     * Direct database columns (not stored in JSON data)
-     */
-    protected $directColumns = [
-        'id',
-        'name',
-        'slug',
-        'owner_id',
-        'status',
-        'created_at',
-        'updated_at',
-        'stripe_id',
-        'pm_type',
-        'pm_last_four',
-        'trial_ends_at',
-        'subscription_plan',
-        'is_active',
-        'plan_id',
-        'avatar',
-    ];
-
-    /**
-     * Override setAttribute to handle direct columns properly
-     */
-    public function setAttribute($key, $value)
+    public static function getCustomColumns(): array
     {
-        // If it's a direct column, use the parent's normal attribute setting
-        if (in_array($key, $this->directColumns)) {
-            parent::setAttribute($key, $value);
-        } else {
-            // Otherwise, let VirtualColumn handle it (stores in data column)
-            parent::setAttribute($key, $value);
-        }
+        return [
+            'id',
+            'name',
+            'slug',
+            'owner_id',
+            'status',
+            'created_at',
+            'updated_at',
+            'stripe_id',
+            'pm_type',
+            'pm_last_four',
+            'trial_ends_at',
+            'subscription_plan',
+            'is_active',
+            'plan_id',
+            'avatar',
+        ];
     }
 
     public function owner()

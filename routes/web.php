@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\PlansController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SubscriptionController;
 use App\Livewire\Admin\Analytics;
@@ -91,6 +93,9 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/support', Support::class)->name('support');
 
         Route::get('/pricing-plans', PricingPlans::class)->name('support');
+        // Invoice Downloads
+        Route::get('/invoices/{payment}/download', [\App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
+
         Route::post('/logout', function () {
             Auth::logout();
             request()->session()->invalidate();
@@ -137,81 +142,7 @@ Route::get('/auth/google/redirect', function () {
     return Socialite::driver('google')->redirect();
 })->name('super-admin.google.redirect');
 
-Route::get('/auth/google/callback', function () {
-    try {
-        /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
-        $driver = Socialite::driver('google');
-        $googleUser = $driver->stateless()->user();
-
-        // Find or create super admin user
-        $user = User::where('email', $googleUser->getEmail())->first();
-
-        if (!$user) {
-            $user = User::create([
-                'name' => $googleUser->getName(),
-                'email' => $googleUser->getEmail(),
-                'password' => bcrypt(Str::random(24)), // Add random password
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'is_super_admin' => true,
-                'email_verified_at' => now(),
-            ]);
-        } else {
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'is_super_admin' => true,
-            ]);
-        }
-
-        Auth::login($user, true);
-
-        return redirect()->route('super-admin.dashboard');
-
-    } catch (\Exception $e) {
-        \Log::error('Google OAuth Error: ' . $e->getMessage());
-
-        return redirect()->route('super-admin.login')
-            ->with('error', 'Google authentication failed. Please try again.');
-    }
-})->name('google.callback');
-
-/**
- * Root-level authenticated routes are deprecated in favor of tenant-specific routes.
- * See routes/tenant.php for the active routes.
- */
-/*
-Route::middleware(['auth'])->group(function () {
-    // Your existing authenticated routes...
-    Route::get('/home', ItemList::class)->name('home');
-    Route::get('/itemlist', ItemList::class)->name('items');
-    Route::get('/stockin', StockInComponent::class)->name('stock-in');
-    Route::get('/stockout', StockOutComponent::class)->name('stock-out');
-    Route::get('/transactions', Transactions::class)->name('transactions');
-    Route::get('/analytics', Analytic::class)->name('analytics');
-    Route::get('/user', UserManagement::class)->name('user');
-    Route::get('/admin', TeamManagement::class)->name('admin');
-    Route::get('/plans', [PlansController::class, 'index'])->name('plans.index');
-    Route::get('/plans/{plan}', [PlansController::class, 'show'])->name('plans.show');
-
-    // Subscriptions
-    Route::prefix('subscription')->group(function () {
-        Route::get('/manage', SubscriptionManagement::class)->name('subscription.manage');
-
-        Route::get('/', [SubscriptionController::class, 'index'])->name('subscription.index');
-        Route::get('/show', [SubscriptionController::class, 'show'])->name('subscription.show');
-        Route::get('/checkout/{plan}', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
-        Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscription.process');
-        Route::post('/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
-        Route::post('/resume', [SubscriptionController::class, 'resume'])->name('subscription.resume');
-        Route::get('/success', [SubscriptionController::class, 'success'])->name('subscription.success');
-    });
-
-    // Stripe Webhook (central endpoint for Stripe CLI & webhook forwarding)
-
-    Route::get('/roles/{userId}', ManageRoles::class)->name('manage-roles');
-});
-*/
+Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenant.register.post');
 
 Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenant.register.post');
 

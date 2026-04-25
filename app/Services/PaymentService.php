@@ -87,9 +87,17 @@ class PaymentService
         $subscription = $session->subscription;
         $metadata = $session->metadata;
 
+        // Ensure tenant has stripe_id linked
+        if (isset($metadata['tenant_id'])) {
+            $tenant = Tenant::find($metadata['tenant_id']);
+            if ($tenant && (!$tenant->stripe_id || $tenant->stripe_id !== $session->customer)) {
+                $tenant->update(['stripe_id' => $session->customer]);
+            }
+        }
+
         // Find and update subscription
-        $tenantSubscription = Subscription::where('tenant_id', $metadata['tenant_id'])
-            ->where('plan_id', $metadata['plan_id'])
+        $tenantSubscription = Subscription::where('tenant_id', $metadata['tenant_id'] ?? null)
+            ->where('plan_id', $metadata['plan_id'] ?? null)
             ->latest()
             ->first();
 
@@ -196,18 +204,19 @@ class PaymentService
         // Handle metadata which could be an object or array
         $metadata = is_object($invoice->metadata) ? (array) $invoice->metadata : ($invoice->metadata ?? []);
 
-
-        return Payment::create([
-            'tenant_id' => $subscription->tenant_id,
-            'subscription_id' => $subscription->id,
-            'stripe_invoice_id' => $invoice->id,
-            'stripe_payment_intent_id' => $invoice->payment_intent ?? null,
-            'amount' => $invoice->amount_paid / 100, // Convert cents to dollars
-            'currency' => $invoice->currency,
-            'status' => $invoice->status,
-            'payment_method' => $invoice->payment_settings->payment_method_types[0] ?? null,
-            'metadata' => $metadata,
-            'paid_at' => date('Y-m-d H:i:s', $invoice->created),
-        ]);
+        return Payment::updateOrCreate(
+            ['stripe_invoice_id' => $invoice->id],
+            [
+                'tenant_id' => $subscription->tenant_id,
+                'subscription_id' => $subscription->id,
+                'stripe_payment_intent_id' => $invoice->payment_intent ?? null,
+                'amount' => $invoice->amount_paid / 100, // Convert cents to dollars
+                'currency' => $invoice->currency,
+                'status' => $invoice->status === 'succeeded' ? 'paid' : $invoice->status,
+                'payment_method' => $invoice->payment_settings->payment_method_types[0] ?? null,
+                'metadata' => $metadata,
+                'paid_at' => date('Y-m-d H:i:s', $invoice->created),
+            ]
+        );
     }
 }

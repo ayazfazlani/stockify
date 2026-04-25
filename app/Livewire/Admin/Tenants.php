@@ -30,7 +30,7 @@ class Tenants extends Component
 
     protected $rules = [
         'name' => 'required|string|max:255',
-        'slug' => 'required|string|max:100|regex:/^[a-z0-9\-]+$/|unique:tenants,slug',
+        'slug' => 'required|string|max:100|regex:/^[a-z0-9\-]+$/',
         'owner' => 'nullable|string|max:255',
         'plan_name' => 'nullable|string|max:100',
         'stripe_price_id' => 'nullable|string|max:100',
@@ -65,8 +65,12 @@ class Tenants extends Component
 
     public function save()
     {
-        // When editing → ignore own slug in unique rule
-        $this->rules['slug'] .= $this->editingId ? "|unique:tenants,slug,{$this->editingId}" : '';
+        $uniqueRule = 'unique:tenants,slug';
+        if ($this->editingId) {
+            $uniqueRule .= ',' . $this->editingId . ',id';
+        }
+        
+        $this->rules['slug'] .= '|' . $uniqueRule;
 
         $validated = $this->validate();
 

@@ -8,6 +8,7 @@ use App\Models\Plan;
 use App\Models\Store;
 use App\Models\Subscription;
 use App\Models\InventoryAudit;
+use App\Models\Payment;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -215,6 +216,22 @@ class Dashboard extends Component
             ->whereIn('stripe_status', ['active', 'trialing', 'past_due'])
             ->latest()
             ->first();
+    }
+
+    /**
+     * Get the tenant's payment history
+     */
+    public function getPaymentHistoryProperty()
+    {
+        $tenant = $this->resolveTenant();
+        if (!$tenant) {
+            return collect([]);
+        }
+
+        return Payment::where('tenant_id', $tenant->id)
+            ->latest('paid_at')
+            ->take(20)
+            ->get();
     }
 
     public function changePlan(int $planId): void
@@ -427,6 +444,7 @@ class Dashboard extends Component
         return view('livewire.tenant.admin.dashboard', [
             'currentPlan' => $this->currentPlan,
             'currentSubscription' => $this->currentSubscription,
+            'paymentHistory' => $this->paymentHistory,
             'usageStats' => $this->usageStats,
             'availablePlans' => $this->availablePlans,
             'planFeatures' => $this->planFeatures,

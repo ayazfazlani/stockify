@@ -549,9 +549,11 @@
                     <i class="fas fa-dollar-sign"></i>
                 </div>
             </div>
-            <div class="stat-card-value">$24,580</div>
+            <div class="stat-card-value">${{ number_format($stats['monthly_revenue'] ?? 0, 2) }}</div>
             <div class="stat-card-desc">
-                <span class="positive">+15.3%</span> from last month
+                <span class="{{ ($stats['monthly_revenue_change'] ?? 0) >= 0 ? 'positive' : 'negative' }}">
+                    {{ ($stats['monthly_revenue_change'] ?? 0) >= 0 ? '+' : '' }}{{ $stats['monthly_revenue_change'] ?? 0 }}%
+                </span> from last month
             </div>
         </div>
         <div class="stat-card">
@@ -561,9 +563,11 @@
                     <i class="fas fa-users"></i>
                 </div>
             </div>
-            <div class="stat-card-value">892</div>
+            <div class="stat-card-value">{{ number_format($stats['active_subscriptions'] ?? 0) }}</div>
             <div class="stat-card-desc">
-                <span class="positive">+8.7%</span> from last month
+                <span class="{{ ($stats['active_subscriptions_change'] ?? 0) >= 0 ? 'positive' : 'negative' }}">
+                    {{ ($stats['active_subscriptions_change'] ?? 0) >= 0 ? '+' : '' }}{{ $stats['active_subscriptions_change'] ?? 0 }}%
+                </span> from last month
             </div>
         </div>
         <div class="stat-card">
@@ -573,9 +577,11 @@
                     <i class="fas fa-chart-line"></i>
                 </div>
             </div>
-            <div class="stat-card-value">3.2%</div>
+            <div class="stat-card-value">{{ number_format($stats['churn_rate'] ?? 0, 1) }}%</div>
             <div class="stat-card-desc">
-                <span class="positive">-0.5%</span> from last month
+                <span class="{{ ($stats['churn_rate_change'] ?? 0) <= 0 ? 'positive' : 'negative' }}">
+                    {{ ($stats['churn_rate_change'] ?? 0) >= 0 ? '+' : '' }}{{ $stats['churn_rate_change'] ?? 0 }}%
+                </span> from last month
             </div>
         </div>
         <div class="stat-card">
@@ -585,9 +591,11 @@
                     <i class="fas fa-user"></i>
                 </div>
             </div>
-            <div class="stat-card-value">$27.55</div>
+            <div class="stat-card-value">${{ number_format($stats['arpu'] ?? 0, 2) }}</div>
             <div class="stat-card-desc">
-                <span class="positive">+$2.10</span> from last month
+                <span class="{{ ($stats['arpu_change'] ?? 0) >= 0 ? 'positive' : 'negative' }}">
+                    {{ ($stats['arpu_change'] ?? 0) >= 0 ? '+' : '' }}${{ number_format($stats['arpu_change'] ?? 0, 2) }}
+                </span> from last month
             </div>
         </div>
     </div>
@@ -638,7 +646,7 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Customer</th>
+                        <th>Tenant</th>
                         <th>Description</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -646,46 +654,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Jun 15, 2023</td>
-                        <td>John Smith</td>
-                        <td>Pro Plan - Monthly</td>
-                        <td>$29.99</td>
-                        <td><span class="payment-status status-paid">Paid</span></td>
-                        <td><button class="btn btn-outline btn-sm">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>Jun 14, 2023</td>
-                        <td>Sarah Johnson</td>
-                        <td>Enterprise Plan - Monthly</td>
-                        <td>$99.99</td>
-                        <td><span class="payment-status status-paid">Paid</span></td>
-                        <td><button class="btn btn-outline btn-sm">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>Jun 13, 2023</td>
-                        <td>Michael Brown</td>
-                        <td>Basic Plan - Monthly</td>
-                        <td>$14.99</td>
-                        <td><span class="payment-status status-pending">Pending</span></td>
-                        <td><button class="btn btn-outline btn-sm">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>Jun 12, 2023</td>
-                        <td>Emily Davis</td>
-                        <td>Pro Plan - Monthly</td>
-                        <td>$29.99</td>
-                        <td><span class="payment-status status-paid">Paid</span></td>
-                        <td><button class="btn btn-outline btn-sm">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>Jun 11, 2023</td>
-                        <td>Robert Wilson</td>
-                        <td>Enterprise Plan - Yearly</td>
-                        <td>$999.99</td>
-                        <td><span class="payment-status status-paid">Paid</span></td>
-                        <td><button class="btn btn-outline btn-sm">View</button></td>
-                    </tr>
+                    @forelse($recentPayments as $payment)
+                        <tr>
+                            <td>{{ optional($payment->paid_at)->format('M d, Y') }}</td>
+                            <td>{{ $payment->tenant->name ?? 'N/A' }}</td>
+                            <td>{{ $payment->subscription->plan->name ?? 'Subscription' }}</td>
+                            <td>${{ number_format($payment->amount, 2) }}</td>
+                            <td>
+                                <span class="payment-status {{ $payment->status === 'paid' ? 'status-paid' : 'status-pending' }}">
+                                    {{ ucfirst($payment->status) }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($payment->stripe_invoice_id)
+                                    <a href="{{ route('super-admin.invoices.download', $payment->id) }}" class="p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-colors duration-200 group-hover:scale-110" title="Download Invoice">
+                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                    </a>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">No recent transactions found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -743,107 +737,31 @@
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Available Plans</div>
+                <div class="card-title">Available Subscription Plans</div>
             </div>
             <div class="grid-3">
-                <div class="plan-card">
-                    <div class="plan-header">
-                        <div class="plan-name">Starter</div>
-                        <div>
-                            <div class="plan-price">$19</div>
-                            <div class="plan-period">per month</div>
+                @foreach($allPlans as $plan)
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <div class="plan-name">{{ $plan->name }}</div>
+                            <div>
+                                <div class="plan-price">${{ number_format($plan->amount/100, 2) }}</div>
+                                <div class="plan-period">per {{ $plan->interval }}</div>
+                            </div>
                         </div>
+                        <ul class="plan-features">
+                            @foreach(explode("\n", $plan->features) as $feature)
+                                @if(trim($feature))
+                                    <li class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>{{ $feature }}</span>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                        <button class="btn btn-outline" style="width: 100%;">Edit Plan</button>
                     </div>
-                    <ul class="plan-features">
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Up to 3 team members</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Basic analytics</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Email support</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-times"></i>
-                            <span style="color: hsl(var(--muted-foreground));">Custom integrations</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-times"></i>
-                            <span style="color: hsl(var(--muted-foreground));">API access</span>
-                        </li>
-                    </ul>
-                    <button class="btn btn-outline" style="width: 100%;">Select Plan</button>
-                </div>
-
-                <div class="plan-card selected">
-                    <div class="plan-header">
-                        <div class="plan-name">Business</div>
-                        <div>
-                            <div class="plan-price">$99</div>
-                            <div class="plan-period">per month</div>
-                        </div>
-                    </div>
-                    <ul class="plan-features">
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Up to 10 team members</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Advanced analytics</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Priority support</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Custom integrations</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>API access</span>
-                        </li>
-                    </ul>
-                    <button class="btn btn-primary" style="width: 100%;">Current Plan</button>
-                </div>
-
-                <div class="plan-card">
-                    <div class="plan-header">
-                        <div class="plan-name">Enterprise</div>
-                        <div>
-                            <div class="plan-price">$299</div>
-                            <div class="plan-period">per month</div>
-                        </div>
-                    </div>
-                    <ul class="plan-features">
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Unlimited team members</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Advanced analytics</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>24/7 phone support</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Custom integrations</span>
-                        </li>
-                        <li class="plan-feature">
-                            <i class="fas fa-check"></i>
-                            <span>Dedicated account manager</span>
-                        </li>
-                    </ul>
-                    <button class="btn btn-outline" style="width: 100%;">Select Plan</button>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -852,86 +770,33 @@
     <div class="tab-content" id="invoices">
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Invoice History</div>
+                <div class="card-title">Full Invoice History</div>
                 <div class="card-actions">
-                    <button class="btn btn-outline btn-sm">Download All</button>
+                    <button class="btn btn-outline btn-sm">Export CSV</button>
                 </div>
             </div>
-            <div class="invoice-card">
-                <div class="invoice-info">
-                    <div class="invoice-icon">
-                        <i class="fas fa-file-invoice"></i>
+            @forelse($allInvoices as $invoice)
+                <div class="invoice-card">
+                    <div class="invoice-info">
+                        <div class="invoice-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="invoice-details">
+                            <div class="invoice-id">{{ $invoice->stripe_invoice_id ?? 'INV-'.$invoice->id }}</div>
+                            <div class="invoice-date">{{ optional($invoice->paid_at)->format('F d, Y') }}</div>
+                            <div class="text-xs text-gray-500">{{ $invoice->tenant->name ?? 'N/A' }}</div>
+                        </div>
                     </div>
-                    <div class="invoice-details">
-                        <div class="invoice-id">INV-2023-006</div>
-                        <div class="invoice-date">June 15, 2023</div>
-                    </div>
-                </div>
-                <div class="invoice-amount">$99.00</div>
-                <div class="card-actions">
-                    <button class="btn btn-outline btn-sm">Download</button>
-                </div>
-            </div>
-            <div class="invoice-card">
-                <div class="invoice-info">
-                    <div class="invoice-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="invoice-details">
-                        <div class="invoice-id">INV-2023-005</div>
-                        <div class="invoice-date">May 15, 2023</div>
+                    <div class="invoice-amount">${{ number_format($invoice->amount, 2) }}</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline btn-sm">View</button>
                     </div>
                 </div>
-                <div class="invoice-amount">$99.00</div>
-                <div class="card-actions">
-                    <button class="btn btn-outline btn-sm">Download</button>
+            @empty
+                <div class="p-8 text-center text-gray-500">
+                    No invoices found.
                 </div>
-            </div>
-            <div class="invoice-card">
-                <div class="invoice-info">
-                    <div class="invoice-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="invoice-details">
-                        <div class="invoice-id">INV-2023-004</div>
-                        <div class="invoice-date">April 15, 2023</div>
-                    </div>
-                </div>
-                <div class="invoice-amount">$99.00</div>
-                <div class="card-actions">
-                    <button class="btn btn-outline btn-sm">Download</button>
-                </div>
-            </div>
-            <div class="invoice-card">
-                <div class="invoice-info">
-                    <div class="invoice-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="invoice-details">
-                        <div class="invoice-id">INV-2023-003</div>
-                        <div class="invoice-date">March 15, 2023</div>
-                    </div>
-                </div>
-                <div class="invoice-amount">$99.00</div>
-                <div class="card-actions">
-                    <button class="btn btn-outline btn-sm">Download</button>
-                </div>
-            </div>
-            <div class="invoice-card">
-                <div class="invoice-info">
-                    <div class="invoice-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="invoice-details">
-                        <div class="invoice-id">INV-2023-002</div>
-                        <div class="invoice-date">February 15, 2023</div>
-                    </div>
-                </div>
-                <div class="invoice-amount">$99.00</div>
-                <div class="card-actions">
-                    <button class="btn btn-outline btn-sm">Download</button>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 
@@ -1027,29 +892,29 @@
             </div>
             <div class="usage-meter">
                 <div class="usage-header">
-                    <div class="usage-label">Team Members</div>
-                    <div class="usage-value">3 of 10</div>
+                    <div class="usage-label">Total Platform Users</div>
+                    <div class="usage-value">{{ $usage['users_count'] }} active accounts</div>
                 </div>
                 <div class="usage-bar">
-                    <div class="usage-progress" style="width: 30%; background-color: #10b981;"></div>
+                    <div class="usage-progress" style="width: 100%; background-color: #10b981;"></div>
                 </div>
             </div>
             <div class="usage-meter">
                 <div class="usage-header">
-                    <div class="usage-label">API Requests</div>
-                    <div class="usage-value">12,458 of 50,000</div>
+                    <div class="usage-label">Total Tenants</div>
+                    <div class="usage-value">{{ $usage['tenants_count'] }} stores created</div>
                 </div>
                 <div class="usage-bar">
-                    <div class="usage-progress" style="width: 25%; background-color: #3b82f6;"></div>
+                    <div class="usage-progress" style="width: 100%; background-color: #3b82f6;"></div>
                 </div>
             </div>
             <div class="usage-meter">
                 <div class="usage-header">
-                    <div class="usage-label">Storage</div>
-                    <div class="usage-value">4.2 GB of 50 GB</div>
+                    <div class="usage-label">Active Subscriptions</div>
+                    <div class="usage-value">{{ $usage['active_subs'] }} paying customers</div>
                 </div>
                 <div class="usage-bar">
-                    <div class="usage-progress" style="width: 8.4%; background-color: #f59e0b;"></div>
+                    <div class="usage-progress" style="width: 100%; background-color: #f59e0b;"></div>
                 </div>
             </div>
             <div class="usage-meter">
@@ -1114,10 +979,10 @@
         const revenueChart = new Chart(revenueCtx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: @json($charts['labels']),
                 datasets: [{
-                    label: 'Revenue ($)',
-                    data: [18500, 20200, 19800, 21500, 23800, 24580],
+                    label: 'Actual Revenue ($)',
+                    data: @json($charts['revenue']),
                     borderColor: 'rgb(59, 130, 246)',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     tension: 0.4,
@@ -1133,7 +998,7 @@
                 },
                 scales: {
                     y: {
-                        beginAtZero: false
+                        beginAtZero: true
                     }
                 }
             }
@@ -1144,14 +1009,14 @@
         const subscriptionChart = new Chart(subscriptionCtx, {
             type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: @json($charts['labels']),
                 datasets: [{
                     label: 'New Subscriptions',
-                    data: [45, 52, 48, 61, 58, 67],
+                    data: @json($charts['new_subs']),
                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
                 }, {
-                    label: 'Cancellations',
-                    data: [12, 15, 18, 14, 16, 13],
+                    label: 'Churned',
+                    data: @json($charts['churn']),
                     backgroundColor: 'rgba(239, 68, 68, 0.7)',
                 }]
             },
@@ -1162,7 +1027,8 @@
                         stacked: false,
                     },
                     y: {
-                        stacked: false
+                        stacked: false,
+                        beginAtZero: true
                     }
                 }
             }

@@ -31,67 +31,73 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Monthly Revenue Card -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Total Plans</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total_plans'] }}</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-lg">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-600">Monthly Revenue</p>
+                    <div class="p-2 bg-blue-50 rounded-lg">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Active Subscriptions</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['active_subscriptions'] }}</p>
-                    </div>
-                    <div class="p-3 bg-green-50 rounded-lg">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+                <p class="text-2xl font-bold text-gray-900">${{ number_format($stats['monthly_revenue'], 2) }}</p>
+                <div class="mt-2 flex items-center">
+                    <span class="text-xs font-medium {{ $stats['monthly_revenue_change'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                        {{ $stats['monthly_revenue_change'] >= 0 ? '+' : '' }}{{ $stats['monthly_revenue_change'] }}%
+                    </span>
+                    <span class="text-xs text-gray-400 ml-1">from last month</span>
                 </div>
             </div>
 
+            <!-- Active Subscriptions Card -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Monthly Revenue</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($stats['monthly_revenue'], 2)
-                            }}
-                        </p>
-                    </div>
-                    <div class="p-3 bg-purple-50 rounded-lg">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-600">Active Subscriptions</p>
+                    <div class="p-2 bg-green-50 rounded-lg">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                 </div>
+                <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['active_subscriptions']) }}</p>
+                <div class="mt-2 flex items-center">
+                    <span class="text-xs font-medium {{ $stats['active_subscriptions_change'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                        {{ $stats['active_subscriptions_change'] >= 0 ? '+' : '' }}{{ $stats['active_subscriptions_change'] }}%
+                    </span>
+                    <span class="text-xs text-gray-400 ml-1">from last month</span>
+                </div>
             </div>
 
+            <!-- Churn Rate Card -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Yearly Revenue</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-1">${{ number_format($stats['yearly_revenue'], 2)
-                            }}
-                        </p>
-                    </div>
-                    <div class="p-3 bg-indigo-50 rounded-lg">
-                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-600">Churn Rate</p>
+                    <div class="p-2 bg-red-50 rounded-lg">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                         </svg>
                     </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">{{ $stats['churn_rate'] }}%</p>
+                <div class="mt-2 flex items-center text-xs text-gray-400">
+                    Target: Under 2%
+                </div>
+            </div>
+
+            <!-- ARPU Card -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-600">Avg. Revenue Per User</p>
+                    <div class="p-2 bg-purple-50 rounded-lg">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">${{ number_format($stats['arpu'], 2) }}</p>
+                <div class="mt-2 flex items-center text-xs text-gray-400">
+                    Gross ARPU
                 </div>
             </div>
         </div>
@@ -132,6 +138,17 @@
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 3.136V5a2 2 0 00-2-2H4a2 2 0 00-2 2v14.136a.25.25 0 00.375.217L12 17l9.625 5.353a.25.25 0 00.375-.217z" />
                         </svg>
                         Manage Subscriptions
+                    </button>
+
+                    <button wire:click="$set('activeTab', 'admin_payments')" class="py-4 px-1 inline-flex items-center border-b-2 font-medium text-sm 
+                               {{ $activeTab === 'admin_payments' 
+                                  ? 'border-blue-500 text-blue-600' 
+                                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                        </svg>
+                        Transactions
                     </button>
                     @endif
                 </nav>
@@ -590,6 +607,90 @@
                 <!-- Pagination -->
                 <div class="px-6 py-4 border-t border-gray-200">
                     {{ $subscriptions->links() }}
+                </div>
+            </div>
+        </div>
+        @elseif($activeTab === 'admin_payments')
+        <!-- Admin Payments Management Tab -->
+        <div class="space-y-6">
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search by tenant or invoice ID..."
+                                class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice ID</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($payments as $payment)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $payment->paid_at ? $payment->paid_at->format('M d, Y g:i A') : $payment->created_at->format('M d, Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $payment->tenant->name ?? 'Unknown Tenant' }}</div>
+                                            <div class="text-sm text-gray-500">{{ $payment->tenant->slug ?? '-' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ strtoupper($payment->currency) }} {{ number_format($payment->amount / 100, 2) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($payment->status === 'succeeded' || $payment->status === 'paid')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Paid
+                                        </span>
+                                    @elseif($payment->status === 'failed')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Failed
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ ucfirst($payment->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                                    {{ $payment->stripe_invoice_id ?? '-' }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                    No transactions found.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    {{ $payments->links() }}
                 </div>
             </div>
         </div>

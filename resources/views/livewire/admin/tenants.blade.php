@@ -60,7 +60,7 @@
                             {{ \Illuminate\Support\Str::limit(optional($tenant->subscription('default'))->stripe_price ?? '—', 18, '...') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <button wire:click="toggleActive({{ $tenant->id }})"
+                            <button wire:click="toggleActive('{{ $tenant->id }}')"
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         {{ $tenant->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                 {{ $tenant->is_active ? 'Active' : 'Blocked' }}
@@ -68,12 +68,12 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-2">
-                                <button wire:click="edit({{ $tenant->id }})"
+                                <button wire:click="edit('{{ $tenant->id }}')"
                                     class="btn btn-outline btn-sm text-blue-600 hover:text-blue-800"
                                     title="Edit tenant">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button wire:click="delete({{ $tenant->id }})"
+                                <button wire:click="delete('{{ $tenant->id }}')"
                                     class="btn btn-outline btn-sm text-red-600 hover:text-red-800"
                                     wire:confirm="Are you sure you want to delete tenant '{{ $tenant->name }}'?"
                                     title="Delete tenant">

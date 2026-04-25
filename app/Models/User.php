@@ -26,7 +26,7 @@ class User extends Authenticatable
     // Check if user is a Super Admin
     public function isSuperAdmin()
     {
-        return $this->is_super_admin;
+        return $this->is_super_admin || $this->hasRole('super admin');
     }
 
     // Check if user is a Team Admin

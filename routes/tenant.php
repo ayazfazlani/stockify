@@ -99,6 +99,8 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
 
         });
 
+        // Invoice Downloads
+        Route::get('/invoices/{payment}/download', [\App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
     });
 
 });

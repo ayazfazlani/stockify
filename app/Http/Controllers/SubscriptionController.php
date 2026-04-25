@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Exceptions\IncompletePayment;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
+use App\Models\Payment;
 
 class SubscriptionController extends Controller
 {
@@ -386,9 +387,30 @@ class SubscriptionController extends Controller
         $tenant = Tenant::where('stripe_id', $invoice['customer'])->first();
 
         if ($tenant) {
+            // Record payment in our tracking table
+            Payment::updateOrCreate(
+                ['stripe_invoice_id' => $invoice['id']],
+                [
+                    'tenant_id' => $tenant->id,
+                    'subscription_id' => $tenant->subscription('default')?->id,
+                    'stripe_payment_intent_id' => $invoice['payment_intent'] ?? null,
+                    'amount' => $invoice['amount_paid'] / 100,
+                    'currency' => $invoice['currency'],
+                    'status' => 'paid',
+                    'paid_at' => now(),
+                    'metadata' => $invoice['metadata'] ?? [],
+                ]
+            );
+
             // Generate and send invoice notification
-            $cashierInvoice = $tenant->findInvoice($invoice['id']);
-            $tenant->owner->notify(new InvoiceGenerated($cashierInvoice));
+            try {
+                $cashierInvoice = $tenant->findInvoice($invoice['id']);
+                if ($cashierInvoice) {
+                    $tenant->owner->notify(new InvoiceGenerated($cashierInvoice));
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send invoice notification', ['error' => $e->getMessage()]);
+            }
         }
     }
 

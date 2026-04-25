@@ -4,6 +4,7 @@ namespace App\Livewire\SuperAdmin;
 
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\Payment;
 use App\Models\User;
 use App\Services\PaymentService;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class SubscriptionManager extends Component
     // ====================
 
     // UI State
-    public $activeTab = 'user_plans'; // 'user_plans', 'admin_plans', 'admin_subscriptions'
+    public $activeTab = 'user_plans'; // 'user_plans', 'admin_plans', 'admin_subscriptions', 'admin_payments'
 
     public $showPlanModal = false;
 
@@ -163,7 +164,7 @@ class SubscriptionManager extends Component
             return redirect()->away($result['url']);
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Payment failed: '.$e->getMessage());
+            session()->flash('error', 'Payment failed: ' . $e->getMessage());
             $this->isProcessingPayment = false;
         }
     }
@@ -172,7 +173,7 @@ class SubscriptionManager extends Component
     {
         $subscription = Auth::user()->activeSubscription;
 
-        if (! $subscription) {
+        if (!$subscription) {
             session()->flash('error', 'No active subscription found.');
 
             return;
@@ -189,7 +190,7 @@ class SubscriptionManager extends Component
                 session()->flash('error', 'Failed to cancel subscription.');
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Error: '.$e->getMessage());
+            session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
 
@@ -198,7 +199,7 @@ class SubscriptionManager extends Component
         $subscription = Auth::user()->activeSubscription;
         $newPlan = Plan::find($planId);
 
-        if (! $subscription || ! $newPlan) {
+        if (!$subscription || !$newPlan) {
             session()->flash('error', 'Invalid operation.');
 
             return;
@@ -214,7 +215,7 @@ class SubscriptionManager extends Component
                 session()->flash('error', 'Failed to change plan.');
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Error: '.$e->getMessage());
+            session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
 
@@ -281,7 +282,7 @@ class SubscriptionManager extends Component
             $this->resetPlanForm();
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Operation failed: '.$e->getMessage());
+            session()->flash('error', 'Operation failed: ' . $e->getMessage());
         }
     }
 
@@ -301,7 +302,7 @@ class SubscriptionManager extends Component
             session()->flash('message', 'Plan deleted successfully!');
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Delete failed: '.$e->getMessage());
+            session()->flash('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 
@@ -309,10 +310,10 @@ class SubscriptionManager extends Component
     {
         try {
             $plan = Plan::findOrFail($planId);
-            $plan->update(['active' => ! $plan->active]);
+            $plan->update(['active' => !$plan->active]);
             session()->flash('message', 'Plan status updated!');
         } catch (\Exception $e) {
-            session()->flash('error', 'Status update failed: '.$e->getMessage());
+            session()->flash('error', 'Status update failed: ' . $e->getMessage());
         }
     }
 
@@ -381,7 +382,7 @@ class SubscriptionManager extends Component
             $this->resetSubscriptionForm();
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Operation failed: '.$e->getMessage());
+            session()->flash('error', 'Operation failed: ' . $e->getMessage());
         }
     }
 
@@ -396,7 +397,7 @@ class SubscriptionManager extends Component
             ]);
             session()->flash('message', 'Subscription cancelled successfully!');
         } catch (\Exception $e) {
-            session()->flash('error', 'Cancellation failed: '.$e->getMessage());
+            session()->flash('error', 'Cancellation failed: ' . $e->getMessage());
         }
     }
 
@@ -416,13 +417,20 @@ class SubscriptionManager extends Component
 
     public function getStatsProperty()
     {
+        $revenueStats = $this->getRevenueStats();
+        $subStats = $this->getSubscriptionStats();
+
         return [
             'total_plans' => Plan::count(),
             'active_plans' => Plan::where('active', true)->count(),
             'total_subscriptions' => Subscription::count(),
-            'active_subscriptions' => Subscription::where('stripe_status', 'active')->count(),
-            'monthly_revenue' => $this->calculateMonthlyRevenue(),
+            'active_subscriptions' => $subStats['current'],
+            'active_subscriptions_change' => $subStats['change_pct'],
+            'monthly_revenue' => $revenueStats['current'],
+            'monthly_revenue_change' => $revenueStats['change_pct'],
             'yearly_revenue' => $this->calculateYearlyRevenue(),
+            'churn_rate' => $this->calculateChurnRate(),
+            'arpu' => $this->calculateARPU(),
         ];
     }
 
@@ -430,8 +438,8 @@ class SubscriptionManager extends Component
     {
         return Plan::query()
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhere('slug', 'like', '%'.$this->search.'%');
+                $query->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('slug', 'like', '%' . $this->search . '%');
             })
             ->when($this->intervalFilter, function ($query) {
                 $query->where('interval', $this->intervalFilter);
@@ -451,10 +459,10 @@ class SubscriptionManager extends Component
             ->with(['user', 'plan'])
             ->when($this->search, function ($query) {
                 $query->whereHas('user', function ($q) {
-                    $q->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('email', 'like', '%'.$this->search.'%');
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('email', 'like', '%' . $this->search . '%');
                 })->orWhereHas('plan', function ($q) {
-                    $q->where('name', 'like', '%'.$this->search.'%');
+                    $q->where('name', 'like', '%' . $this->search . '%');
                 });
             })
             ->when($this->statusFilter, function ($query) {
@@ -467,6 +475,22 @@ class SubscriptionManager extends Component
                 }
             })
             ->latest()
+            ->paginate(10);
+    }
+
+    public function getFilteredPaymentsProperty()
+    {
+        return Payment::query()
+            ->with(['tenant', 'subscription'])
+            ->when($this->search, function ($query) {
+                $query->whereHas('tenant', function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%');
+                })->orWhere('stripe_invoice_id', 'like', '%' . $this->search . '%');
+            })
+            ->when($this->statusFilter, function ($query) {
+                $query->where('status', $this->statusFilter);
+            })
+            ->latest('paid_at')
             ->paginate(10);
     }
 
@@ -485,33 +509,78 @@ class SubscriptionManager extends Component
     // HELPER METHODS
     // ====================
 
-    private function calculateMonthlyRevenue()
+    private function getRevenueStats()
     {
-        return Subscription::where('stripe_status', 'active')
-            ->whereHas('plan', function ($query) {
-                $query->where('interval', 'month');
-            })
-            ->get()
-            ->sum(function ($subscription) {
-                return $subscription->plan->price;
-            });
+        $currentMonth = Payment::where('status', 'paid')
+            ->whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->sum('amount');
+
+        $lastMonth = Payment::where('status', 'paid')
+            ->whereMonth('paid_at', now()->subMonth()->month)
+            ->whereYear('paid_at', now()->subMonth()->year)
+            ->sum('amount');
+
+        $change = $lastMonth > 0 ? (($currentMonth - $lastMonth) / $lastMonth) * 100 : 0;
+
+        return [
+            'current' => $currentMonth,
+            'last' => $lastMonth,
+            'change_pct' => round($change, 1)
+        ];
+    }
+
+    private function getSubscriptionStats()
+    {
+        $current = Subscription::where('stripe_status', 'active')->count();
+        $lastMonth = Subscription::where('stripe_status', 'active')
+            ->where('created_at', '<', now()->startOfMonth())
+            ->count();
+
+        $change = $lastMonth > 0 ? (($current - $lastMonth) / $lastMonth) * 100 : 0;
+
+        return [
+            'current' => $current,
+            'change_pct' => round($change, 1)
+        ];
+    }
+
+    private function calculateChurnRate()
+    {
+        // Simple churn: canceled subs this month / active subs at start of month
+        $canceledThisMonth = Subscription::where('stripe_status', 'canceled')
+            ->whereMonth('updated_at', now()->month)
+            ->count();
+        
+        $activeAtStart = Subscription::where('stripe_status', 'active')
+            ->where('created_at', '<', now()->startOfMonth())
+            ->count();
+
+        return $activeAtStart > 0 ? round(($canceledThisMonth / $activeAtStart) * 100, 1) : 0;
+    }
+
+    private function calculateARPU()
+    {
+        $activeSubs = Subscription::where('stripe_status', 'active')->count();
+        if ($activeSubs === 0) return 0;
+
+        $monthlyRevenue = Payment::where('status', 'paid')
+            ->whereMonth('paid_at', now()->month)
+            ->sum('amount');
+
+        return round($monthlyRevenue / $activeSubs, 2);
     }
 
     private function calculateYearlyRevenue()
     {
-        return Subscription::where('stripe_status', 'active')
-            ->whereHas('plan', function ($query) {
-                $query->where('interval', 'year');
-            })
-            ->get()
-            ->sum(function ($subscription) {
-                return $subscription->plan->price;
-            });
+        return Payment::where('status', 'paid')
+            ->whereYear('paid_at', now()->year)
+            ->sum('amount');
     }
 
     public function formatPrice($price)
     {
-        return '$'.number_format($price, 2);
+        return '$' . number_format($price, 2);
     }
 
     public function getStatusColor($status)
@@ -544,6 +613,7 @@ class SubscriptionManager extends Component
             'userSubscription' => $this->userSubscription,
             'plans' => $this->filteredPlans,
             'subscriptions' => $this->filteredSubscriptions,
+            'payments' => $this->filteredPayments,
             'stats' => $this->stats,
         ]);
     }
