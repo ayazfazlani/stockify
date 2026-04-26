@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('plans', function (Blueprint $table) {
-            $table->text('description')->nullable()->after('name');
-            $table->boolean('is_featured')->default(false)->after('active');
-            $table->integer('sort_order')->default(0)->after('is_featured');
-            $table->integer('trial_days')->default(0)->after('sort_order');
+            if (!Schema::hasColumn('plans', 'description')) {
+                $table->text('description')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('plans', 'is_featured')) {
+                $table->boolean('is_featured')->default(false)->after('active');
+            }
+            if (!Schema::hasColumn('plans', 'sort_order')) {
+                $table->integer('sort_order')->default(0)->after('is_featured');
+            }
+            if (!Schema::hasColumn('plans', 'trial_days')) {
+                $table->integer('trial_days')->default(0)->after('sort_order');
+            }
         });
     }
 
