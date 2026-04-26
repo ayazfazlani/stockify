@@ -36,6 +36,8 @@
                 <p class="text-sm font-medium text-gray-500">Total Units</p>
                 <h2 class="text-2xl font-bold text-gray-800 mt-1">{{ number_format($summary['totalInventory']) }}</h2>
             </div>
+            
+            @can('view financial metrics')
             <div class=" border border-white/60 bg-white/70 backdrop-blur-xl p-5">
                 <p class="text-sm font-medium text-gray-500">Inventory Equity</p>
                 <h2 class="text-2xl font-bold text-gray-800 mt-1">${{ number_format($summary['inventoryEquity'], 2) }}
@@ -51,6 +53,7 @@
                 <h2 class="text-2xl font-bold text-emerald-600 mt-1">
                     ${{ number_format($summary['potentialProfit'], 2) }}</h2>
             </div>
+            @endcan
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -79,6 +82,7 @@
 
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            @can('view financial metrics')
             <div class="border border-white/60 bg-white/75 backdrop-blur-xl p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Profit & Margin Leaders</h3>
                 <div class="overflow-x-auto">
@@ -110,6 +114,7 @@
                     </table>
                 </div>
             </div>
+            @endcan
 
             <div class="border border-white/60 bg-white/75 backdrop-blur-xl p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Inventory Audit Trail</h3>

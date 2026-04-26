@@ -13,29 +13,24 @@
         <div class="flex justify-between items-center mb-4 max-sm:flex-wrap max-sm:gap-2">
             <h1 class="text-2xl font-semibold">Items</h1>
             <div class="flex gap-2 max-sm:w-full max-sm:justify-between">
-                @role('viewer')
-                @else
-                @feature('bulk-import')
-                <button
-                    wire:click="toggleImportModal"
-                    class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Import</span>
-                </button>
-                @endfeature
-                <button
-                    wire:click="toggleModal"
-                    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Add Item</span>
-                </button>
-                @endrole
+                @can('create items')
+                    @feature('bulk-import')
+                    <button
+                        wire:click="toggleImportModal"
+                        class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+                    >
+                        <i class="fas fa-file-import"></i>
+                        <span>Import</span>
+                    </button>
+                    @endfeature
+                    <button
+                        wire:click="toggleModal"
+                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
+                    >
+                        <i class="fas fa-plus"></i>
+                        <span>Add Item</span>
+                    </button>
+                @endcan
             </div>
         </div>
 
@@ -142,10 +137,12 @@
                                         <label class="block text-sm font-medium text-gray-600 mb-1">Type</label>
                                         <p class="text-gray-900">{{ $selectedItem->type }}</p>
                                     </div>
+                                    @can('view item cost')
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600 mb-1">Cost</label>
                                         <p class="text-gray-900">${{ number_format($selectedItem->cost, 2) }}</p>
                                     </div>
+                                    @endcan
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600 mb-1">Price</label>
                                         <p class="text-gray-900">${{ number_format($selectedItem->price, 2) }}</p>
@@ -169,7 +166,11 @@
                                         <p class="text-gray-900">{{ $selectedItem->supplier?->name ?? 'N/A' }}</p>
                                     </div>
                                 </div>
-                                <button wire:click="openEditModal" class="px-3 py-2 bg-blue-600 text-white rounded-md">Edit Reorder/Supplier</button>
+                                @can('edit items')
+                                <button wire:click="openEditModal" class="px-3 py-2 bg-blue-600 text-white rounded-md border border-blue-700 shadow-sm">
+                                    <i class="fas fa-edit"></i> Edit Reorder/Supplier
+                                </button>
+                                @endcan
                             </div>
                         @else
                             <div class="h-full flex items-center justify-center text-gray-500">
@@ -223,11 +224,13 @@
                         </div>
             
                         <div class="grid grid-cols-2 gap-4">
+                            @can('view item cost')
                             <div>
                                 <input type="number" wire:model="newItem.cost" placeholder="Cost" 
                                     class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
                                 @error('newItem.cost') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
+                            @endcan
                             <div>
                                 <input type="number" wire:model="newItem.price" placeholder="Price" 
                                     class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">

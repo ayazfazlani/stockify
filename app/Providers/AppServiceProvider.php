@@ -13,6 +13,7 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Invoice;
 use Laravel\Cashier\Subscription;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +30,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Implicitly grant "Super Admin" role all permissions
+        // This works in the app by using Gate::before or can() check
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('super admin') ? true : null;
+        });
         // Register @feature Blade directive
         // Usage: @feature('analytics') ... @else ... @endfeature
         \Illuminate\Support\Facades\Blade::if('feature', function (string $feature) {

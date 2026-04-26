@@ -139,16 +139,18 @@
                                     Items: {{ count($selectedItems) }} |
                                     Qty: {{ array_sum(array_column($selectedItems, 'quantity')) }}
                                 </div>
-                                @if(!auth()->user()->hasRole('viewer'))
+                                @can('manage stock')
                                     <button wire:click="handleStockOut" wire:loading.attr="disabled"
                                         class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-bold shadow-md transition-all active:scale-95">
-                                        <span wire:loading.remove>COMPLETE CHECKOUT</span>
+                                        <span wire:loading.remove>
+                                            <i class="fas fa-check-circle mr-1"></i> COMPLETE CHECKOUT
+                                        </span>
                                         <span wire:loading>
                                             PROCESSING...
                                             <i class="fas fa-spinner fa-spin ml-2"></i>
                                         </span>
                                     </button>
-                                @endif
+                                @endcan
                                     </div>
                                 </div>
                             @endif
@@ -171,7 +173,9 @@
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Customer</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Phone</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Items</th>
+                                @can('view financial metrics')
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Bill Total</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody>
@@ -187,7 +191,9 @@
                                     <td class="px-4 py-3 text-sm font-medium">{{ $sale->customer_name ?: 'Walk-in #'.$sale->id }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-600">{{ $sale->customer_phone ?: '-' }}</td>
                                     <td class="px-4 py-3 text-sm font-bold text-gray-600">{{ $sale->transactions_count }}</td>
-                                    <td class="px-4 py-3 text-sm font-bold text-gray-900">{{ number_format($sale->total_amount, 2) }}</td>
+                                    @can('view financial metrics')
+                                    <td class="px-4 py-3 text-sm font-bold text-gray-900">${{ number_format($sale->total_amount, 2) }}</td>
+                                    @endcan
                                 </tr>
                             @empty
                                 <tr>

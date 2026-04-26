@@ -92,7 +92,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/plans', PricingPlans::class)->name('plans');
         Route::get('/support', Support::class)->name('support');
 
-        Route::get('/pricing-plans', PricingPlans::class)->name('support');
+        Route::get('/pricing-plans', PricingPlans::class)->name('pricing-plans');
         // Invoice Downloads
         Route::get('/invoices/{payment}/download', [\App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
 
@@ -117,7 +117,8 @@ Route::get('/checkout/cancel', function () {
 })->name('checkout.cancel');
 // ---------------- Public Routes ----------------
 Route::get('/', function () {
-    return view('welcome');
+    $plans = \App\Models\Plan::where('active', true)->orderBy('sort_order')->get();
+    return view('welcome', compact('plans'));
 })->name('welcome');
 
 Route::get('/invite', InviteUser::class)->name('invite');

@@ -507,7 +507,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 50;
+            z-index: 9999;
             padding: 1rem;
             animation: fadeIn 0.2s ease;
         }

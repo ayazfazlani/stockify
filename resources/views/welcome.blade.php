@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StockFlow | AI-Powered Inventory Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
@@ -527,116 +527,71 @@
             (Save 20%)</button>
         </div>
       </div>
-      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-        <div class="pricing-card bg-white p-8 rounded-2xl shadow-md hover-lift border border-gray-200"
-          data-aos="fade-up" data-aos-delay="100">
-          <div class="text-center mb-8">
-            <h3 class="text-xl font-bold mb-2">Starter</h3>
-            <div class="flex items-baseline justify-center">
-              <span class="text-4xl font-bold">$29</span>
-              <span class="text-gray-500 ml-1">/month</span>
-            </div>
-            <p class="text-gray-600 mt-2">Perfect for small businesses</p>
-          </div>
-          <ul class="space-y-4 mb-8">
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Up to 1,000 products</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Basic inventory tracking</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>1 warehouse location</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Email support</span>
-            </li>
-          </ul>
-          <button
-            class="w-full bg-gray-100 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200 transform hover:-translate-y-1">Start
-            Free Trial</button>
-        </div>
-        <div
-          class="pricing-card bg-gradient-to-br from-primary-500 to-indigo-500 p-8 rounded-2xl shadow-xl hover-lift relative transform scale-105"
-          data-aos="fade-up" data-aos-delay="200">
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        @foreach($plans as $plan)
+        <div class="pricing-card bg-white p-8 rounded-2xl shadow-md hover-lift border {{ $plan->is_featured ? 'border-primary-500 ring-2 ring-primary-500/20' : 'border-gray-200' }} flex flex-col"
+          data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
+          @if($plan->is_featured)
           <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <span class="bg-white text-primary-600 px-4 py-1 rounded-full text-sm font-semibold shadow-md">MOST
-              POPULAR</span>
+            <span class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md border border-white">MOST POPULAR</span>
           </div>
-          <div class="text-center mb-8 text-white">
-            <h3 class="text-xl font-bold mb-2">Professional</h3>
-            <div class="flex items-baseline justify-center">
-              <span class="text-4xl font-bold">$79</span>
-              <span class="opacity-90 ml-1">/month</span>
-            </div>
-            <p class="opacity-90 mt-2">Ideal for growing businesses</p>
-          </div>
-          <ul class="space-y-4 mb-8 text-white">
-            <li class="flex items-start">
-              <i class="fas fa-check text-white mt-1 mr-3"></i>
-              <span>Up to 10,000 products</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-white mt-1 mr-3"></i>
-              <span>Advanced analytics</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-white mt-1 mr-3"></i>
-              <span>5 warehouse locations</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-white mt-1 mr-3"></i>
-              <span>API access</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-white mt-1 mr-3"></i>
-              <span>Priority support</span>
-            </li>
-          </ul>
-          <button
-            class="w-full bg-white text-primary-600 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 transform hover:-translate-y-1">Start
-            Free Trial</button>
-        </div>
-        <div class="pricing-card bg-white p-8 rounded-2xl shadow-md hover-lift border border-gray-200"
-          data-aos="fade-up" data-aos-delay="300">
+          @endif
+          
           <div class="text-center mb-8">
-            <h3 class="text-xl font-bold mb-2">Enterprise</h3>
+            <h3 class="text-xl font-bold mb-2">{{ $plan->name }}</h3>
             <div class="flex items-baseline justify-center">
-              <span class="text-4xl font-bold">$199</span>
-              <span class="text-gray-500 ml-1">/month</span>
+              <span class="text-4xl font-bold">${{ number_format($plan->amount / 100, 0) }}</span>
+              <span class="text-gray-500 ml-1">/{{ $plan->interval }}</span>
             </div>
-            <p class="text-gray-600 mt-2">For large organizations</p>
+            <p class="text-gray-600 mt-2 text-sm">{{ $plan->description }}</p>
           </div>
-          <ul class="space-y-4 mb-8">
+
+          <ul class="space-y-4 mb-8 flex-grow">
+            @php
+                $groupedFeatures = $plan->getFeaturesGrouped();
+                $isEnterprise = $plan->slug === 'enterprise-monthly';
+            @endphp
+
+            {{-- Display Quota Features First (Limits) --}}
+            @foreach($plan->planFeatures as $pf)
+                @php $enum = \App\Enums\PlanFeature::tryFrom($pf->feature); @endphp
+                @if($enum && $enum->type() === 'quota')
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                  <span class="text-sm">
+                    <strong>{{ $pf->value == -1 ? 'Unlimited' : $pf->value }}</strong> {{ $enum->label() }}
+                  </span>
+                </li>
+                @endif
+            @endforeach
+
+            {{-- Display Boolean Features --}}
+            @php $count = 0; @endphp
+            @foreach($plan->planFeatures as $pf)
+                @php $enum = \App\Enums\PlanFeature::tryFrom($pf->feature); @endphp
+                @if($enum && $enum->type() === 'boolean' && $count < 6)
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                  <span class="text-sm">{{ $enum->label() }}</span>
+                </li>
+                @php $count++; @endphp
+                @endif
+            @endforeach
+            
+            @if($isEnterprise)
             <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Unlimited products</span>
+              <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+              <span class="text-sm font-semibold">Custom Setup & dedicated support</span>
             </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>AI-powered insights</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Unlimited locations</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Custom integrations</span>
-            </li>
-            <li class="flex items-start">
-              <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
-              <span>Dedicated account manager</span>
-            </li>
+            @endif
           </ul>
-          <button
-            class="w-full bg-gray-100 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200 transform hover:-translate-y-1">Start
-            Free Trial</button>
+
+          <a href="{{ route('tenant.register.post', ['plan' => $plan->slug]) }}"
+            class="w-full text-center py-3 rounded-lg font-semibold transition-all duration-200 transform hover:-translate-y-1 {{ $plan->is_featured ? 'gradient-bg text-white shadow-lg shadow-primary-500/30' : 'bg-gray-100 text-gray-800 hover:bg-gray-200' }}">
+            {{ $plan->trail_days > 0 ? 'Start '.$plan->trial_days.'-Day Free Trial' : 'Get Started' }}
+          </a>
         </div>
+        @endforeach
       </div>
     </div>
   </section>

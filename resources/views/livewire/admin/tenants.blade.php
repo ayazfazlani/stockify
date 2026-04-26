@@ -101,7 +101,7 @@
 
     <!-- Create / Edit Modal -->
     @if($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b flex items-center justify-between">
                 <h3 class="text-lg font-semibold">

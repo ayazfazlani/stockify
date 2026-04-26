@@ -55,7 +55,7 @@ class ManageRoles extends Component
         }
 
         // Check if user is authorized to assign this role
-        if (!Auth::user()->isSuperAdmin() && !Auth::user()->hasRole('team admin')) {
+        if (!Auth::user()->can('manage roles')) {
             session()->flash('error', 'You are not authorized to assign roles.');
             return;
         }
@@ -95,8 +95,14 @@ class ManageRoles extends Component
             return;
         }
 
+        $tenant = tenant();
+        if (!$tenant->hasFeature('custom-roles') && !Auth::user()->isSuperAdmin()) {
+            session()->flash('error', 'Your current plan does not support custom roles. Please upgrade.');
+            return;
+        }
+
         // Only super admin and team admin can create roles
-        if (!Auth::user()->isSuperAdmin() && !Auth::user()->hasRole('team admin')) {
+        if (!Auth::user()->can('manage roles')) {
             session()->flash('error', 'You are not authorized to create roles.');
             return;
         }
@@ -105,17 +111,42 @@ class ManageRoles extends Component
         $roleData = [
             'name' => $this->newRoleName,
             'guard_name' => 'web',
+            'team_id' => !Auth::user()->isSuperAdmin() ? $tenant->id : null,
         ];
 
-        if (!Auth::user()->isSuperAdmin()) {
-            $roleData['team_id'] = Auth::user()->current_team_id;
+        $role = Role::create($roleData);
+        
+        // Sync selected permissions
+        if (!empty($this->selectedPermissions)) {
+            $role->syncPermissions($this->selectedPermissions);
         }
 
-        Role::create($roleData);
         $this->newRoleName = '';
+        $this->selectedPermissions = [];
         $this->loadRolesAndPermissions();
         
-        session()->flash('success', 'Role created successfully.');
+        session()->flash('success', 'Role created successfully with ' . count($this->selectedPermissions) . ' permissions.');
+    }
+
+    public function deleteCustomRole($roleId)
+    {
+        $role = Role::findOrFail($roleId);
+
+        // Prevent deleting system roles
+        $protectedRoles = ['super admin', 'team admin', 'team manager', 'team member', 'viewer'];
+        if (in_array($role->name, $protectedRoles) && $role->team_id === null) {
+            session()->flash('error', 'System roles cannot be deleted.');
+            return;
+        }
+
+        if (!Auth::user()->can('manage roles')) {
+            session()->flash('error', 'Unauthorized.');
+            return;
+        }
+
+        $role->delete();
+        $this->loadRolesAndPermissions();
+        session()->flash('success', 'Role deleted successfully.');
     }
 
     public function render()

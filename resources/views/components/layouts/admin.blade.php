@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SaaS Admin Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   @vite("resources/css/app.css");
@@ -603,35 +603,35 @@
       <h2>SaaS Admin</h2>
     </div>
     <nav class="sidebar-nav">
-      <a href="{{ route('super-admin.dashboard') }}" class="nav-item active">
+      <a wire:navigate href="{{ route('super-admin.dashboard') }}" class="nav-item {{ request()->routeIs('super-admin.dashboard') ? 'active' : '' }}">
         <i class="fas fa-home"></i>
         <span>Dashboard</span>
       </a>
-      <a href="{{ route('super-admin.users') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.users') }}" class="nav-item {{ request()->routeIs('super-admin.users') ? 'active' : '' }}">
         <i class="fas fa-users"></i>
         <span>Users</span>
       </a>
-      <a href="{{ route('super-admin.tenants') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.tenants') }}" class="nav-item {{ request()->routeIs('super-admin.tenants') ? 'active' : '' }}">
         <i class="fas fa-credit-card"></i>
         <span>Tenants</span>
       </a>
-      <a href="{{ route('super-admin.analytics') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.analytics') }}" class="nav-item {{ request()->routeIs('super-admin.analytics') ? 'active' : '' }}">
         <i class="fas fa-chart-bar"></i>
         <span>Analytics</span>
       </a>
-      <a href="{{ route('super-admin.settings') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.settings') }}" class="nav-item {{ request()->routeIs('super-admin.settings') ? 'active' : '' }}">
         <i class="fas fa-cog"></i>
         <span>Settings</span>
       </a>
-      <a href="{{ route('super-admin.billing') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.billing') }}" class="nav-item {{ request()->routeIs('super-admin.billing') ? 'active' : '' }}">
         <i class="fas fa-credit-card"></i>
         <span>Billing</span>
       </a>
-      <a href="{{ route('super-admin.plans') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.plans') }}" class="nav-item {{ request()->routeIs('super-admin.plans') ? 'active' : '' }}">
         <i class="fas fa-credit-card"></i>
         <span>Plans</span>
       </a>
-      <a href="{{ route('super-admin.support') }}" class="nav-item">
+      <a wire:navigate href="{{ route('super-admin.support') }}" class="nav-item {{ request()->routeIs('super-admin.support') ? 'active' : '' }}">
         <i class="fas fa-question-circle"></i>
         <span>Support</span>
       </a>

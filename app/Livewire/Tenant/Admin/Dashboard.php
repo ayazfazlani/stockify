@@ -57,7 +57,7 @@ class Dashboard extends Component
             $this->companyDescription = $tenant->description ?? '';
             $this->timezone = $tenant->timezone ?? 'UTC';
             $this->dateFormat = $tenant->date_format ?? 'Y-m-d';
-            $this->currentAvatar = $tenant->avatar ? Storage::disk('public')->url($tenant->avatar) : null;
+            $this->currentAvatar = $tenant->avatar ? Storage::url($tenant->avatar) : null;
             
             $this->fetchMarginLeaders($tenant->id);
             $this->fetchRecentAudits($tenant->id);
@@ -145,7 +145,7 @@ class Dashboard extends Component
             }
 
             $tenant->update($updates);
-            $this->currentAvatar = $tenant->avatar ? Storage::disk('public')->url($tenant->avatar) : null;
+            $this->currentAvatar = $tenant->avatar ? Storage::url($tenant->avatar) : null;
             $this->reset('avatar');
         }
 

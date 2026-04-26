@@ -30,6 +30,7 @@
                 @php
                     $routePrefix = tenancy()->initialized ? 'tenant.' : '';
                 @endphp
+                @can('view items')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'items')}}"
                         class="{{ request()->routeIs($routePrefix . 'items') ? 'active' : '' }}">
@@ -37,7 +38,9 @@
                         <span class="text nav-text">Item List</span>
                     </a>
                 </li>
+                @endcan
 
+                @can('manage stock')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'stock-in')}}"
                         class="{{ request()->routeIs($routePrefix . 'stock-in') ? 'active' : '' }}">
@@ -53,7 +56,9 @@
                         <span class="text nav-text">Stock Out</span>
                     </a>
                 </li>
+                @endcan
 
+                @can('manage stock')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'adjust')}}"
                         class="{{ request()->routeIs($routePrefix . 'adjust') ? 'active' : '' }}">
@@ -61,7 +66,9 @@
                         <span class="text nav-text">Adjust</span>
                     </a>
                 </li>
+                @endcan
 
+                @can('view transactions')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'transactions')}}"
                         class="{{ request()->routeIs($routePrefix . 'transactions') ? 'active' : '' }}">
@@ -69,7 +76,9 @@
                         <span class="text nav-text">Transactions</span>
                     </a>
                 </li>
+                @endcan
 
+                @can('view expenses')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'expenses')}}"
                         class="{{ request()->routeIs($routePrefix . 'expenses') ? 'active' : '' }}">
@@ -77,7 +86,9 @@
                         <span class="text nav-text">Expenses</span>
                     </a>
                 </li>
+                @endcan
 
+                @can('view purchase orders')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'purchase-orders')}}"
                         class="{{ request()->routeIs($routePrefix . 'purchase-orders') ? 'active' : '' }}">
@@ -85,6 +96,7 @@
                         <span class="text nav-text">Purchase Orders</span>
                     </a>
                 </li>
+                @endcan
 
                 @feature('analytics')
                 <li class="nav-link">
@@ -114,17 +126,15 @@
                     </a>
                 </li>
 
-                @feature('custom-roles')
-                @if(auth()->check() && (auth()->user()->isStoreAdmin() || auth()->user()->isSuperAdmin() || tenant('owner_id') === auth()->id()))
+                @can('manage team members')
                 <li class="nav-link">
                     <a wire:navigate href="{{ route($routePrefix . 'user')}}"
                         class="{{ request()->routeIs($routePrefix . 'user') ? 'active' : '' }}">
                         <i class='bx bx-user-circle icon'></i>
-                        <span class="text nav-text">Users</span>
+                        <span class="text nav-text">Users & Roles</span>
                     </a>
                 </li>
-                @endif
-                @endfeature
+                @endcan
 
             </div>
 

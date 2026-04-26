@@ -64,13 +64,12 @@
                     <div class="border rounded-lg p-4">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="font-medium">Select Items</h3>
-                            @role('viewer')
-                            @else
+                            @can('create items')
                             <button wire:click="$set('isModalOpen', true)" 
-                                class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600">
-                                + New Item
+                                class="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 shadow-sm">
+                                <i class="fas fa-plus"></i> New Item
                             </button>
-                            @endrole
+                            @endcan
                         </div>
                         <ul class="space-y-2 max-h-96 overflow-auto">
                             @foreach($items as $item)
@@ -116,13 +115,12 @@
                                 Items: {{ count($selectedItems) }} | 
                                 Qty: {{ array_sum(array_column($selectedItems, 'quantity')) }}
                             </div>
-                            @role('viewer')
-                            @else
+                            @can('manage stock')
                             <button wire:click="handleStockIn" 
-                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-                                Stock In
+                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 shadow-sm">
+                                <i class="fas fa-arrow-down"></i> Stock In
                             </button>
-                            @endrole
+                            @endcan
                         </div>
                     </div>
                     @endif
@@ -143,8 +141,10 @@
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Date</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Item</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Quantity</th>
+                                @can('view financial metrics')
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Unit Price</th>
                                 <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Total</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody>
@@ -152,9 +152,11 @@
                             <tr wire:key="trans-{{ $transaction->id }}" class="border-b hover:bg-gray-50">
                                 <td class="px-4 py-2 text-sm">{{ \Carbon\Carbon::parse($transaction->date)->format('M d Y') }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $transaction->item_name }}</td>
-                                <td class="px-4 py-2 text-sm">{{ $transaction->quantity }}</td>
-                                <td class="px-4 py-2 text-sm">${{ number_format($transaction->unit_price, 2) }}</td>
-                                <td class="px-4 py-2 text-sm">${{ number_format($transaction->total_price, 2) }}</td>
+                                <td class="px-4 py-2 text-sm text-green-600 font-semibold">{{ $transaction->quantity }}</td>
+                                @can('view financial metrics')
+                                <td class="px-4 py-2 text-sm font-mono">${{ number_format($transaction->unit_price, 2) }}</td>
+                                <td class="px-4 py-2 text-sm font-mono">${{ number_format($transaction->total_price, 2) }}</td>
+                                @endcan
                             </tr>
                             @empty
                             <tr>
