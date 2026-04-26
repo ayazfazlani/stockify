@@ -69,7 +69,7 @@ class Adjust extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $this->loading = true;
 
-        $query = Item::query()->when(!Auth::user()->hasRole('super admin'), fn($q) => $q->where('store_id', $teamId));
+        $query = Item::where('store_id', $teamId);
 
         if ($this->search) {
             $query->where(function ($q) {

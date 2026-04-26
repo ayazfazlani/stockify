@@ -257,10 +257,15 @@
                             @error('newItem.quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
             
-                        <div>
-                            <input type="file" wire:model="newItem.image" 
-                                class="w-full p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            @error('newItem.image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        <div class="flex items-center gap-4">
+                            @if ($image)
+                                <img src="{{ $image->temporaryUrl() }}" class="w-16 h-16 object-cover rounded-md border">
+                            @endif
+                            <div class="flex-1">
+                                <input type="file" wire:model="image" 
+                                    class="w-full p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                @error('image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                     </div>
                     <div class="p-6 border-t border-gray-200 flex justify-end gap-2">

@@ -29,11 +29,8 @@ class Transactions extends Component
         try {
             $query = Transaction::query();
 
-            // Apply store filter for non-super admins
-            if (!Auth::user()->hasRole('super admin')) {
-                $storeId = Auth::user()->getCurrentStoreId();
-                $query->when($storeId, fn($q) => $q->where('store_id', $storeId));
-            }
+            $storeId = Auth::user()->getCurrentStoreId();
+            $query->where('store_id', $storeId);
 
             // Apply search filter
             if (!empty($this->filter)) {

@@ -43,9 +43,7 @@ class Analytic extends Component
     public function fetchData()
     {
         // Fetch items based on user role
-        $items = Auth::user()->hasRole('super admin')
-            ? Item::all()
-            : Item::where('store_id', $this->store_id)->get();
+        $items = Item::where('store_id', $this->store_id)->get();
 
         // Convert items to JSON and assign
         $this->itemsDataJsn = $items->toJson();
@@ -53,9 +51,7 @@ class Analytic extends Component
         // Build analytics query based on user role
         $query = Analytics::query();
 
-        if (!Auth::user()->hasRole('super admin')) {
-            $query->where('store_id', $this->store_id);
-        }
+        $query->where('store_id', $this->store_id);
 
         // Apply additional filters for analytics
         if (!empty($this->filterName)) {

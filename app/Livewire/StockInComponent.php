@@ -55,10 +55,7 @@ class StockInComponent extends Component
     public function loadItems()
     {
         $teamId = Auth::user()->getCurrentStoreId();
-        $this->items = Item::when(
-            !Auth::user()->hasRole('super admin'),
-            fn($q) => $q->where('store_id', $teamId)
-        )
+        $this->items = Item::where('store_id', $teamId)
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('sku', 'like', '%' . $this->search . '%');

@@ -66,10 +66,10 @@ class Dashboard extends Component
 
     public function fetchMarginLeaders(string $tenantId): void
     {
-        $storeIds = Store::where('tenant_id', $tenantId)->pluck('id');
+        $currentStoreId = Auth::user()->getCurrentStoreId();
 
         $this->marginLeaders = Item::query()
-            ->whereIn('store_id', $storeIds)
+            ->where('store_id', $currentStoreId)
             ->where('quantity', '>', 0)
             ->orderByRaw('(price - cost) * quantity DESC')
             ->take(8)
@@ -91,10 +91,10 @@ class Dashboard extends Component
 
     public function fetchRecentAudits(string $tenantId): void
     {
-        $storeIds = Store::where('tenant_id', $tenantId)->pluck('id');
+        $currentStoreId = Auth::user()->getCurrentStoreId();
 
         $this->recentAudits = InventoryAudit::with(['item', 'user'])
-            ->whereIn('store_id', $storeIds)
+            ->where('store_id', $currentStoreId)
             ->latest()
             ->take(10)
             ->get();

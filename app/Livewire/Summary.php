@@ -32,20 +32,14 @@ class Summary extends Component
 
         // Check user role and apply team-based filtering
         if (auth()->check()) {
-            if (auth()->user()->hasRole('super admin')) {
-                // Super admin sees all reports (no additional filters applied)
-            } else {
-                // Other roles: Filter by team ID
-                $currentTeamId = $teamId = Auth::user()->getCurrentStoreId();
+            $currentStoreId = Auth::user()->getCurrentStoreId();
 
-                if ($currentTeamId) {
-                    $query->where('store_id', $currentTeamId);
-                } else {
-                    // Handle missing or invalid team ID
-                    $this->reports = collect();
-                    session()->flash('error', 'No team selected. Please select a valid team.');
-                    return;
-                }
+            if ($currentStoreId) {
+                $query->where('store_id', $currentStoreId);
+            } else {
+                $this->reports = collect();
+                session()->flash('error', 'No store selected. Please select a valid store.');
+                return;
             }
         } else {
             // Unauthenticated users: No reports available
