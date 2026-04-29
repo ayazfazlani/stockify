@@ -36,12 +36,12 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 |
 */
 
-Route::prefix('{tenant}')->middleware([
-    InitializeTenancyByPath::class,
-])->group(function () {
-    // Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
-    //     ->name('tenant.cashier.webhook');
-});
+// Route::prefix('{tenant}')->middleware([
+//     InitializeTenancyByPath::class,
+// ])->group(function () {
+//     // Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
+//     //     ->name('tenant.cashier.webhook');
+// });
 
 Route::prefix('{tenant}')->name('tenant.')->middleware([
     'web',

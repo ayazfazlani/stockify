@@ -10,6 +10,11 @@ class Sidebar extends Component
     public $expandedSection = null;
 
     // Method to toggle the sidebar open/close
+
+    public function toJSON()
+    {
+        return [];
+    }
     public function toggleSidebar()
     {
         $this->isSidebarOpen = !$this->isSidebarOpen;  // Toggle the sidebar

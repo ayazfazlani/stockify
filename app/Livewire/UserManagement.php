@@ -72,11 +72,11 @@ class UserManagement extends Component
         // Send the invitation email
         try {
             $tenantSlug = tenant('slug');
-            if (! $tenantSlug && Auth::user()?->tenant_id) {
+            if (!$tenantSlug && Auth::user()?->tenant_id) {
                 $tenant = \App\Models\Tenant::find(Auth::user()->tenant_id);
                 $tenantSlug = $tenant ? $tenant->slug : null;
             }
-            
+
             Mail::to($this->email)->send(new InviteUserMail($token, $tenantSlug));
             session()->flash('status', 'Invitation sent successfully!');
         } catch (\Exception $e) {
@@ -93,7 +93,7 @@ class UserManagement extends Component
 
     public function assignRole($userId)
     {
-        if (! isset($this->selectedRoles[$userId]) || empty($this->selectedRoles[$userId])) {
+        if (!isset($this->selectedRoles[$userId]) || empty($this->selectedRoles[$userId])) {
             session()->flash('status', 'Please select a role first.');
 
             return;
@@ -143,6 +143,10 @@ class UserManagement extends Component
         $this->userToDelete = null;
     }
 
+    public function toJSON()
+    {
+        return [];
+    }
     public function render()
     {
         return view('livewire.user-management');

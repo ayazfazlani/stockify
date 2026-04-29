@@ -1,10 +1,17 @@
 <?php
 
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\CmsController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\RobotsTxtController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubscriptionController;
+use App\Livewire\Admin\BlogCategoryManager;
+use App\Livewire\Admin\BlogManager;
+use App\Livewire\Admin\PageManager;
+use App\Livewire\Admin\SeoManager;
 use App\Livewire\Admin\Analytics;
 use App\Livewire\Admin\Billing;
 use App\Livewire\Admin\Settings;
@@ -14,6 +21,7 @@ use App\Livewire\Admin\Users;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
 use App\Livewire\InviteUser;
+use App\Livewire\Web\Home;
 use App\Livewire\ItemList;
 use App\Livewire\ManageRoles;
 use App\Livewire\StockInComponent;
@@ -28,7 +36,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-
+use App\Livewire\Admin\Blog\Blog;
+use App\Livewire\Admin\Blog\Category;
+use App\Livewire\Admin\Blog\Show;
 // ---------------- Super Admin Routes ----------------
 Route::prefix('super-admin')->name('super-admin.')->group(function () {
     Route::middleware(['guest'])->group(function () {
@@ -92,6 +102,12 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
         Route::get('/plans', PricingPlans::class)->name('plans');
         Route::get('/support', Support::class)->name('support');
 
+        // CMS Routes
+        Route::get('/pages', PageManager::class)->name('pages');
+        Route::get('/blog', BlogManager::class)->name('blog');
+        Route::get('/blog-categories', BlogCategoryManager::class)->name('blog-categories');
+        Route::get('/seo', SeoManager::class)->name('seo');
+
         Route::get('/pricing-plans', PricingPlans::class)->name('pricing-plans');
         // Invoice Downloads
         Route::get('/invoices/{payment}/download', [\App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
@@ -116,10 +132,8 @@ Route::get('/checkout/cancel', function () {
     return view('subscription.cancel');
 })->name('checkout.cancel');
 // ---------------- Public Routes ----------------
-Route::get('/', function () {
-    $plans = \App\Models\Plan::where('active', true)->orderBy('sort_order')->get();
-    return view('welcome', compact('plans'));
-})->name('welcome');
+Route::get('/', Home::class)->name('home');
+
 
 Route::get('/invite', InviteUser::class)->name('invite');
 Route::get('/login', Login::class)->name('login');
@@ -152,3 +166,15 @@ Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenan
 Route::post('/stripe/webhook', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])
     ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
     ->name('cashier.webhook');
+
+// ---------------- SEO & CMS Public Routes ----------------
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [RobotsTxtController::class, 'index'])->name('robots');
+
+// Blog
+Route::get('/blog', Blog::class)->name('blog.index');
+Route::get('/blog/category/{slug}', Category::class)->name('blog.category');
+Route::get('/blog/{slug}', Show::class)->name('blog.show');
+
+// CMS Pages (catch-all — MUST be last)
+Route::get('/{slug}', [CmsController::class, 'cmsPage'])->name('cms.page')->where('slug', '^(?!super-admin|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe).*$');

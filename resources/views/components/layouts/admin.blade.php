@@ -631,6 +631,28 @@
         <i class="fas fa-credit-card"></i>
         <span>Plans</span>
       </a>
+
+      <!-- CMS Section -->
+      <div style="padding: 0.5rem 0.75rem; margin-top: 0.75rem;">
+        <span style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); opacity: 0.7;">Content</span>
+      </div>
+      <a wire:navigate href="{{ route('super-admin.pages') }}" class="nav-item {{ request()->routeIs('super-admin.pages') ? 'active' : '' }}">
+        <i class="fas fa-file-alt"></i>
+        <span>Pages</span>
+      </a>
+      <a wire:navigate href="{{ route('super-admin.blog') }}" class="nav-item {{ request()->routeIs('super-admin.blog') ? 'active' : '' }}">
+        <i class="fas fa-blog"></i>
+        <span>Blog Posts</span>
+      </a>
+      <a wire:navigate href="{{ route('super-admin.blog-categories') }}" class="nav-item {{ request()->routeIs('super-admin.blog-categories') ? 'active' : '' }}">
+        <i class="fas fa-folder"></i>
+        <span>Categories</span>
+      </a>
+      <a wire:navigate href="{{ route('super-admin.seo') }}" class="nav-item {{ request()->routeIs('super-admin.seo') ? 'active' : '' }}">
+        <i class="fas fa-search"></i>
+        <span>SEO & Sitemap</span>
+      </a>
+
       <a wire:navigate href="{{ route('super-admin.support') }}" class="nav-item {{ request()->routeIs('super-admin.support') ? 'active' : '' }}">
         <i class="fas fa-question-circle"></i>
         <span>Support</span>

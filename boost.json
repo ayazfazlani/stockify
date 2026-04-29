@@ -1,0 +1,22 @@
+{
+    "agents": [
+        "claude_code",
+        "gemini",
+        "cursor"
+    ],
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch_mcp": false,
+    "packages": [
+        "nativephp/mobile"
+    ],
+    "sail": false,
+    "skills": [
+        "cashier-stripe-development",
+        "laravel-best-practices",
+        "socialite-development",
+        "livewire-development",
+        "tailwindcss-development",
+        "nativephp-mobile"
+    ]
+}

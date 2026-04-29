@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 Schedule::command('app:send-daily-summary')->dailyAt('21:00');
+Schedule::command('cms:generate-sitemap')->daily();
