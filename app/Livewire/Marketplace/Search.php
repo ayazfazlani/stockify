@@ -5,6 +5,7 @@ namespace App\Livewire\Marketplace;
 use App\Models\Category;
 use App\Models\Item;
 use App\Models\Store;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -44,14 +45,27 @@ class Search extends Component
         'maxDistance' => ['except' => 50],
     ];
 
-    public function mount(?Category $category = null, ?Store $store = null)
+    public function mount(?Category $category = null, $store = null)
     {
         if ($category) {
             $this->category = $category->slug;
         }
 
-        if ($store) {
+        if ($store instanceof Store) {
             $this->store = $store;
+        } elseif ($store) {
+            $this->store = Store::query()
+                ->where(function ($query) use ($store) {
+                    if (Schema::hasColumn('stores', 'slug')) {
+                        $query->where('slug', $store)
+                            ->orWhere('tenant_id', $store)
+                            ->orWhere('id', $store);
+                    } else {
+                        $query->where('tenant_id', $store)
+                            ->orWhere('id', $store);
+                    }
+                })
+                ->first();
         }
     }
 
