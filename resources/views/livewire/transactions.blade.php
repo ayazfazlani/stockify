@@ -1,5 +1,5 @@
 <div>
-    <div class="p-6 z-0 flex-1 bg-white min-h-screen overflow-y-auto">
+    <div class="p-4 md:p-6 z-0 flex-1 bg-white">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-semibold">Transactions</h1>
             <button wire:click="exportToExcel" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">

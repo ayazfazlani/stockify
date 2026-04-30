@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\TeamScope;
 use Illuminate\Database\Eloquent\Model;
 
 class ItemBarcode extends Model
 {
+    use TeamScope;
+
     protected $fillable = [
         'item_id',
         'tenant_id',

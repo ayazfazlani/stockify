@@ -191,36 +191,44 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 md:h-20">
         <div class="flex items-center">
-          <div class="flex-shrink-0 flex items-center">
+          <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center">
             <div class="rounded-lg gradient-bg p-2 mr-3 transform hover:rotate-12 transition-transform duration-300">
               <i class="fas fa-boxes text-white text-xl"></i>
             </div>
             <span
               class="font-bold text-2xl bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">StockFlow</span>
-          </div>
+          </a>
         </div>
         <div class="hidden md:flex items-center space-x-8">
-          <a href="#features"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Features</a>
-          <a href="#solutions"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Solutions</a>
-          <a href="#pricing"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Pricing</a>
-          <a href="#faq"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">FAQ</a>
-          <div class="flex items-center">
-            @livewire('marketplace.cart.cart-canvas')
-          </div>
           <a href="{{ route('marketplace.index') }}"
             class="nav-link text-emerald-600 font-bold hover:text-emerald-700 transition-colors duration-300">
             <i class="fas fa-shopping-bag mr-1"></i> Marketplace
           </a>
-          <a href="{{ route('find-store') }}" class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Login</a>
-          <a href="{{ route('tenant.register.post') }}"
-            class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium hover:from-primary-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Start
-            Free Trial</a>
+          <a href="{{ route('marketplace.search') }}"
+            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">
+            <i class="fas fa-search mr-1"></i> Products
+          </a>
+          @auth
+            <a href="{{ route('marketplace.my-orders') }}"
+              class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">
+              <i class="fas fa-box mr-1"></i> My Orders
+            </a>
+          @endauth
+          <div class="flex items-center">
+            @livewire('marketplace.cart.cart-canvas')
+          </div>
+          @guest
+            <a href="{{ route('find-store') }}" class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Login</a>
+            <a href="{{ route('tenant.register.post') }}"
+              class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium hover:from-primary-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Start Free Trial</a>
+          @else
+            <a href="{{ route('home') }}" class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Dashboard</a>
+          @endguest
         </div>
-        <div class="md:hidden flex items-center">
+        <div class="md:hidden flex items-center space-x-4">
+          <div class="flex items-center">
+            @livewire('marketplace.cart.cart-canvas')
+          </div>
           <button id="mobile-menu-button" class="text-dark-800 hover:text-primary-600 transition-colors duration-300">
             <i class="fas fa-bars text-2xl"></i>
           </button>
@@ -232,23 +240,30 @@
     <div id="mobile-menu"
       class="hidden md:hidden absolute w-full bg-white/95 backdrop-blur-md shadow-lg py-4 transition-all duration-500 ease-in-out">
       <div class="px-4 pt-2 pb-3 space-y-1">
-        <a href="#features"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Features</a>
-        <a href="#solutions"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Solutions</a>
-        <a href="#pricing"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Pricing</a>
-        <a href="#faq"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">FAQ</a>
         <a href="{{ route('marketplace.index') }}"
           class="block px-3 py-3 text-emerald-600 font-bold hover:bg-emerald-50 rounded-lg transition-all duration-300">
           <i class="fas fa-shopping-bag mr-1"></i> Marketplace
         </a>
-        <a href="{{ route('find-store') }}"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Login</a>
-        <a href="{{ route('tenant.register.post') }}"
-          class="block mx-3 mt-4 bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-3 rounded-lg font-medium text-center shadow-md hover:shadow-lg transition-all duration-300">Start
-          Free Trial</a>
+        <a href="{{ route('marketplace.search') }}"
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">
+          <i class="fas fa-search mr-1"></i> Products
+        </a>
+        @auth
+          <a href="{{ route('marketplace.my-orders') }}"
+            class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">
+            <i class="fas fa-box mr-1"></i> My Orders
+          </a>
+        @endauth
+        @guest
+          <a href="{{ route('find-store') }}"
+            class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Login</a>
+          <a href="{{ route('tenant.register.post') }}"
+            class="block mx-3 mt-4 bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-3 rounded-lg font-medium text-center shadow-md hover:shadow-lg transition-all duration-300">Start
+            Free Trial</a>
+        @else
+          <a href="{{ route('home') }}"
+            class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Dashboard</a>
+        @endguest
       </div>
     </div>
   </nav>

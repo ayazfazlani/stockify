@@ -1,14 +1,29 @@
 <div>
-    <nav class="sidebar max-sm:fixed md:block z-10 border-r border-gray-300">
-        <header>
-            <div class="image-text">
-                <span class="image">
-                    {{-- <img src="icon.png" alt=""> --}}
-                </span>
+    <nav class="sidebar border-r border-gray-300">
+        <header class="relative px-5 py-6 mb-4">
+            <div class="md:hidden flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    @if(auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar }}" class="w-12 h-12 rounded-full border-2 border-blue-500 p-0.5">
+                    @else
+                        <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                            {{ substr(auth()->user()->name, 0, 1) }}
+                        </div>
+                    @endif
+                    <div>
+                        <h4 class="font-bold text-gray-900 leading-tight">{{ auth()->user()->name }}</h4>
+                        <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                    </div>
+                </div>
+                <button onclick="document.querySelector('.sidebar').classList.add('close')" class="p-2 bg-gray-100 rounded-xl text-gray-500">
+                    <i class='bx bx-x text-2xl'></i>
+                </button>
+            </div>
 
-                <div class="text logo-text">
-                    <span class="name">GENERAL</span>
-                    <span class="profession">TRADING</span>
+            <div class="image-text flex items-center gap-3">
+                <div class="text logo-text flex flex-col">
+                    <span class="name font-bold text-lg tracking-tight">GENERAL</span>
+                    <span class="profession text-xs text-blue-600 font-semibold">TRADING</span>
                 </div>
             </div>
 
@@ -16,8 +31,8 @@
         </header>
 
         @feature('multi-store')
-        @if(auth()->check() && auth()->user()->accessibleTeams()->where('tenant_', tenant('id'))->count() > 1)
-            <div class="px-5 py-4 border-b border-gray-200">
+        @if(auth()->check() && auth()->user()->accessibleTeams()->where('tenant_id', tenant('id'))->count() > 1)
+            <div class="switch-store-container px-5 py-4 border-b border-gray-200">
                 <span class="text-xs text-gray-500 uppercase font-semibold mb-2 block">Switch Store</span>
                 @livewire('team-switcher')
             </div>
@@ -149,20 +164,29 @@
                     </li>
                 @endcan
 
+                <li class="nav-link">
+                    <a wire:navigate
+                        href="{{ $tenantId ? route('tenant.marketplace-settings', ['tenant' => $tenantId]) : '#' }}"
+                        class="{{ request()->routeIs('tenant.marketplace-settings') ? 'active' : '' }}">
+                        <i class='bx bx-store-alt icon'></i>
+                        <span class="text nav-text">Marketplace</span>
+                    </a>
+                </li>
+
             </div>
         </div>
     </nav>
+    <div class="sidebar-overlay" onclick="document.querySelector('.sidebar').classList.add('close')"></div>
 </div>
 
-@script
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
+<script data-navigate-once>
+    document.addEventListener('livewire:navigated', function () {
         const body = document.querySelector('body'),
-            sidebar = body.querySelector('nav'),
-            toggle = body.querySelector(".toggle"),
-            searchBtn = body.querySelector(".search-box"),
-            modeSwitch = body.querySelector(".toggle-switch"),
-            modeText = body.querySelector(".mode-text");
+            sidebar = document.querySelector('.sidebar'),
+            toggle = document.querySelector(".toggle"),
+            searchBtn = document.querySelector(".search-box"),
+            modeSwitch = document.querySelector(".toggle-switch"),
+            modeText = document.querySelector(".mode-text");
 
         // Load sidebar state from localStorage
         const sidebarState = localStorage.getItem('sidebarState');
@@ -182,8 +206,10 @@
         // Ensure the sidebar opens when search is clicked
         if (searchBtn) {
             searchBtn.addEventListener("click", () => {
-                sidebar.classList.remove("close");
-                localStorage.setItem('sidebarState', 'open');
+                if (sidebar) {
+                    sidebar.classList.remove("close");
+                    localStorage.setItem('sidebarState', 'open');
+                }
             });
         }
 
@@ -192,21 +218,14 @@
             modeSwitch.addEventListener("click", () => {
                 body.classList.toggle("dark");
 
-                if (body.classList.contains("dark")) {
-                    modeText.innerText = "Light mode";
-                } else {
-                    modeText.innerText = "Dark mode";
+                if (modeText) {
+                    if (body.classList.contains("dark")) {
+                        modeText.innerText = "Light mode";
+                    } else {
+                        modeText.innerText = "Dark mode";
+                    }
                 }
             });
         }
-
-        // Highlight active link based on the current URL
-        const links = document.querySelectorAll(".menu-links a");
-        links.forEach(link => {
-            if (window.location.href.includes(link.href)) {
-                link.classList.add("active");
-            }
-        });
     });
 </script>
-@endscript

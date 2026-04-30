@@ -22,12 +22,19 @@ class Store extends Model
         'features',
         'member_limit',
         'storage_limit',
+        'address',
+        'city',
+        'country',
+        'latitude',
+        'longitude',
+        'is_public',
     ];
 
     protected $casts = [
         'features' => 'array',
         'is_on_trial' => 'boolean',
         'is_active' => 'boolean',
+        'is_public' => 'boolean',
         'trial_ends_at' => 'datetime',
     ];
 
@@ -77,5 +84,10 @@ class Store extends Model
     public function quota()
     {
         return $this->hasOne(StoreQuota::class, 'store_id')->ofMany('id', 'max');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
     }
 }

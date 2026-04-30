@@ -5,8 +5,8 @@ namespace App\Livewire;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Livewire\WithFileUploads;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 
 class TeamManagement extends Component
@@ -15,20 +15,26 @@ class TeamManagement extends Component
 
     // Store Creation
     public $storeName;
+
     public $storeDescription;
+
     public $image;
 
     // Add User to Store
     public $selectedUsers;
+
     public $selectedStore;
 
     // Change User Role
     public $selectedUser;
+
     public $selectedRole;
 
     // Data Collections
     public $stores;
+
     public $availableUsers;
+
     public $availableRoles;
 
     public function mount()
@@ -44,14 +50,9 @@ class TeamManagement extends Component
     {
         $this->stores = Store::with(['owner', 'users'])->where('tenant_id', Auth::user()->tenant_id)->get();
 
-        // Get users not in any store using pivot relationship
-        $this->availableUsers = User::whereDoesntHave('teams')->where('tenant_id', Auth::user()->tenant_id)->get();
+        // Get all users in the tenant
+        $this->availableUsers = User::where('tenant_id', Auth::user()->tenant_id)->get();
 
-        // Get viewer role users
-        $viewerUsers = User::whereHas('roles', function ($query) {
-            $query->where('name', 'viewer');
-        })->get();
-        $this->availableUsers = $this->availableUsers->merge($viewerUsers);
         $this->availableRoles = Role::all();
     }
 
@@ -129,8 +130,9 @@ class TeamManagement extends Component
         $user = User::findOrFail($userId);
 
         // Prevent non-super admins from removing a super admin from any store
-        if ($user->hasRole('super admin') && !Auth::user()->hasRole('super admin')) {
+        if ($user->hasRole('super admin') && ! Auth::user()->hasRole('super admin')) {
             session()->flash('status', 'Unauthorized: You cannot remove a super admin from the store.');
+
             return;
         }
 

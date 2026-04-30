@@ -64,7 +64,11 @@
 
         <div class="text-center space-y-4">
             <p class="text-sm text-gray-500">
-                Don't have an account? 
+                Want to buy items? 
+                <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-700 font-bold transition-colors">Create Client Account</a>
+            </p>
+            <p class="text-sm text-gray-500">
+                Are you a store owner? 
                 <a href="{{ route('tenant.register.post') }}" class="text-primary-600 hover:text-primary-700 font-bold transition-colors">Start Free Trial</a>
             </p>
             <p class="text-xs text-gray-400">

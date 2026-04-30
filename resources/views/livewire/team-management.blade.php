@@ -1,4 +1,4 @@
-<div class="p-6 max-w-7xl mx-auto bg-white p-20">
+<div class="p-4 max-w-7xl mx-auto bg-white">
 
     <h1 class=" text-3xl font-bold text-gray-800 mb-6">Store Management</h1>
 
@@ -9,7 +9,7 @@
     @endif
 
     <!-- Create Store Section -->
-    <div class="mb-8 bg-gray-50 p-10">
+    <div class="mb-8 bg-gray-50 p-4">
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Create New Store</h2>
     <form wire:submit.prevent="createStore" class="space-y-4">
         <div class="grid grid-cols-1 gap-4">
@@ -86,10 +86,8 @@
             <select wire:model="selectedUser"
                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Select a User</option>
-                @foreach($stores as $store)
-                    @foreach($store->users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $store->name }})</option>
-                    @endforeach
+                @foreach($availableUsers as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
                 @endforeach
             </select>
         </div>

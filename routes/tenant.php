@@ -2,22 +2,25 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\PlansController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Middleware\CheckTenantAccess;
 use App\Livewire\Adjust;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
 use App\Livewire\Dashboard as AnalyticsDashboard;
+use App\Livewire\ExpenseTracker;
 use App\Livewire\ItemList;
+use App\Livewire\MarketplaceSettings;
 use App\Livewire\PurchaseOrders;
 use App\Livewire\StockInComponent;
 use App\Livewire\StockOutComponent;
-use App\Livewire\Summary;
 use App\Livewire\SubscriptionManagement;
-use App\Livewire\TeamManagement;
+use App\Livewire\Summary;
 use App\Livewire\Tenant\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Transactions;
-use App\Livewire\ExpenseTracker;
 use App\Livewire\UserManagement;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
@@ -43,19 +46,19 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 //     //     ->name('tenant.cashier.webhook');
 // });
 
-Route::prefix('{tenant}')->name('tenant.')->middleware([
+Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|marketplace|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe|api|pwa|up|build\\b)[^/]+$'])->middleware([
     'web',
     InitializeTenancyByPath::class,
-    \App\Http\Middleware\CheckTenantAccess::class,
+    CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
     });
 
     // / ---------------- Authenticated & Guest Routes ----------------
     Route::get('/login', Login::class)->name('login');
-    Route::get('/register', [\App\Http\Controllers\RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [\App\Http\Controllers\RegisterController::class, 'register']);
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 
     Route::middleware(['auth'])->group(function () {
         // Core inventory (included in all plans)
@@ -100,7 +103,10 @@ Route::prefix('{tenant}')->name('tenant.')->middleware([
         });
 
         // Invoice Downloads
-        Route::get('/invoices/{payment}/download', [\App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
+        Route::get('/invoices/{payment}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+
+        // Marketplace Settings
+        Route::get('/marketplace-settings', MarketplaceSettings::class)->name('marketplace-settings');
     });
 
 });

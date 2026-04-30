@@ -2,7 +2,7 @@
     <div class="p-6 flex justify-between bg-white w-full">
         <h1 class="text-2xl font-semibold">Analytics</h1>
        
-            <button wire:click="exportExcel" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Export Excel 
+            <button wire:click="exportExcel" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Export Excel</button>
     </div>
 
     <div class="flex flex-grow flex-col p-4 gap-6">

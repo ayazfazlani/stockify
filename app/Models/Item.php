@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\TeamScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Item extends Model
 {
     use HasFactory, TeamScope;
-    
+
     const TRACKING_STANDARD = 'standard';
+
     const TRACKING_SERIALIZED = 'serialized';
 
     public $timestamps = false;
@@ -32,6 +33,14 @@ class Item extends Model
         'reorder_level',
         'reorder_quantity',
         'supplier_id',
+        'description',
+        'is_public',
+        'category_id',
+        'slug',
+    ];
+
+    protected $casts = [
+        'is_public' => 'boolean',
     ];
 
     public function store()
@@ -79,13 +88,34 @@ class Item extends Model
         return $this->hasOne(Analytics::class);
     }
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where($this->getTable().'.is_public', true)
+            ->whereHas('store', function ($q) {
+                $q->where('is_public', true);
+            });
+    }
+
     protected static function booted()
     {
         static::creating(function ($item) {
             if (empty($item->sku)) {
-                $item->sku = 'SKU-' . strtoupper(Str::random(8));
+                $item->sku = 'SKU-'.strtoupper(Str::random(8));
+            }
+            if (empty($item->slug)) {
+                $item->slug = Str::slug($item->name).'-'.Str::random(4);
             }
         });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 
     public static function resolveByCode(string $code, ?int $storeId = null): ?self
@@ -96,7 +126,7 @@ class Item extends Model
         }
 
         return static::query()
-            ->when($storeId, fn($query) => $query->where('store_id', $storeId))
+            ->when($storeId, fn ($query) => $query->where('store_id', $storeId))
             ->where(function ($query) use ($normalizedCode) {
                 $query->where('sku', $normalizedCode)
                     ->orWhereHas('barcodes', function ($barcodeQuery) use ($normalizedCode) {

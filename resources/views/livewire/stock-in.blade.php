@@ -1,4 +1,4 @@
-<div class="p-6 max-h-screen w-full overflow-y-auto bg-white text-gray-900">
+<div class="p-4 md:p-6 bg-white text-gray-900">
     <!-- Notifications -->
     @if(session()->has('message'))
     <div class="p-4 mb-4 text-sm text-white bg-green-500 rounded-lg" role="alert">
@@ -71,7 +71,7 @@
                             </button>
                             @endcan
                         </div>
-                        <ul class="space-y-2 max-h-96 overflow-auto">
+                        <ul class="space-y-2">
                             @foreach($items as $item)
                             <li wire:key="item-{{ $item->id }}" wire:click="toggleItemSelection({{ $item->id }})" 
                                 class="p-3 border rounded-md cursor-pointer hover:bg-gray-50 {{ in_array($item->id, array_column($selectedItems, 'id')) ? 'bg-blue-50 border-blue-200' : '' }}">
@@ -134,7 +134,7 @@
                 <h2 class="text-lg font-semibold">Stock In History</h2>
             </div>
             <div class="p-4">
-                <div class="overflow-auto max-h-[500px]">
+                <div class="overflow-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
@@ -175,7 +175,7 @@
     <!-- New Item Modal -->
     @if($isModalOpen)
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-md rounded-lg shadow-xl overflow-y-auto max-h-[90vh]">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-xl overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-xl font-semibold">Add New Item</h3>
             </div>
@@ -279,7 +279,7 @@
                     @if(count($scannedSerials) > 0)
                     <div class="mt-2">
                         <span class="text-xs font-semibold text-gray-600 uppercase">Captured: {{ count($scannedSerials) }}</span>
-                        <div class="flex flex-wrap gap-2 mt-1 max-h-32 overflow-y-auto p-1 border rounded bg-white">
+                        <div class="flex flex-wrap gap-2 mt-1 p-1 border rounded bg-white">
                             @foreach($scannedSerials as $index => $serial)
                             <div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs">
                                 <span>{{ $serial }}</span>

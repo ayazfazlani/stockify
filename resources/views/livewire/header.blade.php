@@ -1,5 +1,11 @@
-<div>
-    <header class="bg-white  z-0 px-9 py-5 border-b border-gray-300 flex justify-between items-center">
+    <header class="bg-white z-0 px-4 md:px-9 py-5 border-b border-gray-300 flex justify-between items-center">
+        <!-- Mobile Menu Toggle -->
+        <div class="md:hidden">
+            <button onclick="document.querySelector('.sidebar').classList.toggle('close')" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+
         <!-- Logo -->
         <div class="flex h-10 w-40 items-center space-x-3">
             <a wire:navigate href="/">
@@ -73,8 +79,6 @@
             @endauth
         </div>
     </header>
-</div>
-
 @script
 <script>
     const notificationButton = document.getElementById('notificationButton');

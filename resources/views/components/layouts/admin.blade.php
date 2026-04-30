@@ -87,13 +87,29 @@
     }
 
     .sidebar {
-      width: 260px;
+      width: 270px;
       background-color: hsl(var(--sidebar-background));
       border-right: 1px solid hsl(var(--sidebar-border));
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
       transition: all 0.3s;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      padding-bottom: 100px;
+    }
+
+    /* Invisible scrollbar for admin layout */
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sidebar {
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
     }
 
     .sidebar.collapsed {
@@ -131,6 +147,18 @@
 
     .sidebar-nav {
       flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px; /* Space to reach bottom links */
+    }
+
+    /* Hide scrollbar for admin nav */
+    .sidebar-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sidebar-nav {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
     .nav-item {
@@ -138,7 +166,8 @@
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem;
-      border-radius: var(--radius);
+      border-radius: 4px;
+      /* Reduced rounding */
       color: hsl(var(--sidebar-foreground));
       text-decoration: none;
       margin-bottom: 0.25rem;
@@ -603,57 +632,70 @@
       <h2>SaaS Admin</h2>
     </div>
     <nav class="sidebar-nav">
-      <a wire:navigate href="{{ route('super-admin.dashboard') }}" class="nav-item {{ request()->routeIs('super-admin.dashboard') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.dashboard') }}"
+        class="nav-item {{ request()->routeIs('super-admin.dashboard') ? 'active' : '' }}">
         <i class="fas fa-home"></i>
         <span>Dashboard</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.users') }}" class="nav-item {{ request()->routeIs('super-admin.users') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.users') }}"
+        class="nav-item {{ request()->routeIs('super-admin.users') ? 'active' : '' }}">
         <i class="fas fa-users"></i>
         <span>Users</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.tenants') }}" class="nav-item {{ request()->routeIs('super-admin.tenants') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.tenants') }}"
+        class="nav-item {{ request()->routeIs('super-admin.tenants') ? 'active' : '' }}">
         <i class="fas fa-credit-card"></i>
         <span>Tenants</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.analytics') }}" class="nav-item {{ request()->routeIs('super-admin.analytics') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.analytics') }}"
+        class="nav-item {{ request()->routeIs('super-admin.analytics') ? 'active' : '' }}">
         <i class="fas fa-chart-bar"></i>
         <span>Analytics</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.settings') }}" class="nav-item {{ request()->routeIs('super-admin.settings') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.settings') }}"
+        class="nav-item {{ request()->routeIs('super-admin.settings') ? 'active' : '' }}">
         <i class="fas fa-cog"></i>
         <span>Settings</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.billing') }}" class="nav-item {{ request()->routeIs('super-admin.billing') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.billing') }}"
+        class="nav-item {{ request()->routeIs('super-admin.billing') ? 'active' : '' }}">
         <i class="fas fa-credit-card"></i>
         <span>Billing</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.plans') }}" class="nav-item {{ request()->routeIs('super-admin.plans') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.plans') }}"
+        class="nav-item {{ request()->routeIs('super-admin.plans') ? 'active' : '' }}">
         <i class="fas fa-credit-card"></i>
         <span>Plans</span>
       </a>
 
       <!-- CMS Section -->
       <div style="padding: 0.5rem 0.75rem; margin-top: 0.75rem;">
-        <span style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); opacity: 0.7;">Content</span>
+        <span
+          style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); opacity: 0.7;">Content</span>
       </div>
-      <a wire:navigate href="{{ route('super-admin.pages') }}" class="nav-item {{ request()->routeIs('super-admin.pages') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.pages') }}"
+        class="nav-item {{ request()->routeIs('super-admin.pages') ? 'active' : '' }}">
         <i class="fas fa-file-alt"></i>
         <span>Pages</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.blog') }}" class="nav-item {{ request()->routeIs('super-admin.blog') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.blog') }}"
+        class="nav-item {{ request()->routeIs('super-admin.blog') ? 'active' : '' }}">
         <i class="fas fa-blog"></i>
         <span>Blog Posts</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.blog-categories') }}" class="nav-item {{ request()->routeIs('super-admin.blog-categories') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.blog-categories') }}"
+        class="nav-item {{ request()->routeIs('super-admin.blog-categories') ? 'active' : '' }}">
         <i class="fas fa-folder"></i>
         <span>Categories</span>
       </a>
-      <a wire:navigate href="{{ route('super-admin.seo') }}" class="nav-item {{ request()->routeIs('super-admin.seo') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.seo') }}"
+        class="nav-item {{ request()->routeIs('super-admin.seo') ? 'active' : '' }}">
         <i class="fas fa-search"></i>
         <span>SEO & Sitemap</span>
       </a>
 
-      <a wire:navigate href="{{ route('super-admin.support') }}" class="nav-item {{ request()->routeIs('super-admin.support') ? 'active' : '' }}">
+      <a wire:navigate href="{{ route('super-admin.support') }}"
+        class="nav-item {{ request()->routeIs('super-admin.support') ? 'active' : '' }}">
         <i class="fas fa-question-circle"></i>
         <span>Support</span>
       </a>
@@ -693,99 +735,101 @@
     </header>
 
     <!-- Content -->
-    <div class="content">
+    <div class="content pb-20 md:pb-8">
       {{ $slot }}
     </div>
   </div>
+  <x-bottom-nav />
 
   @yield('scripts')
   @stack('scripts')
   @livewireScripts
 
   <script src="{{ asset('js/script.js') }}"></script>
-  {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
+  {{--
+  <script src="{{ asset('js/app.js') }}"></script> --}}
 
   @vite('resources/js/app.js');
 
   <script>
     // Toggle sidebar
-        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
-        });
+    document.querySelector('.toggle-sidebar').addEventListener('click', function () {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    });
 
-        // Toggle theme
-        document.querySelector('.theme-toggle').addEventListener('click', function() {
-            document.body.classList.toggle('dark');
-            const icon = this.querySelector('i');
-            if (document.body.classList.contains('dark')) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
+    // Toggle theme
+    document.querySelector('.theme-toggle').addEventListener('click', function () {
+      document.body.classList.toggle('dark');
+      const icon = this.querySelector('i');
+      if (document.body.classList.contains('dark')) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      }
+    });
+
+    // Tab functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function () {
+        // Remove active class from all tabs and tab contents
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        // Add active class to clicked tab and corresponding content
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    // Chart initialization
+    const chartCanvas = document.getElementById('revenueChart');
+    if (chartCanvas) {
+      const chartData = window.revenueChartData || {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        data: [12000, 19000, 15000, 25000, 22000, 30000]
+      };
+      const ctx = chartCanvas.getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartData.labels,
+          datasets: [{
+            label: 'Revenue ($)',
+            data: chartData.data,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: false
             }
-        });
-
-        // Tab functionality
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Remove active class from all tabs and tab contents
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab and corresponding content
-                this.classList.add('active');
-                const tabId = this.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        // Chart initialization
-        const chartCanvas = document.getElementById('revenueChart');
-        if (chartCanvas) {
-            const chartData = window.revenueChartData || {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                data: [12000, 19000, 15000, 25000, 22000, 30000]
-            };
-            const ctx = chartCanvas.getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: 'Revenue ($)',
-                        data: chartData.data,
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
         }
+      });
+    }
 
-        // Mobile sidebar toggle
-        if (window.innerWidth <= 640) {
-            document.querySelector('.toggle-sidebar').addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('open');
-            });
-        }
+    // Mobile sidebar toggle
+    if (window.innerWidth <= 640) {
+      document.querySelector('.toggle-sidebar').addEventListener('click', function () {
+        document.querySelector('.sidebar').classList.toggle('open');
+      });
+    }
   </script>
 </body>
 

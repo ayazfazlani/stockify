@@ -1,4 +1,4 @@
-<div class="mx-auto p-6 z-0 flex-1 min-h-screen bg-gradient-to-br from-sky-50 via-white to-indigo-50">
+<div class="mx-auto p-4 md:p-6 z-0 flex-1 min-h-screen bg-gradient-to-br from-sky-50 via-white to-indigo-50">
     <div class="max-w-7xl mx-auto space-y-6">
         <div class=" border border-white/60 bg-white/70 backdrop-blur-xl  p-6">
             <div class="flex justify-between items-center">

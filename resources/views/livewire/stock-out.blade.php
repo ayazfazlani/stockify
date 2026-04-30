@@ -1,4 +1,4 @@
-<div class="p-6 max-h-screen overflow-auto bg-white text-gray-900">
+<div class="p-4 md:p-6 bg-white text-gray-900">
     <!-- Notifications -->
     @if(session()->has('message'))
         <div class="p-4 mb-4 text-sm text-white bg-green-500 rounded-lg" role="alert">

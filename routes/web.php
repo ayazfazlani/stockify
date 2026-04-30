@@ -2,50 +2,50 @@
 
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\CmsController;
-use App\Http\Controllers\PlansController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\RobotsTxtController;
 use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\SubscriptionController;
-use App\Livewire\Admin\BlogCategoryManager;
-use App\Livewire\Admin\BlogManager;
-use App\Livewire\Admin\PageManager;
-use App\Livewire\Admin\SeoManager;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Livewire\Admin\Analytics;
 use App\Livewire\Admin\Billing;
+use App\Livewire\Admin\Blog\Blog;
+use App\Livewire\Admin\Blog\Category;
+use App\Livewire\Admin\Blog\Show;
+use App\Livewire\Admin\BlogCategoryManager;
+use App\Livewire\Admin\BlogManager;
+use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\PageManager;
+use App\Livewire\Admin\SeoManager;
 use App\Livewire\Admin\Settings;
 use App\Livewire\Admin\Support;
 use App\Livewire\Admin\Tenants;
 use App\Livewire\Admin\Users;
-use App\Livewire\Analytic;
+use App\Livewire\Auth\FindStore;
+use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
+use App\Livewire\Auth\ResetPassword;
 use App\Livewire\InviteUser;
-use App\Livewire\Web\Home;
-use App\Livewire\ItemList;
-use App\Livewire\ManageRoles;
-use App\Livewire\StockInComponent;
-use App\Livewire\StockOutComponent;
-use App\Livewire\SubscriptionManagement;
+use App\Livewire\Marketplace\Checkout;
+use App\Livewire\Marketplace\MyOrders;
+use App\Livewire\Marketplace\ProductDetails;
+use App\Livewire\Marketplace\Search;
 use App\Livewire\SuperAdmin\PricingPlans;
-use App\Livewire\TeamManagement;
-use App\Livewire\Transactions;
-use App\Livewire\UserManagement;
+use App\Livewire\SuperAdmin\SubscriptionManager;
+use App\Livewire\Tenant\Register;
+use App\Livewire\Web\Home;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use App\Livewire\Admin\Blog\Blog;
-use App\Livewire\Admin\Blog\Category;
-use App\Livewire\Admin\Blog\Show;
+use Laravel\Socialite\Two\AbstractProvider;
+
 // ---------------- Super Admin Routes ----------------
 Route::prefix('super-admin')->name('super-admin.')->group(function () {
     Route::middleware(['guest'])->group(function () {
-        Route::get('/login', \App\Livewire\SuperAdmin\Auth\Login::class)->name('login');
-        Route::get('/register', \App\Livewire\SuperAdmin\Auth\Register::class)->name('register');
-        Route::get('/forgot-password', \App\Livewire\SuperAdmin\Auth\ForgotPassword::class)->name('forgot-password');
-        Route::get('/reset-password', \App\Livewire\SuperAdmin\Auth\ResetPassword::class)->name('password.reset');
+        Route::get('/login', App\Livewire\SuperAdmin\Auth\Login::class)->name('login');
+        Route::get('/register', App\Livewire\SuperAdmin\Auth\Register::class)->name('register');
+        Route::get('/forgot-password', App\Livewire\SuperAdmin\Auth\ForgotPassword::class)->name('forgot-password');
+        Route::get('/reset-password', App\Livewire\SuperAdmin\Auth\ResetPassword::class)->name('password.reset');
 
         // Google OAuth Routes for Super Admin
         Route::get('/auth/google/redirect', function () {
@@ -54,14 +54,14 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
 
         Route::get('/auth/google/callback', function () {
             try {
-                /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+                /** @var AbstractProvider $driver */
                 $driver = Socialite::driver('google');
                 $googleUser = $driver->stateless()->user();
 
                 // Find or create super admin user
                 $user = User::where('email', $googleUser->getEmail())->first();
 
-                if (!$user) {
+                if (! $user) {
                     $user = User::create([
                         'name' => $googleUser->getName(),
                         'email' => $googleUser->getEmail(),
@@ -82,8 +82,8 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
 
                 return redirect()->route('super-admin.dashboard');
 
-            } catch (\Exception $e) {
-                \Log::error('Google OAuth Error: ' . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('Google OAuth Error: '.$e->getMessage());
 
                 return redirect()->route('super-admin.login')
                     ->with('error', 'Google authentication failed. Please try again.');
@@ -92,8 +92,8 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
     });
 
     Route::middleware(['auth', 'super-admin'])->group(function () {
-        Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('dashboard');
-        Route::get('subscriptionManager', \App\Livewire\SuperAdmin\SubscriptionManager::class)->name('subscription-manager');
+        Route::get('/dashboard', Dashboard::class)->name('dashboard');
+        Route::get('subscriptionManager', SubscriptionManager::class)->name('subscription-manager');
         Route::get('/users', Users::class)->name('users');
         Route::get('/tenants', Tenants::class)->name('tenants');
         Route::get('/analytics', Analytics::class)->name('analytics');
@@ -110,7 +110,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
 
         Route::get('/pricing-plans', PricingPlans::class)->name('pricing-plans');
         // Invoice Downloads
-        Route::get('/invoices/{payment}/download', [\App\Http\Controllers\Admin\InvoiceController::class, 'download'])->name('invoices.download');
+        Route::get('/invoices/{payment}/download', [InvoiceController::class, 'download'])->name('invoices.download');
 
         Route::post('/logout', function () {
             Auth::logout();
@@ -134,21 +134,28 @@ Route::get('/checkout/cancel', function () {
 // ---------------- Public Routes ----------------
 Route::get('/', Home::class)->name('home');
 
+// ---------------- Marketplace Routes ----------------
+Route::get('/marketplace', App\Livewire\Marketplace\Home::class)->name('marketplace.index');
+Route::get('/marketplace/search', Search::class)->name('marketplace.search');
+Route::get('/marketplace/category/{category}', Search::class)->name('marketplace.category');
+Route::get('/marketplace/product/{item}', ProductDetails::class)->name('marketplace.product');
+Route::get('/marketplace/checkout', Checkout::class)->name('marketplace.checkout');
+Route::get('/marketplace/my-orders', MyOrders::class)->name('marketplace.my-orders');
+Route::get('/marketplace/store/{slug}', Search::class)->name('marketplace.store'); // We'll update this later to a specific StoreView component
 
 Route::get('/invite', InviteUser::class)->name('invite');
 Route::get('/login', Login::class)->name('login');
-// Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-// Route::post('/register', [RegisterController::class, 'register']);
+Route::get('/register', App\Livewire\Auth\Register::class)->name('register');
 
-Route::get('/forgot-password', App\Livewire\Auth\ForgotPassword::class)
+Route::get('/forgot-password', ForgotPassword::class)
     ->name('password.request')
     ->middleware('guest');
 
-Route::get('/reset-password/{token}', App\Livewire\Auth\ResetPassword::class)
+Route::get('/reset-password/{token}', ResetPassword::class)
     ->name('password.reset')
     ->middleware('guest');
 
-Route::get('/find-store', App\Livewire\Auth\FindStore::class)
+Route::get('/find-store', FindStore::class)
     ->name('find-store')
     ->middleware('guest');
 
@@ -157,14 +164,14 @@ Route::get('/auth/google/redirect', function () {
     return Socialite::driver('google')->redirect();
 })->name('super-admin.google.redirect');
 
-Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenant.register.post');
+Route::get('tenant-register', Register::class)->name('tenant.register.post');
 
-Route::get('tenant-register', \App\Livewire\Tenant\Register::class)->name('tenant.register.post');
+Route::get('tenant-register', Register::class)->name('tenant.register.post');
 
 // redirect to the subdomain or domain based rote
 
-Route::post('/stripe/webhook', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('cashier.webhook');
 
 // ---------------- SEO & CMS Public Routes ----------------

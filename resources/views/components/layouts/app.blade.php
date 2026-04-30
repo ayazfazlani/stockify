@@ -74,28 +74,38 @@
 
 </head>
 
-<body class="flex">
+<body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
 
-    <!-- Sidebar Component -->
+    <div class="flex flex-1 overflow-hidden">
+        <script>
+            // Immediate sidebar state restoration to prevent flicker
+            (function() {
+                const state = localStorage.getItem('sidebarState');
+                if (state === 'closed') {
+                    // We'll use a CSS class on the HTML element to hide it early
+                    document.documentElement.classList.add('sidebar-closed-init');
+                }
+            })();
+        </script>
+        @livewire('sidebar')
 
+        <div class="flex-1 flex flex-col min-w-0 bg-white overflow-hidden">
+            @livewire('header')
 
-    @livewire('sidebar')
-
-    <div class="flex-1" wire:ignore>
-
-        @livewire('header')
-
-        <!-- Main Content Section -->
-        <div class="flex-1 overflow-x-hidden">
-            @hasSection('content')
-                @yield('content') <!-- Use section if defined -->
-            @else
-                {{ $slot }} <!-- Fall back to slot if no section -->
-            @endif <!-- This will display the content of Livewire components -->
+            <!-- Main Content Section -->
+            <main class="flex-1 overflow-y-auto pb-20 md:pb-0">
+                <div class="p-0">
+                    @hasSection('content')
+                        @yield('content') <!-- Use section if defined -->
+                    @else
+                        {{ $slot }} <!-- Fall back to slot if no section -->
+                    @endif <!-- This will display the content of Livewire components -->
+                </div>
+            </main>
         </div>
-
     </div>
 
+    <x-bottom-nav />
 
     <!-- Scripts Section -->
 

@@ -44,16 +44,31 @@ body.dark {
 }
 
 /* ===== Sidebar ===== */
-.sidebar {
-    position: relative;
+.sidebar{
+    position: relative; /* Reverted to relative for desktop side-by-side */
     top: 0;
     left: 0;
-    height: 100%;
+    height: 100vh;
     width: 250px;
     padding: 10px 14px;
     background: var(--sidebar-color);
     transition: var(--tran-05);
     z-index: 100;
+    display: flex;
+    flex-direction: column;
+    /* Removed overflow-y to prevent clipping the toggle button */
+}
+.sidebar.close {
+    width: 88px;
+}
+
+/* Invisible Scrollbar */
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+.sidebar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 .sidebar.close {
     width: 88px;
@@ -96,8 +111,13 @@ body.dark {
     white-space: nowrap;
     opacity: 1;
 }
-.sidebar.close .text {
+.sidebar.close .text,
+.sidebar.close .switch-store-container,
+.sidebar.close .name,
+.sidebar.close .profession {
     opacity: 0;
+    pointer-events: none;
+    display: none;
 }
 /* =========================== */
 
@@ -211,14 +231,21 @@ body.dark .sidebar li a:hover .text {
 }
 
 .sidebar .menu-bar {
-    height: calc(100% - 55px);
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    overflow-y: scroll;
+    overflow-y: auto;
+    padding-bottom: 100px; /* Extra space to reach bottom links */
 }
+
+/* Invisible Scrollbar for Menu Bar */
 .menu-bar::-webkit-scrollbar {
     display: none;
+}
+.menu-bar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 .sidebar .menu-bar .mode {
     border-radius: 6px;
@@ -317,16 +344,114 @@ body.dark .home .text {
     width: 88px;
 }
 
-/* Mobile behavior - slide sidebar out */
+/* Mobile Sidebar Restoration */
 @media (max-width: 768px) {
     .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 20;
+        height: 100%;
+        width: 280px;
+        background: #fff;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+        border-radius: 0; /* Remove rounding as requested */
+        z-index: 5001;
+        transition: all 0.4s ease;
+        transform: translateX(-100%);
+        padding: 0;
+        overflow-y: auto;
+
+    .sidebar:not(.close) {
         transform: translateX(0);
     }
+
     .sidebar.close {
-        transform: translateX(-94%);
-        width: 250px; /* Keep full width when hidden */
+        transform: translateX(-100%);
+    }
+
+    .sidebar header .toggle {
+        display: none !important; /* Keep hidden on mobile */
+    }
+
+    .sidebar-overlay {
+        background: rgba(0, 0, 0, 0.3);
     }
 }
+
+    .sidebar .menu-bar {
+        height: auto;
+    }
+
+    .sidebar .nav-link a {
+        border-radius: 4px; /* Minimal rounding for professional feel */
+        margin: 0.1rem 0;
+        padding: 0.6rem 0.75rem;
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar .nav-link a.active {
+        background: #f1f5f9;
+        color: #3b82f6 !important;
+        border: none;
+        box-shadow: none !important;
+    }
+
+    .sidebar .nav-link a:hover {
+        background: #f8fafc;
+        color: #3b82f6 !important;
+        box-shadow: none !important;
+    }
+
+    .sidebar .nav-link a .icon {
+        background: white;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .sidebar .nav-link a.active .icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        box-shadow: none;
+    }
+}
+    
+    /* Overlay backdrop */
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.15);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        display: none; /* Hidden by default on PC */
+    }
+    
+    @media (max-width: 768px) {
+        .sidebar-overlay {
+            display: block; /* Only show on mobile */
+        }
+        
+        /* Show overlay only when sidebar is explicitly active on mobile */
+        .sidebar:not(.close) + .sidebar-overlay,
+        .sidebar.open + .sidebar-overlay {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+    }
 
 
 
