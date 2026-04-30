@@ -108,7 +108,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="{{ route('marketplace.store', $item->store->tenant_id ?? 'default') }}"
+                    <a href="{{ route('marketplace.store', ['store' => $item->store->slug]) }}"
                         class="block w-full text-center py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-all">
                         Visit Store Page
                     </a>

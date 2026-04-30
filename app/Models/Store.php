@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 
 class Store extends Model
@@ -12,6 +13,7 @@ class Store extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'logo',
         'owner_id',
         'tenant_id',
@@ -89,5 +91,27 @@ class Store extends Model
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('slug', $value)
+            ->orWhere('tenant_id', $value)
+            ->orWhere('id', $value)
+            ->first();
+    }
+
+    protected static function booted()
+    {
+        static::saving(function (Store $store) {
+            if (empty($store->slug)) {
+                $store->slug = Str::slug($store->name ?: 'store').'-'.Str::random(4);
+            }
+        });
     }
 }

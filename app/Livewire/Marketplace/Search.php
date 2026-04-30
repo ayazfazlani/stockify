@@ -4,6 +4,7 @@ namespace App\Livewire\Marketplace;
 
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\Store;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,6 +15,8 @@ class Search extends Component
 
     #[Url(as: 'q')]
     public $search = '';
+
+    public ?Store $store = null;
 
     #[Url(as: 'cat')]
     public $category = '';
@@ -41,10 +44,14 @@ class Search extends Component
         'maxDistance' => ['except' => 50],
     ];
 
-    public function mount(?Category $category = null)
+    public function mount(?Category $category = null, ?Store $store = null)
     {
         if ($category) {
             $this->category = $category->slug;
+        }
+
+        if ($store) {
+            $this->store = $store;
         }
     }
 
@@ -73,6 +80,9 @@ class Search extends Component
                 $q->whereHas('category', function ($catQ) {
                     $catQ->where('slug', $this->category);
                 });
+            })
+            ->when($this->store, function ($q) {
+                $q->where('store_id', $this->store->id);
             })
             ->when($this->priceRange, function ($q) {
                 [$min, $max] = explode('-', $this->priceRange);

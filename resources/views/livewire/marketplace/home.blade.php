@@ -125,7 +125,7 @@
                         <p class="text-slate-500 text-sm leading-relaxed mb-8 line-clamp-2">
                             {{ $store->description ?? 'Official store partner on the Stockify Marketplace network. Discover exclusive products today.' }}
                         </p>
-                        <a href="{{ route('marketplace.store', $store->tenant_id ?? 'default') }}" class="inline-flex items-center gap-2 text-indigo-600 font-bold hover:gap-4 transition-all">
+                        <a href="{{ route('marketplace.store', ['store' => $store->slug]) }}" class="inline-flex items-center gap-2 text-indigo-600 font-bold hover:gap-4 transition-all">
                             Visit Storefront
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                         </a>

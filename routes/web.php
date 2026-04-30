@@ -141,7 +141,7 @@ Route::get('/marketplace/category/{category}', Search::class)->name('marketplace
 Route::get('/marketplace/product/{item}', ProductDetails::class)->name('marketplace.product');
 Route::get('/marketplace/checkout', Checkout::class)->name('marketplace.checkout');
 Route::get('/marketplace/my-orders', MyOrders::class)->name('marketplace.my-orders');
-Route::get('/marketplace/store/{slug}', Search::class)->name('marketplace.store'); // We'll update this later to a specific StoreView component
+Route::get('/marketplace/store/{store}', Search::class)->name('marketplace.store'); // We'll update this later to a specific StoreView component
 
 Route::get('/invite', InviteUser::class)->name('invite');
 Route::get('/login', Login::class)->name('login');
