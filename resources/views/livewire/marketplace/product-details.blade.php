@@ -108,7 +108,10 @@
                             </div>
                         </div>
                     </div>
-                    <a href="{{ route('marketplace.store', ['store' => $item->store->slug ?? $item->store->tenant_id ?? $item->store->id]) }}"
+                    @php
+                        $storeRoute = filled($item->store->slug) ? $item->store->slug : ($item->store->tenant_id ?? $item->store->id);
+                    @endphp
+                    <a href="{{ route('marketplace.store', ['store' => $storeRoute]) }}"
                         class="block w-full text-center py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-900 hover:text-white transition-all">
                         Visit Store Page
                     </a>
