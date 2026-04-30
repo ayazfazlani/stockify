@@ -12,7 +12,11 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('icon.png')}}">
     <title>{{ $title ?? 'JGT' }}</title>
     <link rel="manifest" href="/manifest.json">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
 
+    <!-- Fix AOS - only if needed -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     @livewireStyles
 
     {{--
