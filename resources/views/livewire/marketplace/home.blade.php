@@ -85,7 +85,7 @@
                                 <i class="fas fa-store text-[10px] text-indigo-500"></i>
                                 <span class="text-[10px] font-bold text-slate-400 tracking-tight uppercase tracking-widest">{{ $item->store->name }}</span>
                             </div>
-                            <a href="{{ route('marketplace.product', $item) }}" class="block w-full text-center py-2 bg-slate-900 text-white text-[10px] font-black rounded-lg hover:bg-indigo-600 transition-colors">
+                            <a href="{{ route('marketplace.product', ['item' => $item->slug]) }}" class="block w-full text-center py-2 bg-slate-900 text-white text-[10px] font-black rounded-lg hover:bg-indigo-600 transition-colors">
                                 View Details
                             </a>
                         </div>

@@ -172,7 +172,7 @@
                                             <span
                                                 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ $item->quantity > 0 ? 'In Stock' : 'Sold Out' }}</span>
                                         </div>
-                                        <a href="{{ route('marketplace.product', $item) }}"
+                                        <a href="{{ route('marketplace.product', ['item' => $item->slug]) }}"
                                             class="px-4 py-2 bg-slate-900 text-white text-[10px] font-black rounded-lg hover:bg-indigo-600 transition-colors">
                                             View Details
                                         </a>

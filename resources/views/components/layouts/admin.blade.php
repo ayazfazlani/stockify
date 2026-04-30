@@ -739,7 +739,6 @@
       {{ $slot }}
     </div>
   </div>
-  <x-bottom-nav />
 
   @yield('scripts')
   @stack('scripts')
