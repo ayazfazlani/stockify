@@ -1,5 +1,5 @@
 <div>
-    <nav class="sidebar border-r border-gray-300">
+    <nav class="sidebar border-r border-gray-300 close">
         <header class="relative px-5 py-6 mb-4">
             <div class="md:hidden flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -190,8 +190,20 @@
 
         // Load sidebar state from localStorage
         const sidebarState = localStorage.getItem('sidebarState');
-        if (sidebarState === 'closed' && sidebar) {
-            sidebar.classList.add('close');
+        const isMobile = window.innerWidth <= 768;
+
+        if (sidebar) {
+            // Apply state and remove initialization class to hand off to JS
+            const shouldBeClosed = isMobile ? (sidebarState !== 'open') : (sidebarState === 'closed');
+            
+            if (shouldBeClosed) {
+                sidebar.classList.add('close');
+            } else {
+                sidebar.classList.remove('close');
+            }
+            
+            // Critical: Remove the initialization class so it doesn't block toggles
+            document.documentElement.classList.remove('sidebar-closed-init');
         }
 
         // Toggle sidebar state and save to localStorage

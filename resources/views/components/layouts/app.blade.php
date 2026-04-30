@@ -81,8 +81,13 @@
             // Immediate sidebar state restoration to prevent flicker
             (function() {
                 const state = localStorage.getItem('sidebarState');
-                if (state === 'closed') {
-                    // We'll use a CSS class on the HTML element to hide it early
+                const isMobile = window.innerWidth <= 768;
+                
+                // On mobile, default to closed unless explicitly 'open'
+                // On desktop, default to open unless explicitly 'closed'
+                const shouldBeClosed = isMobile ? (state !== 'open') : (state === 'closed');
+                
+                if (shouldBeClosed) {
                     document.documentElement.classList.add('sidebar-closed-init');
                 }
             })();
