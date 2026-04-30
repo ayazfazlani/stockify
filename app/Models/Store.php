@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 
@@ -93,6 +94,8 @@ class Store extends Model
         return $this->hasMany(Item::class);
     }
 
+    protected static ?bool $hasSlugColumn = null;
+
     public function getRouteKeyName()
     {
         return 'slug';
@@ -100,8 +103,15 @@ class Store extends Model
 
     public function resolveRouteBinding($value, $field = null)
     {
-        return $this->where('slug', $value)
-            ->orWhere('tenant_id', $value)
+        $query = $this->newQuery();
+
+        if (static::hasSlugColumn()) {
+            $query->where('slug', $value);
+        } else {
+            $query->where('id', $value);
+        }
+
+        return $query->orWhere('tenant_id', $value)
             ->orWhere('id', $value)
             ->first();
     }
@@ -109,9 +119,18 @@ class Store extends Model
     protected static function booted()
     {
         static::saving(function (Store $store) {
-            if (empty($store->slug)) {
+            if (static::hasSlugColumn() && empty($store->slug)) {
                 $store->slug = Str::slug($store->name ?: 'store').'-'.Str::random(4);
             }
         });
+    }
+
+    protected static function hasSlugColumn(): bool
+    {
+        if (static::$hasSlugColumn === null) {
+            static::$hasSlugColumn = Schema::hasColumn((new static)->getTable(), 'slug');
+        }
+
+        return static::$hasSlugColumn;
     }
 }
