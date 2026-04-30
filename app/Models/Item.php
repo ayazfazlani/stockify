@@ -96,6 +96,8 @@ class Item extends Model
     public function scopePublic($query)
     {
         return $query->where($this->getTable().'.is_public', true)
+            ->whereNotNull($this->getTable().'.slug')
+            ->where($this->getTable().'.slug', '<>', '')
             ->whereHas('store', function ($q) {
                 $q->where('is_public', true);
             });
@@ -103,6 +105,12 @@ class Item extends Model
 
     protected static function booted()
     {
+        static::saving(function ($item) {
+            if (empty($item->slug)) {
+                $item->slug = Str::slug($item->name).'-'.Str::random(4);
+            }
+        });
+
         static::creating(function ($item) {
             if (empty($item->sku)) {
                 $item->sku = 'SKU-'.strtoupper(Str::random(8));
