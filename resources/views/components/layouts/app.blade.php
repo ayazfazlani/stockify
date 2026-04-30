@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
     <script src="{{ asset('js/script.js') }}?v={{ time() }}"></script> --}}
 
-    @vite("resources/css/app.css");
+    @vite("resources/css/app.css")
 
     <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
@@ -79,14 +79,14 @@
     <div class="flex flex-1 overflow-hidden">
         <script>
             // Immediate sidebar state restoration to prevent flicker
-            (function() {
+            (function () {
                 const state = localStorage.getItem('sidebarState');
                 const isMobile = window.innerWidth <= 768;
-                
+
                 // On mobile, default to closed unless explicitly 'open'
                 // On desktop, default to open unless explicitly 'closed'
                 const shouldBeClosed = isMobile ? (state !== 'open') : (state === 'closed');
-                
+
                 if (shouldBeClosed) {
                     document.documentElement.classList.add('sidebar-closed-init');
                 }
@@ -123,7 +123,7 @@
     {{--
     <script src="{{ asset('js/app.js') }}"></script> --}}
 
-    @vite('resources/js/app.js');
+    @vite('resources/js/app.js')
     @livewireScripts
 
     {{-- @vite(['resources/js/app.js']) --}}
