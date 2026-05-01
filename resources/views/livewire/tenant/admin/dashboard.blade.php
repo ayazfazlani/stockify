@@ -839,19 +839,23 @@
 
             {{-- ─────────────── TEAM ─────────────────────────── --}}
             @if($activeSection === 'team')
-            @livewire('team-management')
-            <!-- @feature('custom-roles')
-                @livewire('team-management')
-            @else
-            <div class="s-card">
-                <div class="s-card-title"><i class="fas fa-lock"></i> Team management</div>
-                <p class="s-card-desc">Your current plan does not include advanced team and role management.</p>
-                <a href="{{ route('tenant.plans.index', ['tenant' => $tenantSlug ?? tenant('slug')]) }}"
-                    class="btn btn-primary mt-2">
-                    <i class="fas fa-arrow-up"></i> View plans
-                </a>
-            </div>
-            @endfeature -->
+                @if($this->tenantHasFeature('custom-roles'))
+                    @livewire('team-management')
+                @else
+                    <div class="s-card">
+                        <div class="s-card-header">
+                            <div class="s-card-title"><i class="fas fa-lock"></i> Advanced Team Management</div>
+                            <div class="s-card-desc">Upgrade your plan to unlock custom roles and team member restrictions.</div>
+                        </div>
+                        <div style="text-align: center; padding: 2rem 0;">
+                            <i class="fas fa-users-cog" style="font-size: 3rem; color: hsl(var(--muted)); margin-bottom: 1rem;"></i>
+                            <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1.5rem;">Your current plan does not include advanced team and role management.</p>
+                            <button wire:click="switchSection('billing')" class="btn btn-primary">
+                                <i class="fas fa-arrow-up"></i> View Plans
+                            </button>
+                        </div>
+                    </div>
+                @endif
             @endif
 
             {{-- ─────────────── BILLING & PLANS ──────────────── --}}

@@ -113,11 +113,21 @@
                     <div class="p-4 h-[70vh] overflow-y-auto">
                         @if($selectedItem)
                             <div class="space-y-4">
-                                @if($selectedItem->image)
+                                @if($selectedItem->images && count($selectedItem->images) > 0)
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    @foreach($selectedItem->images as $img)
+                                    <img 
+                                        src="{{ asset('storage/'.$img) }}" 
+                                        alt="{{ $selectedItem->name }}"
+                                        class="w-full h-32 object-contain rounded-md border"
+                                    >
+                                    @endforeach
+                                </div>
+                                @elseif($selectedItem->image)
                                 <img 
                                     src="{{ asset('storage/'.$selectedItem->image) }}" 
                                     alt="{{ $selectedItem->name }}"
-                                    class="w-full h-48 object-contain rounded-md mb-4"
+                                    class="w-full h-48 object-contain rounded-md mb-4 border"
                                 >
                                 @endif
                                 <div class="grid grid-cols-2 gap-4">
@@ -208,9 +218,29 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
                     <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-xl font-semibold">Add New Item</h3>
+                        @php
+                            $tenant = tenant();
+                            $currentStoreId = Auth::user()->getCurrentStoreId();
+                            $itemCount = \App\Models\Item::where('store_id', $currentStoreId)->count();
+                            $canAddItems = $tenant ? $tenant->canAdd(\App\Enums\PlanFeature::MAX_ITEMS, $itemCount) : true;
+                        @endphp
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-semibold">Add New Item</h3>
+                            @if(!$canAddItems)
+                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full border border-amber-200">
+                                    Limit Reached
+                                </span>
+                            @endif
+                        </div>
                     </div>
-                    <div class="p-6 space-y-4">
+                    @if(!$canAddItems)
+                        <div class="mx-6 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                            <strong>Notice:</strong> Your plan allows 
+                            {{ $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_ITEMS) }} items per store. 
+                            Please <a href="{{ route('tenant.admin', ['tenant' => $tenantSlug, 'section' => 'billing']) }}" class="font-bold underline">upgrade your plan</a> to add more.
+                        </div>
+                    @endif
+                    <div class="p-6 space-y-4 {{ !$canAddItems ? 'opacity-50 pointer-events-none' : '' }}">
                         <div>
                             <input type="text" wire:model="newItem.sku" placeholder="SKU" 
                                 class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
@@ -257,14 +287,18 @@
                             @error('newItem.quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
             
-                        <div class="flex items-center gap-4">
-                            @if ($image)
-                                <img src="{{ $image->temporaryUrl() }}" class="w-16 h-16 object-cover rounded-md border">
-                            @endif
+                        <div class="space-y-2">
+                            <div class="flex flex-wrap gap-2">
+                                @if ($images)
+                                    @foreach($images as $img)
+                                        <img src="{{ $img->temporaryUrl() }}" class="w-16 h-16 object-cover rounded-md border">
+                                    @endforeach
+                                @endif
+                            </div>
                             <div class="flex-1">
-                                <input type="file" wire:model="image" 
+                                <input type="file" wire:model="images" multiple
                                     class="w-full p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                @error('image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                                @error('images.*') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
                         </div>
                     </div>

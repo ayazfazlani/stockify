@@ -16,6 +16,7 @@ enum PlanFeature: string
     case AUDIT_LOG = 'audit-log';
     case CUSTOM_ROLES = 'custom-roles';
     case PRIORITY_SUPPORT = 'priority-support';
+    case MARKETPLACE = 'marketplace';
 
     // ── Quota/Limit Features ────────────────────────
     case MAX_ITEMS = 'max-items';
@@ -40,6 +41,7 @@ enum PlanFeature: string
             self::AUDIT_LOG => 'Audit Log',
             self::CUSTOM_ROLES => 'Custom Roles',
             self::PRIORITY_SUPPORT => 'Priority Support',
+            self::MARKETPLACE => 'Public Marketplace',
             self::MAX_ITEMS => 'Maximum Items',
             self::MAX_STORES => 'Maximum Stores',
             self::MAX_TEAM_MEMBERS => 'Maximum Team Members',
@@ -80,6 +82,7 @@ enum PlanFeature: string
             self::AUDIT_LOG => 'Track all changes with detailed audit trail',
             self::CUSTOM_ROLES => 'Create and assign custom team roles',
             self::PRIORITY_SUPPORT => 'Get priority customer support',
+            self::MARKETPLACE => 'Enable public marketplace and store listing',
             self::MAX_ITEMS => 'Maximum number of inventory items (-1 = unlimited)',
             self::MAX_STORES => 'Maximum number of stores (-1 = unlimited)',
             self::MAX_TEAM_MEMBERS => 'Maximum team members per store (-1 = unlimited)',
@@ -104,6 +107,7 @@ enum PlanFeature: string
             self::AUDIT_LOG => 'fa-history',
             self::CUSTOM_ROLES => 'fa-user-shield',
             self::PRIORITY_SUPPORT => 'fa-headset',
+            self::MARKETPLACE => 'fa-shop',
             self::MAX_ITEMS => 'fa-boxes',
             self::MAX_STORES => 'fa-warehouse',
             self::MAX_TEAM_MEMBERS => 'fa-users',
@@ -126,6 +130,7 @@ enum PlanFeature: string
 
             self::API_ACCESS,
             self::AUDIT_LOG,
+            self::MARKETPLACE,
             self::CUSTOM_ROLES => 'Advanced Features',
 
             self::LOW_STOCK_ALERTS,

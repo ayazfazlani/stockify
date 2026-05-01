@@ -26,6 +26,7 @@ class Tenant extends BaseTenant
         'is_active',
         'plan_id',
         'avatar',
+        'locale',
     ];
 
     public function getTenantKeyName(): string
@@ -51,6 +52,7 @@ class Tenant extends BaseTenant
             'is_active',
             'plan_id',
             'avatar',
+            'locale',
         ];
     }
 

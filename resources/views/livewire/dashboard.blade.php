@@ -37,7 +37,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 mt-1">{{ number_format($summary['totalInventory']) }}</h2>
             </div>
             
-            @can('view financial metrics')
+            @feature('analytics')
             <div class=" border border-white/60 bg-white/70 backdrop-blur-xl p-5">
                 <p class="text-sm font-medium text-gray-500">Inventory Equity</p>
                 <h2 class="text-2xl font-bold text-gray-800 mt-1">${{ number_format($summary['inventoryEquity'], 2) }}
@@ -53,9 +53,10 @@
                 <h2 class="text-2xl font-bold text-emerald-600 mt-1">
                     ${{ number_format($summary['potentialProfit'], 2) }}</h2>
             </div>
-            @endcan
+            @endfeature
         </div>
 
+        @feature('analytics')
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="border border-white/60 bg-white/75 backdrop-blur-xl p-4 md:p-6">
                 <div class="flex justify-between items-center mb-5">
@@ -78,11 +79,12 @@
                 </div>
             </div>
         </div>
+        @endfeature
 
 
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            @can('view financial metrics')
+            @feature('analytics')
             <div class="border border-white/60 bg-white/75 backdrop-blur-xl p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Profit & Margin Leaders</h3>
                 <div class="overflow-x-auto">
@@ -114,8 +116,9 @@
                     </table>
                 </div>
             </div>
-            @endcan
+            @endfeature
 
+            @feature('audit-log')
             <div class="border border-white/60 bg-white/75 backdrop-blur-xl p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Inventory Audit Trail</h3>
                 <div class="space-y-2 max-h-80 overflow-y-auto">
@@ -137,6 +140,7 @@
                     @endforelse
                 </div>
             </div>
+            @endfeature
         </div>
 
         <div class=" border border-white/60 bg-white/75 backdrop-blur-xl p-6">

@@ -37,10 +37,12 @@ class Item extends Model
         'is_public',
         'category_id',
         'slug',
+        'images',
     ];
 
     protected $casts = [
         'is_public' => 'boolean',
+        'images' => 'array',
     ];
 
     public function store()

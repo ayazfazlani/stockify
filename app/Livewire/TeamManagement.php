@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Enums\PlanFeature;
 use App\Models\Store;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -37,8 +39,13 @@ class TeamManagement extends Component
 
     public $availableRoles;
 
+    public $tenantSlug;
+
     public function mount()
     {
+        $tenant = tenant();
+        $this->tenantSlug = $tenant ? $tenant->slug : Auth::user()->tenant_id;
+
         if (! Auth::user()->hasRole('super admin') && ! Auth::user()->hasRole('team admin')) {
             abort(403, 'Unauthorized access');
         }
@@ -58,6 +65,14 @@ class TeamManagement extends Component
 
     public function createStore()
     {
+        $tenant = $this->resolveTenant();
+
+        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_STORES, $this->stores->count())) {
+            session()->flash('status', 'You have reached the maximum number of stores allowed for your plan. Please upgrade to create more stores.');
+
+            return;
+        }
+
         $this->validate([
             'storeName' => 'required|unique:stores,name',
             'storeDescription' => 'nullable|string|max:255',
@@ -164,6 +179,21 @@ class TeamManagement extends Component
         session()->flash('status', 'Role changed to '.$this->selectedRole.' for '.$user->name);
         $this->reset(['selectedUser', 'selectedRole']);
         $this->loadData();
+    }
+
+    protected function resolveTenant(): ?Tenant
+    {
+        $resolved = tenant();
+        if ($resolved) {
+            return $resolved;
+        }
+
+        $tenantId = Auth::user()?->tenant_id;
+        if (! $tenantId) {
+            return null;
+        }
+
+        return Tenant::query()->find($tenantId);
     }
 
     public function render()

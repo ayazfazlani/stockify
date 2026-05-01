@@ -23,13 +23,12 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <!-- Left: Image Gallery -->
-            <div class="space-y-6">
-                <div
-                    class="aspect-square rounded-[2.5rem] overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center relative group">
-                    @if($item->image)
-                        <img src="{{ Storage::url($item->image) }}" alt="{{ $item->name }}"
-                            class="w-full h-full object-cover">
-                    @else
+            <div class="space-y-6" x-data="{ activeImage: '{{ $item->image ? Storage::url($item->image) : '' }}' }">
+                <div class="aspect-square rounded-[2.5rem] overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center relative group">
+                    <img :src="activeImage" alt="{{ $item->name }}"
+                        class="w-full h-full object-cover">
+                    
+                    @if(!$item->image && (!$item->images || count($item->images) === 0))
                         <svg class="w-32 h-32 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -46,6 +45,18 @@
                         </button>
                     </div>
                 </div>
+
+                @if($item->images && count($item->images) > 1)
+                    <div class="grid grid-cols-4 gap-4">
+                        @foreach($item->images as $img)
+                            <button @click="activeImage = '{{ Storage::url($img) }}'" 
+                                class="aspect-square rounded-2xl overflow-hidden border-2 transition-all"
+                                :class="activeImage === '{{ Storage::url($img) }}' ? 'border-indigo-600 ring-2 ring-indigo-50' : 'border-transparent hover:border-slate-200'">
+                                <img src="{{ Storage::url($img) }}" alt="" class="w-full h-full object-cover">
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
 
                 <!-- Product Badges -->
                 <div class="flex flex-wrap gap-3">

@@ -2,32 +2,40 @@
 
 namespace App\Livewire;
 
+use App\Enums\PlanFeature;
 use App\Models\Item;
 use App\Models\ItemBarcode;
-use App\Models\StockIn;
-use Livewire\Component;
+use App\Models\ItemSerial;
+use App\Models\Tenant;
 use App\Models\Transaction;
-use Livewire\WithFileUploads;
 use App\Services\AnalyticsService;
 use App\Services\InventoryAuditService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\On;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class StockInComponent extends Component
 {
     use WithFileUploads;
 
     public $items = [];
+
     public $transactions = [];
+
     public $selectedItems = [];
+
     public $isModalOpen = false;
+
     public $search = '';
+
     public $dateRange = [
         'start' => '',
-        'end' => ''
+        'end' => '',
     ];
+
     public $newItem = [
         'sku' => '',
         'name' => '',
@@ -41,9 +49,11 @@ class StockInComponent extends Component
     ];
 
     public $scannedSerials = [];
+
     public $currentSerial = '';
 
     public $isScanningForSku = false;
+
     public $additionalCodes = '';
 
     public function mount()
@@ -57,8 +67,8 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $this->items = Item::where('store_id', $teamId)
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('sku', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('sku', 'like', '%'.$this->search.'%');
             })
             ->get();
     }
@@ -68,12 +78,12 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock in')
-            ->when($teamId, fn($q) => $q->where('store_id', $teamId))
+            ->when($teamId, fn ($q) => $q->where('store_id', $teamId))
             ->when(
                 $this->dateRange['start'] && $this->dateRange['end'],
-                fn($q) => $q->whereBetween('date', [
+                fn ($q) => $q->whereBetween('date', [
                     $this->dateRange['start'],
-                    $this->dateRange['end']
+                    $this->dateRange['end'],
                 ])
             )
             ->latest()
@@ -98,6 +108,7 @@ class StockInComponent extends Component
             $this->newItem['sku'] = $code;
             $this->isScanningForSku = false;
             session()->flash('success', "SKU captured: {$code}");
+
             return;
         }
 
@@ -130,12 +141,20 @@ class StockInComponent extends Component
     public function addItem()
     {
         $teamId = Auth::user()->getCurrentStoreId();
-        
+        $tenant = $this->resolveTenant();
+
+        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
+            session()->flash('error', 'You have reached the maximum number of items allowed for your plan. Please upgrade to add more.');
+            $this->isModalOpen = false;
+
+            return;
+        }
+
         $this->validate([
             'newItem.sku' => [
                 'required',
                 'string',
-                Rule::unique('items', 'sku')->where('store_id', $teamId)
+                Rule::unique('items', 'sku')->where('store_id', $teamId),
             ],
             'newItem.name' => 'required|string',
             'newItem.cost' => 'required|numeric|min:0',
@@ -150,6 +169,7 @@ class StockInComponent extends Component
 
         if ($this->newItem['tracking_type'] === 'serialized' && count($this->scannedSerials) === 0) {
             $this->addError('scannedSerials', 'Please scan at least one serial number for serialized items.');
+
             return;
         }
 
@@ -175,7 +195,7 @@ class StockInComponent extends Component
 
             if ($this->newItem['tracking_type'] === 'serialized') {
                 foreach ($this->scannedSerials as $serialNumber) {
-                    \App\Models\ItemSerial::create([
+                    ItemSerial::create([
                         'item_id' => $item->id,
                         'serial_number' => $serialNumber,
                         'status' => 'available',
@@ -186,7 +206,7 @@ class StockInComponent extends Component
             }
 
             $codes = collect(explode(',', (string) $this->additionalCodes))
-                ->map(fn($value) => trim($value))
+                ->map(fn ($value) => trim($value))
                 ->filter()
                 ->unique()
                 ->values();
@@ -224,13 +244,13 @@ class StockInComponent extends Component
                 'date' => now(),
             ]);
 
-            (new AnalyticsService())->updateAllAnalytics($item, $item->quantity, 'stock_in');
+            (new AnalyticsService)->updateAllAnalytics($item, $item->quantity, 'stock_in');
 
             DB::commit();
             session()->flash('message', 'Item added successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error adding item: ' . $e->getMessage());
+            session()->flash('error', 'Error adding item: '.$e->getMessage());
         }
 
         $this->reset(['newItem', 'scannedSerials', 'currentSerial', 'additionalCodes']);
@@ -262,7 +282,7 @@ class StockInComponent extends Component
                         'date' => now(),
                     ]);
 
-                    (new AnalyticsService())->updateAllAnalytics($itemModel, $item['quantity'], 'stock_in');
+                    (new AnalyticsService)->updateAllAnalytics($itemModel, $item['quantity'], 'stock_in');
                     app(InventoryAuditService::class)->log(
                         $itemModel,
                         'stock_in',
@@ -277,7 +297,7 @@ class StockInComponent extends Component
             session()->flash('message', 'Stock-in completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error during stock-in: ' . $e->getMessage());
+            session()->flash('error', 'Error during stock-in: '.$e->getMessage());
         }
 
         $this->reset('selectedItems');
@@ -288,10 +308,13 @@ class StockInComponent extends Component
     public function addSerial()
     {
         $this->currentSerial = trim($this->currentSerial);
-        if (!$this->currentSerial) return;
+        if (! $this->currentSerial) {
+            return;
+        }
 
         if (in_array($this->currentSerial, $this->scannedSerials)) {
             $this->addError('currentSerial', 'This serial number is already in the list.');
+
             return;
         }
 
@@ -303,6 +326,21 @@ class StockInComponent extends Component
     {
         unset($this->scannedSerials[$index]);
         $this->scannedSerials = array_values($this->scannedSerials);
+    }
+
+    protected function resolveTenant(): ?Tenant
+    {
+        $resolved = tenant();
+        if ($resolved) {
+            return $resolved;
+        }
+
+        $tenantId = Auth::user()?->tenant_id;
+        if (! $tenantId) {
+            return null;
+        }
+
+        return Tenant::query()->find($tenantId);
     }
 
     public function render()

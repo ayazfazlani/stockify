@@ -2,28 +2,34 @@
 
 namespace App\Livewire;
 
-use App\Models\User;
+use App\Enums\PlanFeature;
 use App\Models\Role;
-use Livewire\Component;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 use Spatie\Permission\Models\Permission;
 
 class ManageRoles extends Component
 {
     public $user;
+
     public $allRoles = [];
+
     public $selectedRole;
+
     public $newRoleName;
 
     public $permissions = [];
+
     public $selectedPermissions = [];
-    
+
     public function mount($userId)
     {
         $this->user = User::find($userId);
 
-        if (!$this->user) {
+        if (! $this->user) {
             session()->flash('error', 'User not found.');
+
             return redirect()->route('home');
         }
 
@@ -33,14 +39,14 @@ class ManageRoles extends Component
     protected function loadRolesAndPermissions()
     {
         $currentTeam = Auth::user()->currentTeam;
-        
+
         // Get roles based on team context
         if (Auth::user()->isSuperAdmin()) {
             $this->allRoles = Role::all()->pluck('name')->toArray();
         } else {
-            $this->allRoles = Role::where(function($query) use ($currentTeam) {
+            $this->allRoles = Role::where(function ($query) use ($currentTeam) {
                 $query->whereNull('team_id')
-                      ->orWhere('team_id', $currentTeam->id);
+                    ->orWhere('team_id', $currentTeam->id);
             })->pluck('name')->toArray();
         }
 
@@ -50,13 +56,14 @@ class ManageRoles extends Component
 
     public function addRole()
     {
-        if (!$this->selectedRole) {
+        if (! $this->selectedRole) {
             return;
         }
 
         // Check if user is authorized to assign this role
-        if (!Auth::user()->can('manage roles')) {
+        if (! Auth::user()->can('manage roles')) {
             session()->flash('error', 'You are not authorized to assign roles.');
+
             return;
         }
 
@@ -68,8 +75,9 @@ class ManageRoles extends Component
     public function removeRole($roleName)
     {
         // Check if user is authorized to remove roles
-        if (!Auth::user()->isSuperAdmin() && !Auth::user()->hasRole('team admin')) {
+        if (! Auth::user()->isSuperAdmin() && ! Auth::user()->hasRole('team admin')) {
             session()->flash('error', 'You are not authorized to remove roles.');
+
             return;
         }
 
@@ -78,9 +86,10 @@ class ManageRoles extends Component
             $teamAdminCount = User::role('team admin')
                 ->where('current_team_id', Auth::user()->current_team_id)
                 ->count();
-            
+
             if ($teamAdminCount <= 1 && $this->user->id === Auth::user()->current_team_id) {
                 session()->flash('error', 'Cannot remove the last team admin.');
+
                 return;
             }
         }
@@ -91,19 +100,21 @@ class ManageRoles extends Component
 
     public function createRole()
     {
-        if (!$this->newRoleName) {
+        if (! $this->newRoleName) {
             return;
         }
 
         $tenant = tenant();
-        if (!$tenant->hasFeature('custom-roles') && !Auth::user()->isSuperAdmin()) {
+        if (! $tenant || (! $tenant->hasFeature(PlanFeature::CUSTOM_ROLES) && ! Auth::user()->isSuperAdmin())) {
             session()->flash('error', 'Your current plan does not support custom roles. Please upgrade.');
+
             return;
         }
 
         // Only super admin and team admin can create roles
-        if (!Auth::user()->can('manage roles')) {
+        if (! Auth::user()->can('manage roles')) {
             session()->flash('error', 'You are not authorized to create roles.');
+
             return;
         }
 
@@ -111,21 +122,21 @@ class ManageRoles extends Component
         $roleData = [
             'name' => $this->newRoleName,
             'guard_name' => 'web',
-            'team_id' => !Auth::user()->isSuperAdmin() ? $tenant->id : null,
+            'team_id' => ! Auth::user()->isSuperAdmin() ? $tenant->id : null,
         ];
 
         $role = Role::create($roleData);
-        
+
         // Sync selected permissions
-        if (!empty($this->selectedPermissions)) {
+        if (! empty($this->selectedPermissions)) {
             $role->syncPermissions($this->selectedPermissions);
         }
 
         $this->newRoleName = '';
         $this->selectedPermissions = [];
         $this->loadRolesAndPermissions();
-        
-        session()->flash('success', 'Role created successfully with ' . count($this->selectedPermissions) . ' permissions.');
+
+        session()->flash('success', 'Role created successfully with '.count($this->selectedPermissions).' permissions.');
     }
 
     public function deleteCustomRole($roleId)
@@ -136,11 +147,13 @@ class ManageRoles extends Component
         $protectedRoles = ['super admin', 'team admin', 'team manager', 'team member', 'viewer'];
         if (in_array($role->name, $protectedRoles) && $role->team_id === null) {
             session()->flash('error', 'System roles cannot be deleted.');
+
             return;
         }
 
-        if (!Auth::user()->can('manage roles')) {
+        if (! Auth::user()->can('manage roles')) {
             session()->flash('error', 'Unauthorized.');
+
             return;
         }
 
@@ -152,7 +165,7 @@ class ManageRoles extends Component
     public function render()
     {
         return view('livewire.manage-roles', [
-            'userRoles' => $this->user->roles->pluck('name')->toArray()
+            'userRoles' => $this->user->roles->pluck('name')->toArray(),
         ]);
     }
 }

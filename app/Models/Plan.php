@@ -38,7 +38,7 @@ class Plan extends Model
 
         // Use the loaded relationship if available (avoids N+1)
         if ($this->relationLoaded('planFeatures')) {
-            return $this->planFeatures->contains('feature', $key);
+            return $this->planFeatures->where('feature', $key)->isNotEmpty();
         }
 
         return $this->planFeatures()->where('feature', $key)->exists();

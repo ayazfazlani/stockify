@@ -49,7 +49,7 @@ trait HasPlanFeatures
 
         $value = $plan->getFeatureValue($feature);
 
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return null;
         }
 

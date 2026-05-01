@@ -10,8 +10,32 @@
 
     <!-- Create Store Section -->
     <div class="mb-8 bg-gray-50 p-4">
-        <h2 class="text-xl font-semibold text-gray-700 mb-4">Create New Store</h2>
-    <form wire:submit.prevent="createStore" class="space-y-4">
+        @php
+            $tenant = tenant();
+            $canCreate = $tenant ? $tenant->canAdd(\App\Enums\PlanFeature::MAX_STORES, $stores->count()) : true;
+        @endphp
+
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-700">Create New Store</h2>
+            @if(!$canCreate)
+                <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-200">
+                    <i class="fas fa-lock mr-1"></i> Plan Limit Reached
+                </span>
+            @endif
+        </div>
+
+        @if(!$canCreate)
+            <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                <p class="text-sm text-amber-800">
+                    <strong>Notice:</strong> Your current plan allows for a maximum of 
+                    {{ $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_STORES) }} 
+                    {{ Str::plural('store', $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_STORES)) }}. 
+                    Please <a href="{{ route('tenant.admin', ['tenant' => $tenantSlug, 'section' => 'billing']) }}" class="font-bold underline">upgrade your plan</a> to create more stores.
+                </p>
+            </div>
+        @endif
+
+    <form wire:submit.prevent="createStore" class="space-y-4 {{ !$canCreate ? 'opacity-50 pointer-events-none' : '' }}">
         <div class="grid grid-cols-1 gap-4">
             <div>
                 <label for="storeName" class="block text-sm font-medium text-gray-700 mb-1">Store Name</label>

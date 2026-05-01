@@ -3,6 +3,23 @@
         <header class="mb-8">
             <h1 class="text-2xl font-bold text-slate-900">Marketplace Presence</h1>
             <p class="text-slate-500">Enable your store on the public marketplace and manage which items are visible to customers.</p>
+            
+            @php
+                $tenant = tenant();
+                $hasMarketplaceFeature = $tenant && $tenant->hasFeature(\App\Enums\PlanFeature::MARKETPLACE);
+            @endphp
+
+            @if(!$hasMarketplaceFeature)
+            <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-4">
+                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                    <i class="fas fa-lock text-sm"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-amber-800">Plan Restriction</h4>
+                    <p class="text-xs text-amber-700">Your current plan does not support marketplace visibility. <a href="{{ route('tenant.admin', ['tenant' => $tenantSlug, 'section' => 'billing']) }}" class="font-bold underline italic hover:text-amber-900">Upgrade to unlock</a></p>
+                </div>
+            </div>
+            @endif
         </header>
 
         @if (session('status'))
@@ -22,7 +39,9 @@
                             <div class="font-bold text-slate-900">Public Mode</div>
                             <div class="text-xs text-slate-500">Show store in search</div>
                         </div>
-                        <button wire:click="$toggle('is_public')" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $is_public ? 'bg-indigo-600' : 'bg-slate-200' }}">
+                        <button wire:click="$toggle('is_public')" 
+                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $is_public ? 'bg-indigo-600' : 'bg-slate-200' }} {{ !$hasMarketplaceFeature ? 'opacity-50 pointer-events-none' : '' }}"
+                            @if(!$hasMarketplaceFeature) disabled @endif>
                             <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $is_public ? 'translate-x-5' : 'translate-x-0' }}"></span>
                         </button>
                     </div>
@@ -41,25 +60,53 @@
                             <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Street Address</label>
                             <input type="text" wire:model="address" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">City</label>
-                                <input type="text" wire:model="city" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Country</label>
-                                <input type="text" wire:model="country" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">City</label>
+                                    <input type="text" wire:model="city" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Country</label>
+                                    <select wire:model="country" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
+                                        <option value="">Select Country</option>
+                                        @foreach($countries as $c)
+                                            <option value="{{ $c }}">{{ $c }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
+                            <div class="relative">
                                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Latitude</label>
                                 <input type="text" wire:model="latitude" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
                             </div>
-                            <div>
+                            <div class="relative">
                                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Longitude</label>
                                 <input type="text" wire:model="longitude" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
                             </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="button" 
+                                onclick="detectLocation()"
+                                class="w-full py-2 px-4 bg-indigo-50 text-indigo-600 font-bold rounded-xl hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2 text-sm">
+                                <i class="fas fa-location-arrow text-xs"></i>
+                                <span>Fetch My Coordinates</span>
+                            </button>
+                            <script>
+                                function detectLocation() {
+                                    if (navigator.geolocation) {
+                                        navigator.geolocation.getCurrentPosition(function(position) {
+                                            @this.setLocation(position.coords.latitude, position.coords.longitude);
+                                        }, function(error) {
+                                            alert("Error detecting location: " + error.message);
+                                        });
+                                    } else {
+                                        alert("Geolocation is not supported by this browser.");
+                                    }
+                                }
+                            </script>
                         </div>
                         <button type="submit" class="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-indigo-600 transition-colors">
                             Save Changes
@@ -95,7 +142,9 @@
                                         <div class="font-bold text-slate-900">${{ number_format($item->price, 2) }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <button wire:click="toggleItemPublic({{ $item->id }})" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $item->is_public ? 'bg-emerald-500' : 'bg-slate-200' }}">
+                                        <button wire:click="toggleItemPublic({{ $item->id }})" 
+                                            class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $item->is_public ? 'bg-emerald-500' : 'bg-slate-200' }} {{ !$hasMarketplaceFeature ? 'opacity-50 pointer-events-none' : '' }}"
+                                            @if(!$hasMarketplaceFeature) disabled @endif>
                                             <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $item->is_public ? 'translate-x-4' : 'translate-x-0' }}"></span>
                                         </button>
                                     </td>

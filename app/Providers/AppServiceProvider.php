@@ -7,13 +7,13 @@ use App\Models\Tenant;
 use App\Models\Transaction;
 use App\Observers\ItemMetricsObserver;
 use App\Observers\TransactionObserver;
-use App\Services\FeatureService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Invoice;
 use Laravel\Cashier\Subscription;
-use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
         });
         // Register @feature Blade directive
         // Usage: @feature('analytics') ... @else ... @endfeature
-        \Illuminate\Support\Facades\Blade::if('feature', function (string $feature) {
+        Blade::if('feature', function (string $feature) {
             $tenant = tenant();
             if (! $tenant) {
                 return false;
@@ -60,5 +60,12 @@ class AppServiceProvider extends ServiceProvider
         // Register observers for metrics tracking
         Transaction::observe(TransactionObserver::class);
         Item::observe(ItemMetricsObserver::class);
+
+        // Set application locale based on tenant preference
+        if ($tenant = tenant()) {
+            if ($tenant->locale) {
+                app()->setLocale($tenant->locale);
+            }
+        }
     }
 }

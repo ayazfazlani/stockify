@@ -106,7 +106,15 @@ Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|
         Route::get('/invoices/{payment}/download', [InvoiceController::class, 'download'])->name('invoices.download');
 
         // Marketplace Settings
-        Route::get('/marketplace-settings', MarketplaceSettings::class)->name('marketplace-settings');
+        Route::middleware(['feature:marketplace'])->get('/marketplace-settings', MarketplaceSettings::class)->name('marketplace-settings');
+
+        // Locale Update
+        Route::get('/locale/{locale}', function ($tenant, $locale) {
+            $t = tenant();
+            $t->update(['locale' => $locale]);
+
+            return back();
+        })->name('locale.update');
     });
 
 });

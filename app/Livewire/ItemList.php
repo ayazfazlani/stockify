@@ -3,15 +3,15 @@
 namespace App\Livewire;
 
 use App\Enums\PlanFeature;
+use App\Imports\ItemsImport;
 use App\Models\Item;
 use App\Models\Supplier;
-use App\Models\User;
-use Livewire\Component;
+use App\Models\Tenant;
 use App\Models\Transaction;
-use App\Imports\ItemsImport;
-use Livewire\WithFileUploads;
 use App\Services\AnalyticsService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ItemList extends Component
@@ -19,6 +19,7 @@ class ItemList extends Component
     use WithFileUploads;
 
     public $items = [];
+
     public $newItem = [
         'sku' => '',
         'name' => '',
@@ -28,19 +29,33 @@ class ItemList extends Component
         'brand' => '',
         'quantity' => 0,
     ];
-    public $image;
+
+    public $images = [];
+
     public $search = '';
+
     public $inStockOnly = false;
+
     public $isModalOpen = false;
+
     public $selectedItem = null;
+
     public $isImportModalOpen = false;
+
     public $importFile;
+
     public $suppliers = [];
+
     public $editForm = [];
+
     public $isEditModalOpen = false;
+
+    public $tenantSlug;
 
     public function mount()
     {
+        $tenant = tenant();
+        $this->tenantSlug = $tenant ? $tenant->slug : Auth::user()->tenant_id;
         $this->fetchItems();
         $this->loadSuppliers();
     }
@@ -55,9 +70,9 @@ class ItemList extends Component
             })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('sku', 'like', '%' . $this->search . '%')
-                        ->orWhere('brand', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('sku', 'like', '%'.$this->search.'%')
+                        ->orWhere('brand', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->inStockOnly, function ($query) {
@@ -96,7 +111,7 @@ class ItemList extends Component
             return;
         }
 
-        $this->isImportModalOpen = !$this->isImportModalOpen;
+        $this->isImportModalOpen = ! $this->isImportModalOpen;
     }
 
     public function importItems()
@@ -160,9 +175,10 @@ class ItemList extends Component
 
     public function toggleModal()
     {
-        $this->isModalOpen = !$this->isModalOpen;
-        if (!$this->isModalOpen)
+        $this->isModalOpen = ! $this->isModalOpen;
+        if (! $this->isModalOpen) {
             $this->resetNewItem();
+        }
     }
 
     public function addItem()
@@ -175,17 +191,26 @@ class ItemList extends Component
             'newItem.type' => 'required|string|max:255',
             'newItem.brand' => 'required|string|max:255',
             'newItem.quantity' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
+            'images.*' => 'nullable|image|max:2048',
         ]);
 
         $teamId = Auth::user()->getCurrentStoreId();
+        $tenant = $this->resolveTenant();
+
+        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
+            session()->flash('error', 'You have reached the maximum number of items allowed for your plan. Please upgrade to add more.');
+            $this->toggleModal();
+
+            return;
+        }
 
         $item = Item::create([
             'tenant_id' => Auth::user()->tenant_id,
             'store_id' => $teamId,
             'user_id' => Auth::id(),
             ...$this->newItem,
-            'image' => $this->image ? $this->image->store('item_images', 'public') : null
+            'image' => ! empty($this->images) ? $this->images[0]->store('item_images', 'public') : null,
+            'images' => array_map(fn ($img) => $img->store('item_images', 'public'), $this->images),
         ]);
 
         Transaction::create([
@@ -200,7 +225,7 @@ class ItemList extends Component
             'date' => now(),
         ]);
 
-        (new AnalyticsService())->updateAllAnalytics($item, $item->quantity, 'created');
+        (new AnalyticsService)->updateAllAnalytics($item, $item->quantity, 'created');
 
         $this->fetchItems();
         $this->toggleModal();
@@ -209,7 +234,7 @@ class ItemList extends Component
 
     private function resetNewItem()
     {
-        $this->reset('newItem', 'image');
+        $this->reset('newItem', 'images');
     }
 
     protected function tenantCanBulkImport(): bool
@@ -221,6 +246,21 @@ class ItemList extends Component
         $tenant = tenant();
 
         return $tenant && $tenant->hasFeature(PlanFeature::BULK_IMPORT);
+    }
+
+    protected function resolveTenant(): ?Tenant
+    {
+        $resolved = tenant();
+        if ($resolved) {
+            return $resolved;
+        }
+
+        $tenantId = Auth::user()?->tenant_id;
+        if (! $tenantId) {
+            return null;
+        }
+
+        return Tenant::query()->find($tenantId);
     }
 
     public function render()

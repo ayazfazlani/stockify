@@ -2,11 +2,13 @@
 
 namespace App\Imports;
 
+use App\Enums\PlanFeature;
 use App\Models\Item;
+use App\Models\Tenant;
 use App\Models\Transaction;
 use App\Services\AnalyticsService;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 
 class ItemsImport implements ToModel
@@ -14,10 +16,16 @@ class ItemsImport implements ToModel
     public function model(array $row)
     {
         $teamId = Auth::user()->getCurrentStoreId();
+        $tenant = tenant() ?: Tenant::find(Auth::user()->tenant_id);
+
+        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
+            // Skip this row if limit reached or tenant not found
+            return null;
+        }
 
         // Create and save the item
         $item = new Item([
-            'sku' => 'SKU-' . strtoupper(Str::random(8)),
+            'sku' => 'SKU-'.strtoupper(Str::random(8)),
             'name' => $row[0],
             'quantity' => $row[1],
             'team_id' => $teamId,
@@ -27,7 +35,7 @@ class ItemsImport implements ToModel
         $item->save();
 
         // Update analytics
-        $analyticsService = new AnalyticsService();
+        $analyticsService = new AnalyticsService;
         $analyticsService->updateAllAnalytics($item, $item->quantity, 'created');
 
         // Log transaction

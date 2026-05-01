@@ -12,12 +12,14 @@
         <ul role="list" class="flex flex-1 flex-col gap-y-7">
             <li>
                 <ul role="list" class="-mx-2 space-y-1">
+                    @feature('analytics')
                     <li>
                         <a href="{{ route('tenant.dashboard') }}" class="{{ request()->routeIs('tenant.dashboard') ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
                             <i class="fas fa-chart-line h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.dashboard') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
                             Dashboard
                         </a>
                     </li>
+                    @endfeature
                 </ul>
             </li>
             
@@ -66,30 +68,76 @@
                             Expenses
                         </a>
                     </li>
+                    @feature('advanced-reports')
                     <li>
                         <a href="{{ route('tenant.purchase-orders') }}" class="{{ request()->routeIs('tenant.purchase-orders') ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
                             <i class="fas fa-file-invoice h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.purchase-orders') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
                             Purchase Orders
                         </a>
                     </li>
+                    @endfeature
                 </ul>
             </li>
             
             <li class="mt-auto">
                 <ul role="list" class="-mx-2 space-y-1 mb-4">
                     <li>
-                        <a href="{{ route('tenant.subscription.manage') }}" class="{{ request()->routeIs('tenant.subscription.*') ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
-                            <i class="fas fa-star h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.subscription.*') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
+                        <a href="{{ route('tenant.admin', ['tenant' => tenant('id'), 'section' => 'billing']) }}" class="{{ request()->routeIs('tenant.admin') && request('section') === 'billing' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
+                            <i class="fas fa-star h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.admin') && request('section') === 'billing' ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
                             Subscription
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('tenant.admin') }}" class="{{ request()->routeIs('tenant.admin') ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
-                            <i class="fas fa-cog h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.admin') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
+                        <a href="{{ route('tenant.admin', ['tenant' => tenant('id')]) }}" class="{{ request()->routeIs('tenant.admin') && !request('section') ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
+                            <i class="fas fa-cog h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.admin') && !request('section') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
                             Settings
                         </a>
                     </li>
+                    @feature('marketplace')
+                    <li>
+                        <a href="{{ route('tenant.marketplace-settings') }}" class="{{ request()->routeIs('tenant.marketplace-settings') ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} group flex gap-x-3 rounded-md p-2.5 text-sm leading-6 font-semibold transition-all duration-200">
+                            <i class="fas fa-shop h-6 w-6 shrink-0 text-[1.1rem] flex items-center justify-center {{ request()->routeIs('tenant.marketplace-settings') ? 'text-white' : 'text-slate-400 group-hover:text-white' }}"></i>
+                            Marketplace
+                        </a>
+                    </li>
+                    @endfeature
                 </ul>
+
+                <!-- Language Switcher -->
+                <div class="px-2 pb-6 border-t border-slate-800 pt-6">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest">Language</span>
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" 
+                            class="w-full flex items-center justify-between bg-slate-800 text-white px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 hover:border-slate-500 transition-all">
+                            <span>
+                                @switch(app()->getLocale())
+                                    @case('en') English @break
+                                    @case('es') Español @break
+                                    @case('fr') Français @break
+                                    @case('ar') العربية @break
+                                    @default English
+                                @endswitch
+                            </span>
+                            <i class="fas fa-chevron-down text-[8px] transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" 
+                            class="absolute bottom-full left-0 w-full mb-2 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-50 overflow-hidden"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="transform opacity-0 scale-95"
+                            x-transition:enter-end="transform opacity-100 scale-100">
+                            
+                            @foreach(['en' => 'English', 'es' => 'Español', 'fr' => 'Français', 'ar' => 'العربية'] as $code => $name)
+                                <button onclick="window.location.href='{{ route('tenant.locale.update', ['locale' => $code]) }}'"
+                                    class="w-full text-left px-4 py-2 text-xs font-bold transition-colors {{ app()->getLocale() === $code ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600 hover:bg-slate-50' }}">
+                                    {{ $name }}
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </li>
         </ul>
     </nav>
