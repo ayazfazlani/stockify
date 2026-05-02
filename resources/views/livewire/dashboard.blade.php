@@ -40,18 +40,18 @@
             @feature('analytics')
             <div class=" border border-white/60 bg-white/70 backdrop-blur-xl p-5">
                 <p class="text-sm font-medium text-gray-500">Inventory Equity</p>
-                <h2 class="text-2xl font-bold text-gray-800 mt-1">${{ number_format($summary['inventoryEquity'], 2) }}
+                <h2 class="text-2xl font-bold text-gray-800 mt-1">{{ config('app.currency_symbol') }}{{ number_format($summary['inventoryEquity'], 2) }}
                 </h2>
             </div>
             <div class=" border border-white/60 bg-white/70 backdrop-blur-xl p-5">
                 <p class="text-sm font-medium text-gray-500">Potential Revenue</p>
-                <h2 class="text-2xl font-bold text-gray-800 mt-1">${{ number_format($summary['potentialRevenue'], 2) }}
+                <h2 class="text-2xl font-bold text-gray-800 mt-1">{{ config('app.currency_symbol') }}{{ number_format($summary['potentialRevenue'], 2) }}
                 </h2>
             </div>
             <div class=" border border-white/60 bg-white/70 backdrop-blur-xl p-5">
                 <p class="text-sm font-medium text-gray-500">Expected Profit</p>
                 <h2 class="text-2xl font-bold text-emerald-600 mt-1">
-                    ${{ number_format($summary['potentialProfit'], 2) }}</h2>
+                    {{ config('app.currency_symbol') }}{{ number_format($summary['potentialProfit'], 2) }}</h2>
             </div>
             @endfeature
         </div>
@@ -105,7 +105,7 @@
                                     </td>
                                     <td class="py-2">{{ number_format($leader['margin_pct'], 1) }}%</td>
                                     <td class="py-2 text-emerald-700 font-semibold">
-                                        ${{ number_format($leader['profit_pool'], 2) }}</td>
+                                        {{ config('app.currency_symbol') }}{{ number_format($leader['profit_pool'], 2) }}</td>
                                 </tr>
                             @empty
                                 <tr>

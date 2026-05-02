@@ -25,19 +25,46 @@ class MarketplaceSettings extends Component
 
     public $longitude;
 
+    public $currency;
+
+    public $currency_symbol;
+
     public $tenantSlug;
 
     public function mount()
     {
         $tenant = tenant();
         $this->tenantSlug = $tenant ? $tenant->slug : Auth::user()->tenant_id;
-        $this->store = Store::where('id', Auth::user()->store_id)->firstOrFail();
+        $storeId = Auth::user()->store_id;
+
+        $store = null;
+        if ($storeId) {
+            $store = Store::where('id', $storeId)->first();
+        }
+
+        if (! $store) {
+            // Try to find the first available store in this tenant
+            $fallbackStore = Store::where('tenant_id', Auth::user()->tenant_id)->first();
+
+            if ($fallbackStore) {
+                Auth::user()->update(['store_id' => $fallbackStore->id]);
+                $store = $fallbackStore;
+            } else {
+                session()->flash('error', 'You must create a store first before accessing Marketplace Settings.');
+
+                return redirect()->route('tenant.admin', ['tenant' => $this->tenantSlug]);
+            }
+        }
+
+        $this->store = $store;
         $this->is_public = (bool) $this->store->is_public;
         $this->address = $this->store->address;
         $this->city = $this->store->city;
         $this->country = $this->store->country;
         $this->latitude = $this->store->latitude;
         $this->longitude = $this->store->longitude;
+        $this->currency = $this->store->currency ?? 'PKR';
+        $this->currency_symbol = $this->store->currency_symbol ?? 'Rs.';
     }
 
     public function getCountriesProperty()
@@ -45,6 +72,43 @@ class MarketplaceSettings extends Component
         return [
             'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 'France', 'India', 'Japan', 'China', 'Brazil', 'South Africa', 'United Arab Emirates', 'Saudi Arabia', 'Qatar', 'Oman', 'Kuwait', 'Bahrain', 'Egypt', 'Jordan', 'Lebanon', 'Turkey', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal', 'Singapore', 'Malaysia', 'Indonesia', 'Thailand', 'Vietnam', 'Philippines', 'South Korea', 'Italy', 'Spain', 'Netherlands', 'Sweden', 'Norway', 'Denmark', 'Finland', 'Poland', 'Russia', 'Mexico', 'Argentina', 'Chile', 'Colombia', 'Peru', 'New Zealand', 'Nigeria', 'Kenya', 'Ethiopia', 'Ghana', 'Morocco',
         ];
+    }
+
+    public function getCurrenciesProperty()
+    {
+        return [
+            'PKR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'AED', 'SAR', 'JPY', 'CNY', 'RUB', 'BRL', 'ZAR', 'SGD',
+        ];
+    }
+
+    public function getSymbolsProperty()
+    {
+        return [
+            'Rs.', '$', '€', '£', '₹', 'DH', 'SR', '¥', '₽', 'R$',
+        ];
+    }
+
+    public function updatedCountry($value)
+    {
+        $map = [
+            'Pakistan' => ['PKR', 'Rs.'],
+            'United States' => ['USD', '$'],
+            'United Kingdom' => ['GBP', '£'],
+            'Canada' => ['CAD', '$'],
+            'Australia' => ['AUD', '$'],
+            'India' => ['INR', '₹'],
+            'United Arab Emirates' => ['AED', 'DH'],
+            'Saudi Arabia' => ['SAR', 'SR'],
+            'Germany' => ['EUR', '€'],
+            'France' => ['EUR', '€'],
+            'Italy' => ['EUR', '€'],
+            'Spain' => ['EUR', '€'],
+        ];
+
+        if (isset($map[$value])) {
+            $this->currency = $map[$value][0];
+            $this->currency_symbol = $map[$value][1];
+        }
     }
 
     public function fetchCoordinates()
@@ -75,6 +139,8 @@ class MarketplaceSettings extends Component
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:100',
             'country' => 'required|string|max:100',
+            'currency' => 'required|string|max:10',
+            'currency_symbol' => 'required|string|max:10',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ]);
@@ -84,6 +150,8 @@ class MarketplaceSettings extends Component
             'address' => $this->address,
             'city' => $this->city,
             'country' => $this->country,
+            'currency' => $this->currency,
+            'currency_symbol' => $this->currency_symbol,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
         ]);
@@ -102,6 +170,30 @@ class MarketplaceSettings extends Component
 
         $item = Item::withoutGlobalScopes()->where('store_id', $this->store->id)->findOrFail($itemId);
         $item->update(['is_public' => ! $item->is_public]);
+    }
+
+    public $showDeleteModal = false;
+
+    public $confirmName = '';
+
+    public function confirmDelete()
+    {
+        $this->confirmName = '';
+        $this->showDeleteModal = true;
+    }
+
+    public function delete()
+    {
+        if ($this->confirmName !== $this->store->name) {
+            $this->addError('confirmName', 'The name you typed does not match your store name.');
+
+            return;
+        }
+
+        // Handle tenant deletion (if applicable) or just store deletion
+        $this->store->delete();
+
+        return redirect()->route('welcome')->with('status', 'Your store has been successfully deleted.');
     }
 
     protected function resolveTenant(): ?Tenant

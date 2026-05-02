@@ -5,7 +5,7 @@ namespace App\Livewire\SuperAdmin;
 use App\Enums\PlanFeature;
 use App\Models\Plan;
 use App\Services\Subscriptions\SubscriptionService;
-use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -28,7 +28,7 @@ class PricingPlans extends Component
 
     public $amount = '';
 
-    public $currency = 'usd';
+    public $currency = 'pkr';
 
     public $interval = 'month';
 
@@ -201,7 +201,7 @@ class PricingPlans extends Component
         $this->stripe_price_id = '';
         $this->stripe_product_id = '';
         $this->amount = '';
-        $this->currency = 'usd';
+        $this->currency = config('app.currency', 'pkr');
         $this->interval = 'month';
         $this->features = '';
         $this->active = true;
@@ -225,7 +225,7 @@ class PricingPlans extends Component
         ];
     }
 
-    #[\Livewire\Attributes\Layout('components.layouts.admin')]
+    #[Layout('components.layouts.admin')]
     public function render()
     {
         return view('livewire.super-admin.pricing-plans', [

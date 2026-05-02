@@ -79,9 +79,9 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="font-bold text-sm truncate">{{ $item['name'] }}</div>
-                                    <div class="text-[10px] text-white/40 font-bold uppercase tracking-widest">{{ $item['quantity'] }} × ${{ number_format($item['price'], 2) }}</div>
+                                    <div class="text-[10px] text-white/40 font-bold uppercase tracking-widest">{{ $item['quantity'] }} × {{ $item['currency_symbol'] ?? config('app.currency_symbol') }}{{ number_format($item['price'], 2) }}</div>
                                 </div>
-                                <div class="font-bold text-sm">${{ number_format($item['price'] * $item['quantity'], 2) }}</div>
+                                <div class="font-bold text-sm">{{ $item['currency_symbol'] ?? config('app.currency_symbol') }}{{ number_format($item['price'] * $item['quantity'], 2) }}</div>
                             </div>
                         @endforeach
                     </div>
@@ -89,7 +89,7 @@
                     <div class="space-y-4 border-t border-white/10 pt-8 mb-8">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-white/50 font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
-                            <span class="font-bold">${{ number_format($total, 2) }}</span>
+                            <span class="font-bold">{{ reset($cartItems)['currency_symbol'] ?? config('app.currency_symbol') }}{{ number_format($total, 2) }}</span>
                         </div>
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-white/50 font-bold uppercase tracking-widest text-[10px]">Shipping</span>
@@ -97,7 +97,7 @@
                         </div>
                         <div class="flex justify-between items-center pt-4">
                             <span class="text-lg font-black tracking-tight">Total</span>
-                            <span class="text-3xl font-black text-indigo-400 font-mono tracking-tighter">${{ number_format($total, 2) }}</span>
+                            <span class="text-3xl font-black text-indigo-400 font-mono tracking-tighter">{{ reset($cartItems)['currency_symbol'] ?? config('app.currency_symbol') }}{{ number_format($total, 2) }}</span>
                         </div>
                     </div>
 

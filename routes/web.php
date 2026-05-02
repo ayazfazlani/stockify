@@ -29,6 +29,7 @@ use App\Livewire\Marketplace\Checkout;
 use App\Livewire\Marketplace\MyOrders;
 use App\Livewire\Marketplace\ProductDetails;
 use App\Livewire\Marketplace\Search;
+use App\Livewire\Marketplace\Stores;
 use App\Livewire\SuperAdmin\PricingPlans;
 use App\Livewire\SuperAdmin\SubscriptionManager;
 use App\Livewire\Tenant\Register;
@@ -136,6 +137,7 @@ Route::get('/', Home::class)->name('home');
 
 // ---------------- Marketplace Routes ----------------
 Route::get('/marketplace', App\Livewire\Marketplace\Home::class)->name('marketplace.index');
+Route::get('/marketplace/stores', Stores::class)->name('marketplace.stores');
 Route::get('/marketplace/search', Search::class)->name('marketplace.search');
 Route::get('/marketplace/category/{category}', Search::class)->name('marketplace.category');
 Route::get('/marketplace/product/{item}', ProductDetails::class)->name('marketplace.product');

@@ -73,12 +73,7 @@
                                     title="Edit tenant">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button wire:click="delete('{{ $tenant->id }}')"
-                                    class="btn btn-outline btn-sm text-red-600 hover:text-red-800"
-                                    wire:confirm="Are you sure you want to delete tenant '{{ $tenant->name }}'?"
-                                    title="Delete tenant">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+
                             </div>
                         </td>
                     </tr>

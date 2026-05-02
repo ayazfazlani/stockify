@@ -81,38 +81,35 @@
   </script>
   <style>
     :root {
-      --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-      --gradient-accent: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
-      --gradient-teal: linear-gradient(135deg, #2dd4bf 0%, #0ea5e9 100%);
-      --gradient-dark: linear-gradient(135deg, #1e40af 0%, #7e22ce 100%);
+      --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --gradient-accent: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      --gradient-teal: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --gradient-dark: linear-gradient(135deg, #0f172a 0%, #334155 100%);
     }
 
-    .gradient-bg {
-      background: var(--gradient-primary);
-    }
-
-    .gradient-bg-teal {
-      background: var(--gradient-teal);
-    }
-
+    .gradient-bg { background: var(--gradient-primary); }
+    .gradient-bg-teal { background: var(--gradient-teal); }
+    
     .gradient-text {
       background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .gradient-text-teal {
-      background: var(--gradient-teal);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
     .glass-effect {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Premium Label Style */
+    .premium-label {
+      @apply text-[10px] font-black uppercase tracking-[0.15em] text-slate-400;
+    }
+
+    /* Trust Badge */
+    .verified-badge {
+       @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold border border-indigo-100;
     }
 
     .feature-card,
@@ -187,8 +184,8 @@
       transform: rotate(180deg);
     }
 
-    @stack('seo')
   </style>
+  @stack('seo')
 </head>
 
 
@@ -210,6 +207,10 @@
           <a href="{{ route('marketplace.index') }}"
             class="nav-link text-emerald-600 font-bold hover:text-emerald-700 transition-colors duration-300">
             <i class="fas fa-shopping-bag mr-1"></i> Marketplace
+          </a>
+          <a href="{{ route('marketplace.stores') }}"
+            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">
+            <i class="fas fa-store mr-1 text-teal-500"></i> Stores
           </a>
           <a href="{{ route('marketplace.search') }}"
             class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">
@@ -253,6 +254,10 @@
         <a href="{{ route('marketplace.index') }}"
           class="block px-3 py-3 text-emerald-600 font-bold hover:bg-emerald-50 rounded-lg transition-all duration-300">
           <i class="fas fa-shopping-bag mr-1"></i> Marketplace
+        </a>
+        <a href="{{ route('marketplace.stores') }}"
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">
+          <i class="fas fa-store mr-1 text-teal-500"></i> Stores
         </a>
         <a href="{{ route('marketplace.search') }}"
           class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">

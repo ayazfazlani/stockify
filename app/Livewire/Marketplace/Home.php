@@ -17,6 +17,7 @@ class Home extends Component
             'categories' => Category::where('is_active', true)->withCount('items')->get(),
             'featuredItems' => Item::public()->latest()->take(8)->get(),
             'topStores' => Store::where('is_public', true)->take(6)->get(),
+            'cities' => Store::where('is_public', true)->whereNotNull('city')->distinct()->pluck('city')->take(12),
         ]);
     }
 }

@@ -31,7 +31,7 @@
                             </div>
                             <div>
                                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Amount</div>
-                                <div class="text-sm font-black text-indigo-600">${{ number_format($order->total_amount, 2) }}</div>
+                                <div class="text-sm font-black text-indigo-600">{{ $order->currency_symbol }}{{ number_format($order->total_amount, 2) }}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -68,7 +68,7 @@
                                         <div class="text-[10px] font-medium text-slate-400">Qty: {{ $item->quantity }}</div>
                                     </div>
                                     <div class="text-sm font-bold text-slate-900">
-                                        ${{ number_format($item->subtotal, 2) }}
+                                        {{ $order->currency_symbol }}{{ number_format($item->subtotal, 2) }}
                                     </div>
                                 </div>
                             @endforeach

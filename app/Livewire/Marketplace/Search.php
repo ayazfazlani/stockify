@@ -31,6 +31,12 @@ class Search extends Component
     #[Url(as: 'dist')]
     public $maxDistance = 50; // Default 50km
 
+    #[Url(as: 'city')]
+    public $city = '';
+
+    #[Url(as: 'country')]
+    public $country = '';
+
     public $lat;
 
     public $lng;
@@ -43,6 +49,8 @@ class Search extends Component
         'sort' => ['except' => 'latest'],
         'priceRange' => ['except' => ''],
         'maxDistance' => ['except' => 50],
+        'city' => ['except' => ''],
+        'country' => ['except' => ''],
     ];
 
     public function mount(?Category $category = null, $store = null)
@@ -85,9 +93,9 @@ class Search extends Component
             ->with(['store', 'category'])
             ->when($this->search, function ($q) {
                 $q->where(function ($sub) {
-                    $sub->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%');
+                    $sub->where('items.name', 'like', '%'.$this->search.'%')
+                        ->orWhere('items.description', 'like', '%'.$this->search.'%')
+                        ->orWhere('items.brand', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->category, function ($q) {
@@ -96,11 +104,21 @@ class Search extends Component
                 });
             })
             ->when($this->store, function ($q) {
-                $q->where('store_id', $this->store->id);
+                $q->where('items.store_id', $this->store->id);
             })
             ->when($this->priceRange, function ($q) {
                 [$min, $max] = explode('-', $this->priceRange);
-                $q->whereBetween('price', [(float) $min, (float) $max]);
+                $q->whereBetween('items.price', [(float) $min, (float) $max]);
+            })
+            ->when($this->city, function ($q) {
+                $q->whereHas('store', function ($sq) {
+                    $sq->where('city', $this->city);
+                });
+            })
+            ->when($this->country, function ($q) {
+                $q->whereHas('store', function ($sq) {
+                    $sq->where('country', $this->country);
+                });
             });
 
         // Location filtering (Haversine)
@@ -131,6 +149,8 @@ class Search extends Component
         return view('livewire.marketplace.search', [
             'items' => $query->paginate(12),
             'categories' => Category::where('is_active', true)->get(),
+            'availableCities' => Store::where('is_public', true)->whereNotNull('city')->distinct()->pluck('city'),
+            'availableCountries' => Store::where('is_public', true)->whereNotNull('country')->distinct()->pluck('country'),
         ])->layout('components.layouts.marketplace');
     }
 }

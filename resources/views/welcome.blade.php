@@ -46,21 +46,21 @@
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <a href="{{ route('tenant.register.post') }}"
-            class="inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-indigo-600 text-white font-semibold text-base shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:shadow-2xl hover:shadow-indigo-300 hover:-translate-y-0.5 transition-all duration-200">
+            class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-lg shadow-indigo-200/50 hover:bg-indigo-700 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
             Start Your Free Trial
           </a>
 
           <a href="{{ route('marketplace.index') }}"
-            class="inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-emerald-600 text-white font-semibold text-base shadow-xl shadow-emerald-200 hover:bg-emerald-700 hover:shadow-2xl hover:shadow-emerald-300 hover:-translate-y-0.5 transition-all duration-200">
-            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-200/50 hover:bg-emerald-700 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             Browse Marketplace
           </a>
           
           <a href="#features"
-            class="inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-white text-slate-700 font-semibold text-base border border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:-translate-y-0.5 transition-all duration-200">
-            <svg class="w-5 h-5 mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-slate-700 font-bold text-sm border border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:-translate-y-0.5 transition-all duration-200">
+            <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
@@ -69,7 +69,10 @@
         </div>
 
         <p class="text-sm text-slate-400">
-          Free {{ $plans[0]->trial_days ?? 14 }}-day trial • No credit card required • Cancel anytime
+          @if(($plans[0]->trial_days ?? 0) > 0)
+            Free {{ $plans[0]->trial_days }} day trial •
+          @endif
+          No credit card required • Cancel anytime
         </p>
       </div>
 
@@ -171,18 +174,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <p class="text-center text-sm text-slate-400 font-medium mb-8 tracking-wide">Trusted by over <span
           class="text-slate-600 font-semibold">2,500 businesses</span> around the world</p>
-      <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 md:gap-x-16 opacity-40">
-        <!-- Inline SVG wordmarks for a cleaner look -->
-        <span
-          class="text-xl font-bold text-slate-700 tracking-tight hover:opacity-70 transition-opacity">TechCorp</span>
-        <span
-          class="text-xl font-bold text-slate-700 tracking-tight hover:opacity-70 transition-opacity">GlobalRetail</span>
-        <span
-          class="text-xl font-bold text-slate-700 tracking-tight hover:opacity-70 transition-opacity">SwiftSupply</span>
-        <span
-          class="text-xl font-bold text-slate-700 tracking-tight hover:opacity-70 transition-opacity">InnovateCo</span>
-        <span
-          class="text-xl font-bold text-slate-700 tracking-tight hover:opacity-70 transition-opacity">PrimeGoods</span>
+      <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 md:gap-x-16 grayscale opacity-50 contrast-125">
+        <span class="text-xl font-black text-slate-900 tracking-tighter">FINTECH</span>
+        <span class="text-xl font-black text-slate-900 tracking-tighter">RETX</span>
+        <span class="text-xl font-black text-slate-900 tracking-tighter">SUPPLY.IO</span>
+        <span class="text-xl font-black text-slate-900 tracking-tighter">EQUITY</span>
       </div>
     </div>
   </section>
@@ -523,7 +519,7 @@
               <p class="text-slate-500 text-sm mb-4">{{ $plan->description }}</p>
               <div class="flex items-baseline justify-center">
                 <span
-                  class="text-5xl font-bold tracking-tight text-slate-900">${{ number_format($plan->amount / 100, 0) }}</span>
+                  class="text-5xl font-bold tracking-tight text-slate-900">{{ config('app.currency_symbol') }}{{ number_format($plan->amount / 100, 0) }}</span>
                 <span class="text-slate-400 ml-1.5 text-sm">/{{ $plan->interval }}</span>
               </div>
             </div>

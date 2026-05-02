@@ -63,6 +63,8 @@ class Checkout extends Component
                     'status' => 'pending',
                     'shipping_address' => $this->shipping_address,
                     'payment_method' => $this->payment_method,
+                    'currency' => $items[0]['currency'] ?? 'PKR',
+                    'currency_symbol' => $items[0]['currency_symbol'] ?? 'Rs.',
                 ]);
 
                 foreach ($items as $item) {

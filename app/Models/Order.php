@@ -18,6 +18,8 @@ class Order extends Model
         'payment_status',
         'payment_method',
         'shipping_address',
+        'currency',
+        'currency_symbol',
     ];
 
     public function user()

@@ -13,6 +13,12 @@ class Tenants extends Component
     // Modal & form state
     public $showModal = false;
 
+    public $showDeleteModal = false;
+
+    public $deletingTenant = null;
+
+    public $confirmName = '';
+
     public $editingId = null;
 
     // Form fields
@@ -67,10 +73,10 @@ class Tenants extends Component
     {
         $uniqueRule = 'unique:tenants,slug';
         if ($this->editingId) {
-            $uniqueRule .= ',' . $this->editingId . ',id';
+            $uniqueRule .= ','.$this->editingId.',id';
         }
-        
-        $this->rules['slug'] .= '|' . $uniqueRule;
+
+        $this->rules['slug'] .= '|'.$uniqueRule;
 
         $validated = $this->validate();
 
@@ -102,13 +108,31 @@ class Tenants extends Component
         $this->tenants = Tenant::with('owner')->latest()->get(); // refresh
     }
 
-    public function delete($id)
+    public function confirmDelete($id)
     {
-        $tenant = Tenant::findOrFail($id);
-        $tenant->delete();
+        $this->deletingTenant = Tenant::findOrFail($id);
+        $this->confirmName = '';
+        $this->showDeleteModal = true;
+    }
+
+    public function delete()
+    {
+        if (! $this->deletingTenant) {
+            return;
+        }
+
+        if ($this->confirmName !== $this->deletingTenant->name) {
+            $this->addError('confirmName', 'The name you typed does not match the tenant name.');
+
+            return;
+        }
+
+        $this->deletingTenant->delete();
 
         session()->flash('message', 'Tenant deleted successfully.');
-        $this->tenants = Tenant::latest()->get();
+        $this->showDeleteModal = false;
+        $this->deletingTenant = null;
+        $this->tenants = Tenant::with('owner')->latest()->get();
     }
 
     public function toggleActive($id)

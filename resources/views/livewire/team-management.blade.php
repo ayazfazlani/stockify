@@ -172,15 +172,64 @@
                         @endforeach
                     </ul>
                 </div>
+                @if($store->owner_id === Auth::id() || Auth::user()->hasRole('super admin'))
                 <div class="mt-4 flex justify-end space-x-2">
-                    <button wire:click="deleteStore({{ $store->id }})"
+                    <button wire:click="confirmDeleteStore({{ $store->id }})"
                         class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                         Delete Store
                     </button>
                 </div>
+                @endif
             </div>
         @endforeach
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+@if($showDeleteModal && $deletingStore)
+<div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div class="px-6 py-4 border-b flex items-center justify-between">
+            <h3 class="text-lg font-bold text-red-600">
+                Delete Store Permanently?
+            </h3>
+            <button wire:click="$set('showDeleteModal', false)" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="p-6">
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                <p class="font-bold mb-1">Warning: This action cannot be undone.</p>
+                <p>All items, orders, and data associated with <strong>{{ $deletingStore->name }}</strong> will be permanently deleted.</p>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4">
+                Please type <strong>{{ $deletingStore->name }}</strong> to confirm deletion:
+            </p>
+            
+            <input type="text" 
+                   wire:model.live="confirmStoreName" 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-red-500 focus:ring-red-500 mb-2" 
+                   placeholder="Type store name here...">
+            
+            @error('confirmStoreName')
+                <span class="text-red-500 text-xs block mb-4">{{ $message }}</span>
+            @enderror
+            
+            <div class="flex gap-3 justify-end mt-6">
+                <button wire:click="$set('showDeleteModal', false)" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button wire:click="delete" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                        {{ $confirmStoreName !== $deletingStore->name ? 'disabled' : '' }}>
+                    Delete Store
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 </div>

@@ -41,6 +41,13 @@ class TeamManagement extends Component
 
     public $tenantSlug;
 
+    // Delete Confirmation
+    public $showDeleteModal = false;
+
+    public $deletingStore = null;
+
+    public $confirmStoreName = '';
+
     public function mount()
     {
         $tenant = tenant();
@@ -94,21 +101,47 @@ class TeamManagement extends Component
         $this->loadData();
     }
 
-    public function deleteStore($storeId)
+    public function confirmDeleteStore($storeId)
     {
-        $store = Store::findOrFail($storeId);
+        $this->deletingStore = Store::findOrFail($storeId);
+        $this->confirmStoreName = '';
+        $this->showDeleteModal = true;
+    }
 
-        if ($store->owner_id !== Auth::id() && ! Auth::user()->hasRole('super admin')) {
-            session()->flash('status', 'Unauthorized to delete this store.');
+    public function delete()
+    {
+        if (! $this->deletingStore) {
+            return;
+        }
+
+        if ($this->confirmStoreName !== $this->deletingStore->name) {
+            $this->addError('confirmStoreName', 'The name you typed does not match the store name.');
 
             return;
         }
 
-        // Detach all users from store through pivot
-        $store->users()->detach();
-        $store->delete();
+        if ($this->deletingStore->owner_id !== Auth::id() && ! Auth::user()->hasRole('super admin')) {
+            session()->flash('status', 'Unauthorized to delete this store.');
+            $this->showDeleteModal = false;
 
-        session()->flash('status', 'Store '.$store->name.' deleted successfully!');
+            return;
+        }
+
+        // Clear the active store_id for any users currently focused on this store
+        $usersWithStore = User::where('store_id', $this->deletingStore->id)->get();
+        foreach ($usersWithStore as $u) {
+            // Pick a different store they might belong to (excluding the one being deleted)
+            $newStore = $u->stores()->where('stores.id', '!=', $this->deletingStore->id)->first();
+            $u->update(['store_id' => $newStore->id ?? null]);
+        }
+
+        // Detach all users from store through pivot
+        $this->deletingStore->users()->detach();
+        $this->deletingStore->delete();
+
+        session()->flash('status', 'Store '.$this->deletingStore->name.' deleted successfully!');
+        $this->showDeleteModal = false;
+        $this->deletingStore = null;
         $this->loadData();
     }
 

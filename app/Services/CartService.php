@@ -28,6 +28,8 @@ class CartService
                 'store_name' => $item->store->name,
                 'image' => $item->image,
                 'slug' => $item->slug,
+                'currency' => $item->store->currency ?? 'PKR',
+                'currency_symbol' => $item->store->currency_symbol ?? 'Rs.',
             ];
         }
 

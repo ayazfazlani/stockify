@@ -31,6 +31,8 @@ class Store extends Model
         'latitude',
         'longitude',
         'is_public',
+        'currency',
+        'currency_symbol',
     ];
 
     protected $casts = [

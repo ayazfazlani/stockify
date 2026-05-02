@@ -92,7 +92,7 @@
 
                 <div class="mb-6 pb-6 border-b border-slate-100">
                     <div class="text-2xl font-black text-slate-900 mb-3">
-                        ${{ number_format($item->price, 2) }}
+                        {{ $item->store->currency_symbol ?? config('app.currency_symbol') }}{{ number_format($item->price, 2) }}
                     </div>
                     <p class="text-slate-500 text-sm leading-relaxed max-w-xl">
                         {{ $item->description ?? 'No detailed description provided for this product. Elevate your inventory management with professional-grade monitoring.' }}
@@ -165,7 +165,7 @@
                             @endif
                         </div>
                         <h4 class="font-bold text-slate-900 line-clamp-1 mb-1">{{ $rel->name }}</h4>
-                        <p class="text-indigo-600 font-extrabold text-lg">${{ number_format($rel->price, 2) }}</p>
+                        <p class="text-indigo-600 font-extrabold text-lg">{{ $rel->store->currency_symbol ?? config('app.currency_symbol') }}{{ number_format($rel->price, 2) }}</p>
                     </a>
                 @endforeach
             </div>

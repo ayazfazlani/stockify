@@ -74,7 +74,7 @@
                                         </button>
                                     </div>
                                     <div class="font-black text-slate-900 text-sm">
-                                        ${{ number_format($item['price'] * $item['quantity'], 2) }}
+                                        {{ $item['currency_symbol'] ?? config('app.currency_symbol') }}{{ number_format($item['price'] * $item['quantity'], 2) }}
                                     </div>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@
                     <div class="p-8 bg-white border-t border-slate-100 rounded-t-[2rem] shadow-[0_-20px_50px_rgba(0,0,0,0.05)]">
                         <div class="flex items-center justify-between mb-6">
                             <div class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Subtotal</div>
-                            <div class="text-2xl font-black text-slate-900">${{ number_format($total, 2) }}</div>
+                            <div class="text-2xl font-black text-slate-900">{{ reset($cartItems)['currency_symbol'] ?? config('app.currency_symbol') }}{{ number_format($total, 2) }}</div>
                         </div>
                         <a href="{{ route('marketplace.checkout') }}" class="block w-full bg-slate-900 text-white text-center py-4 rounded-2xl font-bold hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-100">
                             Checkout Now

@@ -70,18 +70,43 @@
                     <!-- Categories -->
                     <div class="mb-8">
                         <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Categories</h3>
-                        <div class="space-y-3">
+                        <div class="max-h-48 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
                             <button wire:click="$set('category', '')"
-                                class="flex items-center w-full text-left text-sm {{ $category == '' ? 'text-indigo-600 font-bold' : 'text-slate-500' }}">
+                                class="flex items-center w-full text-left text-[11px] {{ $category == '' ? 'text-indigo-600 font-bold' : 'text-slate-500' }}">
                                 All Categories
                             </button>
                             @foreach($categories as $cat)
-                                <a href="{{ route('marketplace.category', $cat->slug) }}"
-                                    class="flex items-center w-full text-left text-xs hover:text-indigo-600 transition-colors {{ $category == $cat->slug ? 'text-indigo-600 font-bold' : 'text-slate-500' }}">
+                                <button wire:click="$set('category', '{{ $cat->slug }}')"
+                                    class="flex items-center w-full text-left text-[11px] hover:text-indigo-600 transition-colors {{ $category == $cat->slug ? 'text-indigo-600 font-bold' : 'text-slate-500' }}">
                                     {{ $cat->name }}
-                                </a>
+                                </button>
                             @endforeach
                         </div>
+                    </div>
+
+                    <!-- Location Filters -->
+                    <div class="mb-8 border-t border-slate-50 pt-6">
+                         <h3 class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-4">Location</h3>
+                         <div class="space-y-4">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase mb-1 block">City</label>
+                                <select wire:model.live="city" class="w-full bg-slate-50 border-slate-200 rounded-xl text-xs pb-2">
+                                    <option value="">All Cities</option>
+                                    @foreach($availableCities as $c)
+                                        <option value="{{ $c }}">{{ $c }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase mb-1 block">Country</label>
+                                <select wire:model.live="country" class="w-full bg-slate-50 border-slate-200 rounded-xl text-xs pb-2">
+                                    <option value="">All Countries</option>
+                                    @foreach($availableCountries as $c)
+                                        <option value="{{ $c }}">{{ $c }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                         </div>
                     </div>
 
                     <!-- Distance -->
@@ -158,7 +183,7 @@
                                             class="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 text-sm">
                                             {{ $item->name }}</h4>
                                         <span
-                                            class="text-indigo-600 font-black text-sm">${{ number_format($item->price, 2) }}</span>
+                                            class="text-indigo-600 font-black text-sm">{{ $item->store->currency_symbol ?? config('app.currency_symbol') }}{{ number_format($item->price, 2) }}</span>
                                     </div>
 
                                     <p class="text-[11px] text-slate-500 line-clamp-2 mb-4 flex-grow leading-relaxed">

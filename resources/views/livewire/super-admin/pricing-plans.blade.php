@@ -94,7 +94,7 @@
                             <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">{{ $plan->slug }}</div>
                         </td>
                         <td>
-                            <span style="font-weight: 600; font-size: 1.1rem;">${{ number_format($plan->amount / 100, 2) }}</span>
+                            <span style="font-weight: 600; font-size: 1.1rem;">{{ config('app.currency_symbol') }}{{ number_format($plan->amount / 100, 2) }}</span>
                             <span style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">{{ strtoupper($plan->currency) }}</span>
                         </td>
                         <td>
@@ -205,7 +205,7 @@
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <div class="form-group">
-                                    <label class="form-label">Amount ($) *</label>
+                                    <label class="form-label">Amount ({{ config('app.currency_symbol') }}) *</label>
                                     <input type="number" step="0.01" class="form-input" wire:model="amount" placeholder="29.99">
                                     @error('amount') <span class="form-error">{{ $message }}</span> @enderror
                                 </div>
@@ -213,6 +213,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Currency</label>
                                     <select class="form-input" wire:model="currency">
+                                        <option value="pkr">PKR (Rs.)</option>
                                         <option value="usd">USD ($)</option>
                                         <option value="eur">EUR (€)</option>
                                         <option value="gbp">GBP (£)</option>
@@ -334,7 +335,7 @@
                         <i class="fas fa-puzzle-piece" style="margin-right: 0.5rem;"></i>
                         {{ $viewingPlan->name }} — Features
                     </h3>
-                    <p class="modal-subtitle">${{ number_format($viewingPlan->amount / 100, 2) }}/{{ $viewingPlan->interval }}</p>
+                    <p class="modal-subtitle">{{ config('app.currency_symbol') }}{{ number_format($viewingPlan->amount / 100, 2) }}/{{ $viewingPlan->interval }}</p>
                 </div>
                 <button class="modal-close" wire:click="closeFeaturesModal">
                     <i class="fas fa-times"></i>
