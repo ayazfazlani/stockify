@@ -28,6 +28,15 @@
         <script type="application/ld+json">{!! json_encode($page->schema_markup, JSON_UNESCAPED_SLASHES) !!}</script>
     @elseif($globalSchema)
         <script type="application/ld+json">{!! json_encode($globalSchema, JSON_UNESCAPED_SLASHES) !!}</script>
+    @else
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "{{ $page->meta_title ?: $page->title }}",
+          "url": "{{ url('/' . $page->slug) }}"
+        }
+        </script>
     @endif
 
     <!-- <script src="https://cdn.tailwindcss.com"></script>

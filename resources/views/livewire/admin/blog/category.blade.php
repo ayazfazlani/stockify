@@ -1,4 +1,15 @@
 <div>
+    @push('seo')
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "{{ $category->name }} | Blog",
+      "description": "{{ $category->description ?? 'Browse the latest posts in ' . $category->name }}",
+      "url": "{{ url()->current() }}"
+    }
+    </script>
+    @endpush
     <section class="pt-28 pb-12 bg-gradient-to-r from-primary-500 to-indigo-500 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div class="text-sm font-medium uppercase tracking-wider opacity-80 mb-2">Category</div>

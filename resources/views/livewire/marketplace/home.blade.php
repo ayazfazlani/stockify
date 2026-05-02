@@ -1,4 +1,26 @@
 <div class="bg-white min-h-screen">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "StockFlow Marketplace",
+      "url": "{{ url('/') }}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ route('marketplace.search') }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "StockFlow",
+      "url": "{{ url('/') }}",
+      "logo": "{{ asset('images/logo.png') }}"
+    }
+    </script>
     <!-- Hero Section -->
     <section class="relative py-24 bg-slate-900 overflow-hidden">
         <div class="absolute inset-0 opacity-20">

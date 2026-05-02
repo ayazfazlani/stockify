@@ -186,9 +186,8 @@
     .faq-item.active .faq-icon {
       transform: rotate(180deg);
     }
-
-    @stack('seo')
   </style>
+  @stack('seo')
 </head>
 
 

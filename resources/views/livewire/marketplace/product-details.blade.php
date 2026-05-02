@@ -10,6 +10,34 @@
 @endpush
 
 <div class="bg-white min-h-screen pt-20 pb-20">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "{{ $item->name }}",
+      @if($item->image)
+      "image": "{{ Storage::url($item->image) }}",
+      @endif
+      "description": "{{ Str::limit($item->description, 160) }}",
+      "sku": "{{ $item->sku ?? $item->id }}",
+      "brand": {
+        "@type": "Brand",
+        "name": "{{ $item->store->name ?? 'Stockify Marketplace' }}"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "{{ url()->current() }}",
+        "priceCurrency": "{{ $item->store->currency ?? 'PKR' }}",
+        "price": "{{ $item->price }}",
+        "itemCondition": "https://schema.org/NewCondition",
+        "availability": "https://schema.org/{{ $item->current_stock > 0 ? 'InStock' : 'OutOfStock' }}",
+        "seller": {
+          "@type": "Organization",
+          "name": "{{ $item->store->name ?? 'Stockify Marketplace' }}"
+        }
+      }
+    }
+    </script>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <!-- Breadcrumbs -->
         <nav class="flex mb-8 text-sm font-medium text-slate-500">

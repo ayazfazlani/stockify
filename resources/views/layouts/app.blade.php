@@ -23,6 +23,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    @stack('seo')
 </head>
 <body class="h-full font-sans antialiased text-slate-800 bg-slate-50 overflow-hidden">
     <div x-data="{ sidebarOpen: false, profileOpen: false }" class="h-full w-full">

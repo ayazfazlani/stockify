@@ -1,4 +1,13 @@
 <div class="bg-slate-50 min-h-screen pt-20 pb-20">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Marketplace Products Search",
+      "description": "Browse and search products available across StockFlow marketplace.",
+      "url": "{{ url()->current() }}"
+    }
+    </script>
     <!-- Header/Search Bar -->
     <div class="bg-white border-b border-slate-200 sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

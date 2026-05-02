@@ -1,4 +1,15 @@
 <div>
+    @push('seo')
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Our Blog",
+      "description": "Insights, tips, and best practices for inventory management and business growth.",
+      "url": "{{ url()->current() }}"
+    }
+    </script>
+    @endpush
     <section class="pt-28 pb-12 bg-gradient-to-r from-primary-500 to-indigo-500 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 class="text-3xl md:text-5xl font-bold mb-4">Our Blog</h1>
