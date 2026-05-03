@@ -46,13 +46,17 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 //     //     ->name('tenant.cashier.webhook');
 // });
 
+// ---------------- SEO & CMS Public Routes ----------------
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [RobotsTxtController::class, 'index'])->name('robots');
+
 Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|marketplace|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe|api|pwa|up|build\\b)[^/]+$'])->middleware([
     'web',
     InitializeTenancyByPath::class,
     CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
     });
 
     // / ---------------- Authenticated & Guest Routes ----------------

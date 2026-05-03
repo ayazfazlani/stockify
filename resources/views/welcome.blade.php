@@ -16,22 +16,22 @@
 
 <div>
   @push('seo')
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "StockFlow",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "All",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
-    "url": "{{ url('/') }}"
-  }
-  </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "StockFlow",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
+      "url": "{{ url('/') }}"
+    }
+    </script>
   @endpush
 
   <!-- ========================================== -->
@@ -41,14 +41,19 @@
   <!-- ========================================== -->
   <section class="relative pt-24 md:pt-32 pb-20 md:pb-28 bg-white overflow-hidden">
     <!-- Decorative blurred blobs -->
-    <div class="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-100 rounded-full blur-3xl opacity-30 pointer-events-none"></div>
-    <div class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-blue-50 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+    <div
+      class="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-100 rounded-full blur-3xl opacity-30 pointer-events-none">
+    </div>
+    <div
+      class="absolute bottom-10 right-10 w-[400px] h-[400px] bg-blue-50 rounded-full blur-3xl opacity-40 pointer-events-none">
+    </div>
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="text-center max-w-3xl mx-auto" data-aos="fade-up" data-aos-duration="700">
-        
+
         <!-- Badge -->
-        <div class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+        <div
+          class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
           <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
           New: AI-Powered Inventory Intelligence
         </div>
@@ -75,12 +80,14 @@
             </svg>
             Browse Marketplace
           </a>
-          
+
           <a href="#features"
             class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-slate-700 font-bold text-sm border border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:-translate-y-0.5 transition-all duration-200">
-            <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Watch 2-min Demo
           </a>
@@ -98,21 +105,29 @@
       <div class="flex justify-center mt-16 md:mt-20" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
         <div class="relative">
           <!-- Floating decorative icons -->
-          <div class="absolute -top-10 -left-12 w-16 h-16 bg-white rounded-3xl shadow-xl shadow-slate-200/70 flex items-center justify-center animate-float">
-            <svg class="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          <div
+            class="absolute -top-10 -left-12 w-16 h-16 bg-white rounded-3xl shadow-xl shadow-slate-200/70 flex items-center justify-center animate-float">
+            <svg class="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
           </div>
 
-          <div class="absolute top-12 -right-14 w-14 h-14 bg-white rounded-2xl shadow-xl shadow-slate-200/70 flex items-center justify-center animate-float" style="animation-delay: 1.2s;">
-            <svg class="w-7 h-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          <div
+            class="absolute top-12 -right-14 w-14 h-14 bg-white rounded-2xl shadow-xl shadow-slate-200/70 flex items-center justify-center animate-float"
+            style="animation-delay: 1.2s;">
+            <svg class="w-7 h-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="1.75">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
 
-          <div class="absolute -bottom-8 left-16 w-20 h-20 bg-white rounded-3xl shadow-2xl shadow-slate-200/70 flex items-center justify-center animate-float" style="animation-delay: 2.5s;">
-            <svg class="w-9 h-9 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          <div
+            class="absolute -bottom-8 left-16 w-20 h-20 bg-white rounded-3xl shadow-2xl shadow-slate-200/70 flex items-center justify-center animate-float"
+            style="animation-delay: 2.5s;">
+            <svg class="w-9 h-9 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
 
@@ -122,15 +137,18 @@
             <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
               <div class="flex items-center gap-3">
                 <div class="h-9 w-9 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                  <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
                 <div>
                   <span class="font-bold text-slate-900 text-lg tracking-tight">Stockify</span>
                 </div>
               </div>
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+              <span
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Live
               </span>
@@ -161,7 +179,8 @@
                 <span class="font-bold text-indigo-600">85%</span>
               </div>
               <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full" style="width: 85%"></div>
+                <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full" style="width: 85%">
+                </div>
               </div>
             </div>
 
@@ -192,7 +211,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <p class="text-center text-sm text-slate-400 font-medium mb-8 tracking-wide">Trusted by over <span
           class="text-slate-600 font-semibold">2,500 businesses</span> around the world</p>
-      <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 md:gap-x-16 grayscale opacity-50 contrast-125">
+      <div
+        class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 md:gap-x-16 grayscale opacity-50 contrast-125">
         <span class="text-xl font-black text-slate-900 tracking-tighter">FINTECH</span>
         <span class="text-xl font-black text-slate-900 tracking-tighter">RETX</span>
         <span class="text-xl font-black text-slate-900 tracking-tighter">SUPPLY.IO</span>
@@ -844,7 +864,8 @@
         </a>
       </div>
       <p class="text-sm text-slate-500" data-aos="fade-up" data-aos-delay="300">No credit card required &middot;
-        {{ $plans[0]->trial_days ?? 14 }}-day free trial &middot; Cancel anytime</p>
+        {{ $plans[0]->trial_days ?? 14 }}-day free trial &middot; Cancel anytime
+      </p>
     </div>
   </section>
 
