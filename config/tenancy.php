@@ -25,9 +25,9 @@ return [
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
     'central_domains' => [
-        'localhost:8000',
-        'localhost',
-        '127.0.0.1',
+        // 'localhost:8000',
+        // 'localhost',
+        // '127.0.0.1',
         'posforshops.com',
 
     ],
@@ -39,7 +39,7 @@ return [
      * To configure their behavior, see the config keys below.
      */
     'bootstrappers' => [
-        // Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper::class,
+            // Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper::class,
         CacheTenancyBootstrapper::class,
         FilesystemTenancyBootstrapper::class,
         QueueTenancyBootstrapper::class,
@@ -73,16 +73,16 @@ return [
             'mysql' => MySQLDatabaseManager::class,
             'pgsql' => PostgreSQLDatabaseManager::class,
 
-        /**
-         * Use this database manager for MySQL to have a DB user created for each tenant database.
-         * You can customize the grants given to these users by changing the $grants property.
-         */
+            /**
+             * Use this database manager for MySQL to have a DB user created for each tenant database.
+             * You can customize the grants given to these users by changing the $grants property.
+             */
             // 'mysql' => Stancl\Tenancy\TenantDatabaseManagers\PermissionControlledMySQLDatabaseManager::class,
 
-        /**
-         * Disable the pgsql manager above, and enable the one below if you
-         * want to separate tenant DBs by schemas rather than databases.
-         */
+            /**
+             * Disable the pgsql manager above, and enable the one below if you
+             * want to separate tenant DBs by schemas rather than databases.
+             */
             // 'pgsql' => Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLSchemaManager::class, // Separate by schema instead of database
         ],
     ],
