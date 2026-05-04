@@ -176,9 +176,7 @@ Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('cashier.webhook');
 
-// ---------------- SEO & CMS Public Routes ----------------
-Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
-Route::get('/robots.txt', [RobotsTxtController::class, 'index'])->name('robots');
+
 
 // Blog
 Route::get('/blog', Blog::class)->name('blog.index');

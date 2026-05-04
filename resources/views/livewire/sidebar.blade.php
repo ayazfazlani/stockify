@@ -4,9 +4,11 @@
             <div class="md:hidden flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
                     @if(auth()->user()->avatar)
-                        <img src="{{ auth()->user()->avatar }}" class="w-12 h-12 rounded-full border-2 border-blue-500 p-0.5">
+                        <img src="{{ auth()->user()->avatar }}"
+                            class="w-12 h-12 rounded-full border-2 border-blue-500 p-0.5">
                     @else
-                        <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                        <div
+                            class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
                             {{ substr(auth()->user()->name, 0, 1) }}
                         </div>
                     @endif
@@ -15,7 +17,8 @@
                         <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                     </div>
                 </div>
-                <button onclick="document.querySelector('.sidebar').classList.add('close')" class="p-2 bg-gray-100 rounded-xl text-gray-500">
+                <button onclick="document.querySelector('.sidebar').classList.add('close')"
+                    class="p-2 bg-gray-100 rounded-xl text-gray-500">
                     <i class='bx bx-x text-2xl'></i>
                 </button>
             </div>
@@ -195,13 +198,13 @@
         if (sidebar) {
             // Apply state and remove initialization class to hand off to JS
             const shouldBeClosed = isMobile ? (sidebarState !== 'open') : (sidebarState === 'closed');
-            
+
             if (shouldBeClosed) {
                 sidebar.classList.add('close');
             } else {
                 sidebar.classList.remove('close');
             }
-            
+
             // Critical: Remove the initialization class so it doesn't block toggles
             document.documentElement.classList.remove('sidebar-closed-init');
         }

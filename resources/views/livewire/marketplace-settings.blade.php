@@ -4,10 +4,19 @@
             <h1 class="text-2xl font-bold text-slate-900">Marketplace Presence</h1>
             <p class="text-slate-500">Enable your store on the public marketplace and manage which items are visible to customers.</p>
             
-            @php
-                $tenant = tenant();
-                $hasMarketplaceFeature = $tenant && $tenant->hasFeature(\App\Enums\PlanFeature::MARKETPLACE);
-            @endphp
+           @php
+    // Get tenant from component property or auth
+    $tenant = $this->resolveTenant() ?? tenant();
+    $hasMarketplaceFeature = false;
+    
+    if ($tenant) {
+        // Direct database check for reliability
+        $hasMarketplaceFeature = \DB::table('plan_features')
+            ->where('plan_id', $tenant->plan_id)
+            ->where('feature', 'marketplace')
+            ->exists();
+    }
+@endphp
 
             @if(!$hasMarketplaceFeature)
             <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-4">

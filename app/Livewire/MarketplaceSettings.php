@@ -44,6 +44,12 @@ class MarketplaceSettings extends Component
             $store = Store::where('id', $storeId)->first();
         }
 
+        if ($tenant) {
+            $this->hasMarketplaceFeature = \DB::table('plan_features')
+                ->where('plan_id', $tenant->plan_id)
+                ->where('feature', 'marketplace')
+                ->exists();
+        }
         if (! $store) {
             // Try to find the first available store in this tenant
             $fallbackStore = Store::where('tenant_id', Auth::user()->tenant_id)->first();
@@ -129,6 +135,7 @@ class MarketplaceSettings extends Component
     public function updateStoreSettings()
     {
         $tenant = $this->resolveTenant();
+        
         $hasMarketplaceFeature = $tenant && $tenant->hasFeature(PlanFeature::MARKETPLACE);
 
         if ($this->is_public && ! $hasMarketplaceFeature) {
@@ -166,8 +173,9 @@ class MarketplaceSettings extends Component
 
     public function toggleItemPublic($itemId)
     {
-        $tenant = tenant();
-        if (! $tenant || ! $tenant->hasFeature(PlanFeature::MARKETPLACE)) {
+        $tenant = $this->resolveTenant();
+        $hasMarketplaceFeature = $tenant && $tenant->hasFeature(PlanFeature::MARKETPLACE);
+        if (! $hasMarketplaceFeature) {
             session()->flash('error', 'Your current plan does not support marketplace visibility.');
 
             return;
