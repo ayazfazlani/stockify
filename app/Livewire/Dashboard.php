@@ -25,8 +25,11 @@ class Dashboard extends Component
     public string $topBrandsJson = '[]';
     public string $stockFlowJson = '{}';
 
+    protected $currentStoreId = null;
+
     public function mount()
     {
+        $this->getCurrentStoreId();
         $this->fetchSummary();
         $this->fetchTotalInventoryData();
         $this->fetchLowStockItems();
@@ -35,14 +38,36 @@ class Dashboard extends Component
         $this->syncChartPayloads();
     }
 
+    protected function getCurrentStoreId()
+    {
+        // Try to get store_id from authenticated user
+        if (auth()->check()) {
+            // Method 1: From user's current store
+            $this->currentStoreId = Auth::user()->getCurrentStoreId();
+
+            // Method 2: If still null, get from user's store relationship
+            if (!$this->currentStoreId && Auth::user()->store_id) {
+                $this->currentStoreId = Auth::user()->store_id;
+            }
+
+            // Method 3: If still null, get first store from tenant
+            if (!$this->currentStoreId && Auth::user()->tenant_id) {
+                $store = \App\Models\Store::where('tenant_id', Auth::user()->tenant_id)->first();
+                if ($store) {
+                    $this->currentStoreId = $store->id;
+                }
+            }
+        }
+    }
+
     public function fetchSummary()
     {
         if (auth()->check()) {
             $query = Analytics::query();
-            
-            if (!auth()->user()->hasRole('super admin')) {
-                $teamId = Auth::user()->getCurrentStoreId();
-                $query->where('analytics.store_id', $teamId);
+
+            // Filter by current store only (not super admin)
+            if (!auth()->user()->hasRole('super admin') && $this->currentStoreId) {
+                $query->where('store_id', $this->currentStoreId);
             }
 
             $totalInventory = clone $query;
@@ -54,7 +79,7 @@ class Dashboard extends Component
             $stockIn = $stockIn->sum('total_stock_in');
             $stockOut = $stockOut->sum('total_stock_out');
             $inventoryEquity = $inventoryEquity->sum('inventory_assets');
-            
+
             // Potential Revenue = Current Quantity * Item Price
             $potentialRevenueQuery = clone $query;
             $potentialRevenue = (float) $potentialRevenueQuery
@@ -90,10 +115,10 @@ class Dashboard extends Component
     {
         if (auth()->check()) {
             $query = Analytics::query();
-            
-            if (!auth()->user()->hasRole('super admin')) {
-                $teamId = Auth::user()->getCurrentStoreId();
-                $query->where('store_id', $teamId);
+
+            // CRITICAL FIX: Filter by current store only
+            if (!auth()->user()->hasRole('super admin') && $this->currentStoreId) {
+                $query->where('store_id', $this->currentStoreId);
             }
 
             $data = $query->with('item')
@@ -109,9 +134,9 @@ class Dashboard extends Component
             })->values()->all();
 
             // Brand-wise distribution
-            $this->topBrandsData = $data->groupBy(function($stat) {
+            $this->topBrandsData = $data->groupBy(function ($stat) {
                 return $stat->item->brand ?? 'No Brand';
-            })->map(function($group, $brand) {
+            })->map(function ($group, $brand) {
                 return [
                     'brand' => $brand,
                     'count' => $group->sum('current_quantity')
@@ -126,10 +151,10 @@ class Dashboard extends Component
     {
         if (auth()->check()) {
             $query = Item::query();
-            
-            if (!auth()->user()->hasRole('super admin')) {
-                $teamId = Auth::user()->getCurrentStoreId();
-                $query->where('store_id', $teamId);
+
+            // CRITICAL FIX: Filter by current store only
+            if (!auth()->user()->hasRole('super admin') && $this->currentStoreId) {
+                $query->where('store_id', $this->currentStoreId);
             }
 
             $this->lowStockItems = $query
@@ -145,8 +170,9 @@ class Dashboard extends Component
     {
         $query = Item::query();
 
-        if (auth()->check() && !auth()->user()->hasRole('super admin')) {
-            $query->where('store_id', Auth::user()->getCurrentStoreId());
+        // CRITICAL FIX: Filter by current store only
+        if (auth()->check() && !auth()->user()->hasRole('super admin') && $this->currentStoreId) {
+            $query->where('store_id', $this->currentStoreId);
         }
 
         $this->marginLeaders = $query
@@ -173,8 +199,9 @@ class Dashboard extends Component
     {
         $query = InventoryAudit::with(['item', 'user'])->latest();
 
-        if (auth()->check() && !auth()->user()->hasRole('super admin')) {
-            $query->where('store_id', Auth::user()->getCurrentStoreId());
+        // CRITICAL FIX: Filter by current store only
+        if (auth()->check() && !auth()->user()->hasRole('super admin') && $this->currentStoreId) {
+            $query->where('store_id', $this->currentStoreId);
         }
 
         $this->recentAudits = $query->take(10)->get();
@@ -182,6 +209,9 @@ class Dashboard extends Component
 
     public function sendLowStockAlerts(): void
     {
+        // Refresh low stock items for current store only
+        $this->fetchLowStockItems();
+
         $alerts = collect($this->lowStockItems)->map(function ($item) {
             return [
                 'name' => $item->name,
@@ -208,7 +238,7 @@ class Dashboard extends Component
 
         $whatsAppNotifier = app(WhatsAppNotifier::class);
         collect($alerts)->pluck('supplier_whatsapp')->filter()->unique()->each(function ($phone) use ($whatsAppNotifier, $alerts) {
-            $message = 'Low stock alert: '.collect($alerts)->take(3)->map(fn($a) => "{$a['name']} ({$a['current']} left)").implode(', ');
+            $message = 'Low stock alert: ' . collect($alerts)->take(3)->map(fn($a) => "{$a['name']} ({$a['current']} left)")->implode(', ');
             $whatsAppNotifier->send($phone, $message);
         });
 

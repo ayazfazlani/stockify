@@ -7,6 +7,8 @@ use App\Http\Controllers\PlansController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Middleware\CheckTenantAccess;
+use App\Http\Controllers\RobotsTxtController;
+use App\Http\Controllers\SitemapController;
 use App\Livewire\Adjust;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;

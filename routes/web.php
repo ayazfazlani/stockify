@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\CmsController;
-use App\Http\Controllers\RobotsTxtController;
-use App\Http\Controllers\SitemapController;
+// use App\Http\Controllers\RobotsTxtController;
+// use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Livewire\Admin\Analytics;
