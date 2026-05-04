@@ -266,26 +266,46 @@
 
     {{-- Sitemap Panel --}}
     <div class="seo-panel {{ $activeTab === 'sitemap' ? 'active' : '' }}">
-        <div class="sitemap-stats">
+        <div class="sitemap-stats" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="sitemap-stat">
+                <div class="sitemap-stat-value">{{ $totalUrls }}</div>
+                <div class="sitemap-stat-label">Total URLs</div>
+            </div>
+            <div class="sitemap-stat">
+                <div class="sitemap-stat-value">{{ $staticPages }}</div>
+                <div class="sitemap-stat-label">Static Pages</div>
+            </div>
             <div class="sitemap-stat">
                 <div class="sitemap-stat-value">{{ $publishedPages }}</div>
-                <div class="sitemap-stat-label">Published Pages</div>
+                <div class="sitemap-stat-label">CMS Pages</div>
             </div>
             <div class="sitemap-stat">
                 <div class="sitemap-stat-value">{{ $publishedPosts }}</div>
-                <div class="sitemap-stat-label">Published Posts</div>
+                <div class="sitemap-stat-label">Blog Posts</div>
             </div>
             <div class="sitemap-stat">
-                <div class="sitemap-stat-value">{{ $publishedPages + $publishedPosts + 1 }}</div>
-                <div class="sitemap-stat-label">Total Sitemap URLs</div>
+                <div class="sitemap-stat-value">{{ $blogCategories }}</div>
+                <div class="sitemap-stat-label">Blog Categories</div>
+            </div>
+            <div class="sitemap-stat">
+                <div class="sitemap-stat-value">{{ $publicStores }}</div>
+                <div class="sitemap-stat-label">Public Stores</div>
+            </div>
+            <div class="sitemap-stat">
+                <div class="sitemap-stat-value">{{ $publicProducts }}</div>
+                <div class="sitemap-stat-label">Public Products</div>
+            </div>
+            <div class="sitemap-stat">
+                <div class="sitemap-stat-value">{{ $marketplaceCategories }}</div>
+                <div class="sitemap-stat-label">Product Categories</div>
             </div>
         </div>
 
         <div class="cms-form-card">
             <div class="card-title"><i class="fas fa-sitemap"
                     style="color: hsl(var(--primary)); margin-right: 0.5rem;"></i> XML Sitemap</div>
-            <div class="card-desc">Your sitemap is automatically generated and updated when pages or posts are
-                published.</div>
+            <div class="card-desc">Your sitemap is automatically generated and updated when pages, posts, stores, or
+                products are published or modified.</div>
 
             <div class="sitemap-url">
                 <a href="{{ url('/sitemap.xml') }}" target="_blank">{{ url('/sitemap.xml') }}</a>
@@ -297,7 +317,7 @@
                 <i class="fas fa-info-circle"></i>
                 <p><strong>Cache Status:</strong> {{ $lastGenerated }}<br>
                     The sitemap is cached for performance. It auto-invalidates when you publish, update, or delete any
-                    page or blog post. You can also manually regenerate it below.</p>
+                    page, blog post, store, or product. You can also manually regenerate it below.</p>
             </div>
 
             <div class="form-actions">

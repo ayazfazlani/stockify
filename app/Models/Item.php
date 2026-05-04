@@ -121,6 +121,14 @@ class Item extends Model
                 $item->slug = Str::slug($item->name).'-'.Str::random(4);
             }
         });
+
+        static::saved(function () {
+            cache()->forget('sitemap_xml');
+        });
+
+        static::deleted(function () {
+            cache()->forget('sitemap_xml');
+        });
     }
 
     public function getRouteKeyName()

@@ -19,6 +19,8 @@ class MarketplaceSettings extends Component
 
     public $city;
 
+    public $area;
+
     public $country;
 
     public $latitude;
@@ -60,6 +62,7 @@ class MarketplaceSettings extends Component
         $this->is_public = (bool) $this->store->is_public;
         $this->address = $this->store->address;
         $this->city = $this->store->city;
+        $this->area = $this->store->area;
         $this->country = $this->store->country;
         $this->latitude = $this->store->latitude;
         $this->longitude = $this->store->longitude;
@@ -138,6 +141,7 @@ class MarketplaceSettings extends Component
         $this->validate([
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:100',
+            'area' => 'nullable|string|max:100',
             'country' => 'required|string|max:100',
             'currency' => 'required|string|max:10',
             'currency_symbol' => 'required|string|max:10',
@@ -149,6 +153,7 @@ class MarketplaceSettings extends Component
             'is_public' => $this->is_public,
             'address' => $this->address,
             'city' => $this->city,
+            'area' => $this->area,
             'country' => $this->country,
             'currency' => $this->currency,
             'currency_symbol' => $this->currency_symbol,

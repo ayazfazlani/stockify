@@ -27,6 +27,7 @@ class Store extends Model
         'storage_limit',
         'address',
         'city',
+        'area',
         'country',
         'latitude',
         'longitude',
@@ -124,6 +125,14 @@ class Store extends Model
             if (static::hasSlugColumn() && empty($store->slug)) {
                 $store->slug = Str::slug($store->name ?: 'store').'-'.Str::random(4);
             }
+        });
+
+        static::saved(function () {
+            cache()->forget('sitemap_xml');
+        });
+
+        static::deleted(function () {
+            cache()->forget('sitemap_xml');
         });
     }
 

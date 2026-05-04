@@ -66,6 +66,10 @@
                                     <input type="text" wire:model="city" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Area / Neighborhood</label>
+                                    <input type="text" wire:model="area" placeholder="e.g. Clifton, Saddar, DHA" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
+                                </div>
+                                <div>
                                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Country</label>
                                     <select wire:model.live="country" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50">
                                         <option value="">Select Country</option>
