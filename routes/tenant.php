@@ -12,7 +12,8 @@ use App\Http\Controllers\SitemapController;
 use App\Livewire\Admin\Blog\Blog;
 use App\Livewire\Admin\Blog\Category;
 use App\Livewire\Admin\Blog\Show;
-
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Livewire\Adjust;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
@@ -51,7 +52,9 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 //     // Route::post('stripe/webhook', 'App\Http\Controllers\StripeWebhookController@handleWebhook')
 //     //     ->name('tenant.cashier.webhook');
 // });
-
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('cashier.webhook');
 // ---------------- SEO & CMS Public Routes ----------------
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsTxtController::class, 'index'])->name('robots');

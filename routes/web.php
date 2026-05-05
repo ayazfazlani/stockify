@@ -4,8 +4,6 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\CmsController;
 // use App\Http\Controllers\RobotsTxtController;
 // use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\StripeWebhookController;
-use App\Http\Middleware\VerifyCsrfToken;
 use App\Livewire\Admin\Analytics;
 use App\Livewire\Admin\Billing;
 use App\Livewire\Admin\Blog\Blog;
@@ -172,9 +170,7 @@ Route::get('tenant-register', Register::class)->name('tenant.register.post');
 
 // redirect to the subdomain or domain based rote
 
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
-    ->withoutMiddleware([VerifyCsrfToken::class])
-    ->name('cashier.webhook');
+
 
 
 
