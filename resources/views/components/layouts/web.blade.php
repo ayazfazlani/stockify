@@ -198,8 +198,9 @@
       <div class="flex justify-between h-16 md:h-20">
         <div class="flex items-center">
           <div class="flex-shrink-0 flex items-center">
-
-            <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
+            <a href="{{ route('home') }}">
+              <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
+            </a>
           </div>
         </div>
         <div class="hidden md:flex items-center space-x-8">
