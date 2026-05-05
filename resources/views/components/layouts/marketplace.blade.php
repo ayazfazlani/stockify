@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StockFlow | AI-Powered Inventory Management</title>
+  <title>POS for Shops | Simple Inventory Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -87,9 +87,14 @@
       --gradient-dark: linear-gradient(135deg, #0f172a 0%, #334155 100%);
     }
 
-    .gradient-bg { background: var(--gradient-primary); }
-    .gradient-bg-teal { background: var(--gradient-teal); }
-    
+    .gradient-bg {
+      background: var(--gradient-primary);
+    }
+
+    .gradient-bg-teal {
+      background: var(--gradient-teal);
+    }
+
     .gradient-text {
       background: var(--gradient-primary);
       -webkit-background-clip: text;
@@ -109,7 +114,7 @@
 
     /* Trust Badge */
     .verified-badge {
-       @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold border border-indigo-100;
+      @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold border border-indigo-100;
     }
 
     .feature-card,
@@ -183,7 +188,6 @@
     .faq-item.active .faq-icon {
       transform: rotate(180deg);
     }
-
   </style>
   @stack('seo')
 </head>
@@ -196,11 +200,7 @@
       <div class="flex justify-between h-16 md:h-20">
         <div class="flex items-center">
           <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center">
-            <div class="rounded-lg gradient-bg p-2 mr-3 transform hover:rotate-12 transition-transform duration-300">
-              <i class="fas fa-boxes text-white text-xl"></i>
-            </div>
-            <span
-              class="font-bold text-2xl bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">StockFlow</span>
+            <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
           </a>
         </div>
         <div class="hidden md:flex items-center space-x-8">
@@ -291,10 +291,7 @@
       <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
         <div class="lg:col-span-2">
           <div class="flex items-center mb-6">
-            <div class="rounded-lg gradient-bg p-2 mr-3">
-              <i class="fas fa-boxes text-white text-xl"></i>
-            </div>
-            <span class="font-bold text-2xl">StockFlow</span>
+            <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
           </div>
           <p class="text-gray-400 mb-6 max-w-md">AI-powered inventory management solution that helps businesses
             streamline operations, reduce costs, and boost efficiency.</p>
@@ -358,7 +355,7 @@
         </div>
       </div>
       <div class="pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-        <p>&copy; 2023 StockFlow. All rights reserved.</p>
+        <p>&copy; 2023 POS for Shops. All rights reserved.</p>
       </div>
     </div>
   </footer>

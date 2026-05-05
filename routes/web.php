@@ -62,7 +62,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
                 // Find or create super admin user
                 $user = User::where('email', $googleUser->getEmail())->first();
 
-                if (! $user) {
+                if (!$user) {
                     $user = User::create([
                         'name' => $googleUser->getName(),
                         'email' => $googleUser->getEmail(),
@@ -84,7 +84,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
                 return redirect()->route('super-admin.dashboard');
 
             } catch (Exception $e) {
-                Log::error('Google OAuth Error: '.$e->getMessage());
+                Log::error('Google OAuth Error: ' . $e->getMessage());
 
                 return redirect()->route('super-admin.login')
                     ->with('error', 'Google authentication failed. Please try again.');

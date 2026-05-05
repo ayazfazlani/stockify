@@ -4,7 +4,7 @@
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "Marketplace Products Search",
-      "description": "Browse and search products available across StockFlow marketplace.",
+      "description": "Browse and search products available across POS for Shops marketplace.",
       "url": "{{ url()->current() }}"
     }
     </script>
@@ -20,7 +20,7 @@
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" wire:model.live.debounce.300ms="search" 
+                    <input type="text" wire:model.live.debounce.300ms="search"
                         placeholder="Search for products, brands, or stores..."
                         class="block w-full pl-11 pr-4 py-3 bg-slate-100 border-transparent rounded-2xl text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all">
 
@@ -95,11 +95,12 @@
 
                     <!-- Location Filters -->
                     <div class="mb-8 border-t border-slate-50 pt-6">
-                         <h3 class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-4">Location</h3>
-                         <div class="space-y-4">
+                        <h3 class="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-4">Location</h3>
+                        <div class="space-y-4">
                             <div>
                                 <label class="text-[9px] font-bold text-slate-400 uppercase mb-1 block">City</label>
-                                <select wire:model.live="city" class="w-full bg-slate-50 border-slate-200 rounded-xl text-xs pb-2">
+                                <select wire:model.live="city"
+                                    class="w-full bg-slate-50 border-slate-200 rounded-xl text-xs pb-2">
                                     <option value="">All Cities</option>
                                     @foreach($availableCities as $c)
                                         <option value="{{ $c }}">{{ $c }}</option>
@@ -108,14 +109,15 @@
                             </div>
                             <div>
                                 <label class="text-[9px] font-bold text-slate-400 uppercase mb-1 block">Country</label>
-                                <select wire:model.live="country" class="w-full bg-slate-50 border-slate-200 rounded-xl text-xs pb-2">
+                                <select wire:model.live="country"
+                                    class="w-full bg-slate-50 border-slate-200 rounded-xl text-xs pb-2">
                                     <option value="">All Countries</option>
                                     @foreach($availableCountries as $c)
                                         <option value="{{ $c }}">{{ $c }}</option>
                                     @endforeach
                                 </select>
                             </div>
-                         </div>
+                        </div>
                     </div>
 
                     <!-- Distance -->
@@ -190,13 +192,15 @@
                                     <div class="flex justify-between items-start mb-1">
                                         <h4
                                             class="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 text-sm">
-                                            {{ $item->name }}</h4>
+                                            {{ $item->name }}
+                                        </h4>
                                         <span
                                             class="text-indigo-600 font-black text-sm">{{ $item->store->currency_symbol ?? config('app.currency_symbol') }}{{ number_format($item->price, 2) }}</span>
                                     </div>
 
                                     <p class="text-[11px] text-slate-500 line-clamp-2 mb-4 flex-grow leading-relaxed">
-                                        {{ $item->description ?? 'No description available.' }}</p>
+                                        {{ $item->description ?? 'No description available.' }}
+                                    </p>
 
                                     <div class="flex items-center justify-between pt-3 border-t border-slate-50 mt-auto">
                                         <div class="flex items-center gap-2">

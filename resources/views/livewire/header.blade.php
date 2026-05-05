@@ -1,84 +1,84 @@
-    <header class="bg-white z-0 px-4 md:px-9 py-5 border-b border-gray-300 flex justify-between items-center">
-        <!-- Mobile Menu Toggle -->
-        <div class="md:hidden">
-            <button onclick="document.querySelector('.sidebar').classList.toggle('close')" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-        </div>
+<header class="bg-white z-0 px-4 md:px-9 py-5 border-b border-gray-300 flex justify-between items-center">
+    <!-- Mobile Menu Toggle -->
+    <div class="md:hidden">
+        <button onclick="document.querySelector('.sidebar').classList.toggle('close')"
+            class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </div>
 
-        <!-- Logo -->
-        <div class="flex h-10 w-40 items-center space-x-3">
-            <a wire:navigate href="/">
-                <img src="{{ asset('logo.png') }}" alt="Logo" class="h-13">
-            </a>
-        </div>
+    <!-- Logo -->
+    <!-- <div class="flex h-10 w-40 items-center space-x-3">
+        <a wire:navigate href="/">
+            <img src="{{ asset('images/logo.sv') }}" alt="Logo" class="h-13">
+        </a>
+    </div> -->
 
-        <!-- Right Side Icons -->
-        <div class="flex items-center space-x-4">
-            @auth
-                <!-- Notification Icon -->
-                <div class="relative">
-                    <button id="notificationButton" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-                        <i class="fas fa-bell text-xl"></i>
-                    </button>
-                    <!-- Notification Dropdown -->
-                    <div id="notificationDropdown"
-                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
-                        <!-- Add notification items here -->
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notification 1</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notification 2</a>
-                    </div>
+    <!-- Right Side Icons -->
+    <div class="flex items-center space-x-4">
+        @auth
+            <!-- Notification Icon -->
+            <div class="relative">
+                <button id="notificationButton" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <i class="fas fa-bell text-xl"></i>
+                </button>
+                <!-- Notification Dropdown -->
+                <div id="notificationDropdown"
+                    class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
+                    <!-- Add notification items here -->
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notification 1</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notification 2</a>
                 </div>
+            </div>
 
 
 
-                <!-- User Profile -->
-                <div class="relative">
+            <!-- User Profile -->
+            <div class="relative">
+                @php
+                    $user = auth()->user();
+                    $tenantAvatarPath = $user && isset($user->tenant_id)
+                        ? \App\Models\Tenant::where('id', $user->tenant_id)->value('avatar')
+                        : null;
+                    $profileImage = $tenantAvatarPath
+                        ? \Illuminate\Support\Facades\Storage::disk('public')->url($tenantAvatarPath)
+                        : 'https://th.bing.com/th/id/OIP.x7X2oAehk5M9IvGwO_K0PgHaHa?rs=1&pid=ImgDetMain';
+                @endphp
+                <button id="userButton" class="flex items-center focus:outline-none space-x-2">
+                    <img src="{{ $profileImage }}" alt="User Image" class="w-10 h-10 rounded-full border border-gray-300">
+                    <span class="hidden md:block text-gray-700">{{ Auth::user()->name ?? 'John Doe' }}</span>
+                </button>
+                <!-- User Dropdown -->
+                <div id="userDropdown"
+                    class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
                     @php
-                        $user = auth()->user();
-                        $tenantAvatarPath = $user && isset($user->tenant_id)
-                            ? \App\Models\Tenant::where('id', $user->tenant_id)->value('avatar')
-                            : null;
-                        $profileImage = $tenantAvatarPath
-                            ? \Illuminate\Support\Facades\Storage::disk('public')->url($tenantAvatarPath)
-                            : 'https://th.bing.com/th/id/OIP.x7X2oAehk5M9IvGwO_K0PgHaHa?rs=1&pid=ImgDetMain';
-                    @endphp
-                    <button id="userButton" class="flex items-center focus:outline-none space-x-2">
-                        <img src="{{ $profileImage }}"
-                            alt="User Image" class="w-10 h-10 rounded-full border border-gray-300">
-                        <span class="hidden md:block text-gray-700">{{ Auth::user()->name ?? 'John Doe' }}</span>
-                    </button>
-                    <!-- User Dropdown -->
-                    <div id="userDropdown"
-                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
-                        @php
-                            $adminUrl = '#';
-                            if ($user->isSuperAdmin()) {
-                                $adminUrl = route('super-admin.dashboard');
-                            } elseif (tenancy()->initialized) {
-                                $adminUrl = route('tenant.admin', ['tenant' => tenant('slug')]);
-                            } elseif ($user && isset($user->tenant_id)) {
-                                $tenantSlug = \App\Models\Tenant::where('id', $user->tenant_id)->value('slug');
-                                if ($tenantSlug) {
-                                    $adminUrl = route('tenant.admin', ['tenant' => $tenantSlug]);
-                                } else {
-                                    $adminUrl = route('admin');
-                                }
+                        $adminUrl = '#';
+                        if ($user->isSuperAdmin()) {
+                            $adminUrl = route('super-admin.dashboard');
+                        } elseif (tenancy()->initialized) {
+                            $adminUrl = route('tenant.admin', ['tenant' => tenant('slug')]);
+                        } elseif ($user && isset($user->tenant_id)) {
+                            $tenantSlug = \App\Models\Tenant::where('id', $user->tenant_id)->value('slug');
+                            if ($tenantSlug) {
+                                $adminUrl = route('tenant.admin', ['tenant' => $tenantSlug]);
                             } else {
                                 $adminUrl = route('admin');
                             }
+                        } else {
+                            $adminUrl = route('admin');
+                        }
 
-                            $logoutUrl = $user->isSuperAdmin() ? route('super-admin.logout') : url('/logout');
-                        @endphp
-                        <a wire:navigate href="{{ $adminUrl }}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
-                        <a wire:click.prevent="logout" href="#"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Logout</a>
-                    </div>
+                        $logoutUrl = $user->isSuperAdmin() ? route('super-admin.logout') : url('/logout');
+                    @endphp
+                    <a wire:navigate href="{{ $adminUrl }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
+                    <a wire:click.prevent="logout" href="#"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Logout</a>
                 </div>
-            @endauth
-        </div>
-    </header>
+            </div>
+        @endauth
+    </div>
+</header>
 @script
 <script>
     const notificationButton = document.getElementById('notificationButton');

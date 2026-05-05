@@ -17,21 +17,21 @@
 <div>
   @push('seo')
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "StockFlow",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
-      "url": "{{ url('/') }}"
-    }
-    </script>
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "POS for Shops",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
+        "url": "{{ url('/') }}"
+      }
+      </script>
   @endpush
 
   <!-- ========================================== -->

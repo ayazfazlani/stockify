@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StockFlow | AI-Powered Inventory Management</title>
+  <title>POS for Shops | Simple Inventory Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -198,11 +198,8 @@
       <div class="flex justify-between h-16 md:h-20">
         <div class="flex items-center">
           <div class="flex-shrink-0 flex items-center">
-            <div class="rounded-lg gradient-bg p-2 mr-3 transform hover:rotate-12 transition-transform duration-300">
-              <i class="fas fa-boxes text-white text-xl"></i>
-            </div>
-            <span
-              class="font-bold text-2xl bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">StockFlow</span>
+
+            <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
           </div>
         </div>
         <div class="hidden md:flex items-center space-x-8">
@@ -214,15 +211,15 @@
             class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Pricing</a>
           <a href="#faq"
             class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">FAQ</a>
-          <div class="flex items-center">
-            @livewire('marketplace.cart.cart-canvas')
-          </div>
+
           <a href="{{ route('marketplace.index') }}"
             class="nav-link text-emerald-600 font-bold hover:text-emerald-700 transition-colors duration-300">
             <i class="fas fa-shopping-bag mr-1"></i> Marketplace
           </a>
           <a href="{{ route('find-store') }}"
             class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Login</a>
+          <a href="{{ route('blog.index') }}"
+            class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Blogs</a>
           <a href="{{ route('tenant.register.post') }}"
             class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium hover:from-primary-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Start
             Free Trial</a>
@@ -268,10 +265,7 @@
       <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
         <div class="lg:col-span-2">
           <div class="flex items-center mb-6">
-            <div class="rounded-lg gradient-bg p-2 mr-3">
-              <i class="fas fa-boxes text-white text-xl"></i>
-            </div>
-            <span class="font-bold text-2xl">StockFlow</span>
+            <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
           </div>
           <p class="text-gray-400 mb-6 max-w-md">AI-powered inventory management solution that helps businesses
             streamline operations, reduce costs, and boost efficiency.</p>
@@ -335,7 +329,7 @@
         </div>
       </div>
       <div class="pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-        <p>&copy; 2023 StockFlow. All rights reserved.</p>
+        <p>&copy; 2023 POS for Shops. All rights reserved.</p>
       </div>
     </div>
   </footer>

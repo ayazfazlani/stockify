@@ -9,6 +9,10 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Middleware\CheckTenantAccess;
 use App\Http\Controllers\RobotsTxtController;
 use App\Http\Controllers\SitemapController;
+use App\Livewire\Admin\Blog\Blog;
+use App\Livewire\Admin\Blog\Category;
+use App\Livewire\Admin\Blog\Show;
+
 use App\Livewire\Adjust;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
@@ -51,6 +55,14 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 // ---------------- SEO & CMS Public Routes ----------------
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsTxtController::class, 'index'])->name('robots');
+
+// Blog
+Route::get('/blog', Blog::class)->name('blog.index');
+Route::get('/blog/category/{slug}', Category::class)->name('blog.category');
+Route::get('/blog/{slug}', Show::class)->name('blog.show');
+
+// CMS Pages (catch-all — MUST be last)
+// Route::get('/{slug}', [CmsController::class, 'cmsPage'])->name('cms.page')->where('slug', '^(?!super-admin|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe).*$');
 
 Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|marketplace|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe|api|pwa|up|build\\b)[^/]+$'])->middleware([
     'web',

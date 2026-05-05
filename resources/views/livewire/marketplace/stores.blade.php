@@ -1,10 +1,10 @@
 <div>
     @push('seo')
-        <title>Browse Stores | StockFlow Marketplace</title>
+        <title>Browse Stores | POS for Shops Marketplace</title>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     @endpush
-    
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -14,7 +14,7 @@
       "url": "{{ url()->current() }}"
     }
     </script>
-    
+
     <div class="bg-gray-50 min-h-screen pt-20">
         <div class="gradient-bg-teal py-10 text-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

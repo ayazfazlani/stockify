@@ -1,29 +1,29 @@
 <div class="container mx-auto pt-28 md:pt-36">
     @push('seo')
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BlogPosting",
-      "headline": "{{ $post->title }}",
-      @if($post->featured_image)
-      "image": "{{ asset('storage/' . $post->featured_image) }}",
-      @endif
-      "datePublished": "{{ $post->published_at ? $post->published_at->toIso8601String() : '' }}",
-      "author": {
-        "@type": "Person",
-        "name": "{{ $post->creator->name ?? 'Stockify Editor' }}"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Stockify",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "{{ asset('images/logo.png') }}"
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": "{{ $post->title }}",
+          @if($post->featured_image)
+              "image": "{{ asset('storage/' . $post->featured_image) }}",
+          @endif
+          "datePublished": "{{ $post->published_at ? $post->published_at->toIso8601String() : '' }}",
+          "author": {
+            "@type": "Person",
+            "name": "{{ $post->creator->name ?? 'Stockify Editor' }}"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Stockify",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "{{ asset('images/images/logo.svg') }}"
+            }
+          },
+          "description": "{{ $post->excerpt ?: Str::limit(strip_tags($post->body), 160) }}"
         }
-      },
-      "description": "{{ $post->excerpt ?: Str::limit(strip_tags($post->body), 160) }}"
-    }
-    </script>
+        </script>
     @endpush
     <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex flex-wrap items-center gap-3 mb-6 text-sm text-gray-500">

@@ -342,7 +342,7 @@
             <div class="form-group">
                 <label class="form-label">Default Meta Title Template</label>
                 <input type="text" class="form-input" wire:model="default_meta_title"
-                    placeholder="{{page_title}} | StockFlow">
+                    placeholder="{{page_title}} | POS for Shops">
                 <div class="slug-preview">Use <code>@{{page_title}}</code> as a placeholder for the page/post title.
                 </div>
                 @error('default_meta_title') <span
