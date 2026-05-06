@@ -54,7 +54,7 @@
                     @php
                         $adminUrl = '#';
                         if ($user->isSuperAdmin()) {
-                            $adminUrl = route('super-admin.dashboard');
+                            $adminUrl = route('tenant.admin');
                         } elseif (tenancy()->initialized) {
                             $adminUrl = route('tenant.admin', ['tenant' => tenant('slug')]);
                         } elseif ($user && isset($user->tenant_id)) {
