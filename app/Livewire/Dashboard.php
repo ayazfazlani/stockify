@@ -64,7 +64,7 @@ class Dashboard extends Component
     {
         if (auth()->check()) {
             $query = Analytics::query()
-                ->where('analytics.store_id', $this->currentStore->id) // Added 'analytics.' prefix
+                ->where('analytics.store_id', $this->currentStoreId) // Added 'analytics.' prefix
                 ->where('analytics.user_id', auth()->id()); // Added 'analytics.' prefix
 
             // Filter by current store only (not super admin)
