@@ -1,5 +1,5 @@
 <div>
-    <nav class="sidebar border-r border-gray-300 close">
+    <nav class="sidebar border-r border-gray-300 close" id="main-sidebar">
         <header class="relative px-5 py-6 mb-4">
             <div class="md:hidden flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -17,8 +17,7 @@
                         <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                     </div>
                 </div>
-                <button onclick="document.querySelector('.sidebar').classList.add('close')"
-                    class="p-2 bg-gray-100 rounded-xl text-gray-500">
+                <button onclick="closeSidebarMobile()" class="p-2 bg-gray-100 rounded-xl text-gray-500">
                     <i class='bx bx-x text-2xl'></i>
                 </button>
             </div>
@@ -30,7 +29,7 @@
                 </div>
             </div>
 
-            <i class='bx bx-chevron-right toggle'></i>
+            <i class='bx bx-chevron-right toggle' id="sidebar-toggle"></i>
         </header>
 
         @feature('multi-store')
@@ -52,7 +51,6 @@
 
                 @can('view items')
                     <li class="nav-link">
-                        {{-- Only show the link if we have a tenant ID, or use a default route --}}
                         <a wire:navigate href="{{ $tenantId ? route('tenant.items', ['tenant' => $tenantId]) : '#' }}"
                             class="{{ request()->routeIs('tenant.items') ? 'active' : '' }}">
                             <i class='bx bx-list-ol icon'></i>
@@ -79,9 +77,7 @@
                             <span class="text nav-text">Stock Out</span>
                         </a>
                     </li>
-                @endcan
 
-                @can('manage stock')
                     <li class="nav-link">
                         <a wire:navigate
                             href="{{ $tenantId ? route('tenant.adjust', ['tenant' => $tenantId]) : route('adjust') }}"
@@ -179,68 +175,137 @@
             </div>
         </div>
     </nav>
-    <div class="sidebar-overlay" onclick="document.querySelector('.sidebar').classList.add('close')"></div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebarMobile()"></div>
 </div>
 
 <script data-navigate-once>
-    document.addEventListener('livewire:navigated', function () {
-        const body = document.querySelector('body'),
-            sidebar = document.querySelector('.sidebar'),
-            toggle = document.querySelector(".toggle"),
-            searchBtn = document.querySelector(".search-box"),
-            modeSwitch = document.querySelector(".toggle-switch"),
-            modeText = document.querySelector(".mode-text");
+    // Main toggle function for sidebar
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
 
-        // Load sidebar state from localStorage
-        const sidebarState = localStorage.getItem('sidebarState');
+        sidebar.classList.toggle('close');
+        const isClosed = sidebar.classList.contains('close');
+        localStorage.setItem('sidebarState', isClosed ? 'closed' : 'open');
+
+        // Update the HTML class for layout
+        if (isClosed) {
+            document.documentElement.classList.add('sidebar-closed-init');
+        } else {
+            document.documentElement.classList.remove('sidebar-closed-init');
+        }
+    }
+
+    // Close sidebar on mobile
+    function closeSidebarMobile() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) {
+            sidebar.classList.add('close');
+            if (overlay) overlay.style.display = 'none';
+            document.documentElement.classList.add('sidebar-closed-init');
+            localStorage.setItem('sidebarState', 'closed');
+        }
+    }
+
+    // Open sidebar on mobile
+    function openSidebarMobile() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) {
+            sidebar.classList.remove('close');
+            if (overlay) overlay.style.display = 'block';
+            document.documentElement.classList.remove('sidebar-closed-init');
+            localStorage.setItem('sidebarState', 'open');
+        }
+    }
+
+    // Initialize sidebar state
+    function initSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+
+        const state = localStorage.getItem('sidebarState');
         const isMobile = window.innerWidth <= 768;
 
-        if (sidebar) {
-            // Apply state and remove initialization class to hand off to JS
-            const shouldBeClosed = isMobile ? (sidebarState !== 'open') : (sidebarState === 'closed');
+        // On mobile, default to closed unless explicitly 'open'
+        // On desktop, default to open unless explicitly 'closed'
+        const shouldBeClosed = isMobile ? (state !== 'open') : (state === 'closed');
 
-            if (shouldBeClosed) {
-                sidebar.classList.add('close');
-            } else {
-                sidebar.classList.remove('close');
-            }
-
-            // Critical: Remove the initialization class so it doesn't block toggles
+        if (shouldBeClosed) {
+            sidebar.classList.add('close');
+            document.documentElement.classList.add('sidebar-closed-init');
+        } else {
+            sidebar.classList.remove('close');
             document.documentElement.classList.remove('sidebar-closed-init');
         }
 
-        // Toggle sidebar state and save to localStorage
-        if (toggle) {
-            toggle.addEventListener("click", () => {
-                sidebar.classList.toggle("close");
-                const isClosed = sidebar.classList.contains("close");
-                localStorage.setItem('sidebarState', isClosed ? 'closed' : 'open');
+        // Hide overlay on desktop
+        const overlay = document.getElementById('sidebar-overlay');
+        if (overlay && !isMobile) {
+            overlay.style.display = 'none';
+        }
+    }
+
+    // Attach toggle event to the button
+    function attachToggleEvent() {
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        if (toggleBtn) {
+            // Remove existing listeners to avoid duplicates
+            const newToggle = toggleBtn.cloneNode(true);
+            toggleBtn.parentNode.replaceChild(newToggle, toggleBtn);
+            newToggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleSidebar();
             });
         }
+    }
 
-        // Ensure the sidebar opens when search is clicked
-        if (searchBtn) {
-            searchBtn.addEventListener("click", () => {
-                if (sidebar) {
-                    sidebar.classList.remove("close");
-                    localStorage.setItem('sidebarState', 'open');
-                }
-            });
-        }
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isMobile = window.innerWidth <= 768;
 
-        // Toggle dark mode
-        if (modeSwitch) {
-            modeSwitch.addEventListener("click", () => {
-                body.classList.toggle("dark");
-
-                if (modeText) {
-                    if (body.classList.contains("dark")) {
-                        modeText.innerText = "Light mode";
+            if (sidebar) {
+                if (!isMobile) {
+                    // On desktop, respect saved state
+                    const savedState = localStorage.getItem('sidebarState');
+                    if (savedState === 'closed') {
+                        sidebar.classList.add('close');
+                        document.documentElement.classList.add('sidebar-closed-init');
                     } else {
-                        modeText.innerText = "Dark mode";
+                        sidebar.classList.remove('close');
+                        document.documentElement.classList.remove('sidebar-closed-init');
+                    }
+                    if (overlay) overlay.style.display = 'none';
+                } else {
+                    // On mobile, hide overlay when sidebar is closed
+                    if (sidebar.classList.contains('close')) {
+                        if (overlay) overlay.style.display = 'none';
                     }
                 }
-            });
-        }
+            }
+        }, 250);
     });
+
+    // Initialize on page load and Livewire navigation
+    document.addEventListener('DOMContentLoaded', function () {
+        initSidebar();
+        attachToggleEvent();
+    });
+
+    document.addEventListener('livewire:navigated', function () {
+        initSidebar();
+        attachToggleEvent();
+    });
+
+    // Expose functions globally
+    window.toggleSidebar = toggleSidebar;
+    window.closeSidebarMobile = closeSidebarMobile;
+    window.openSidebarMobile = openSidebarMobile;
 </script>

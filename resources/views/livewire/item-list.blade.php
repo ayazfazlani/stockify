@@ -1,33 +1,39 @@
-<div>
-    <div class="p-6 flex-1 bg-white min-h-screen overflow-y-auto">
+<div data-stockify>
+    <div class="p-6 flex-1 min-h-screen overflow-y-auto" style="background: #F4F5F8;">
+        <!-- Alerts -->
         @if(session()->has('success'))
-        <div class="p-4 mb-4 text-sm text-white bg-green-500 rounded-lg" role="alert">
-            {{ session('success') }}
-        </div>
+            <div class="sf-alert sf-alert-ok">
+                <i class='bx bx-check-circle'></i>
+                {{ session('success') }}
+            </div>
         @elseif(session()->has('error'))
-        <div class="p-4 mb-4 text-sm text-white bg-red-500 rounded-lg" role="alert">
-            {{ session('error') }}
-        </div>
+            <div class="sf-alert sf-alert-err">
+                <i class='bx bx-error-circle'></i>
+                {{ session('error') }}
+            </div>
         @endif
+
         <!-- Header Section -->
-        <div class="flex justify-between items-center mb-4 max-sm:flex-wrap max-sm:gap-2">
-            <h1 class="text-2xl font-semibold">Items</h1>
+        <div class="flex justify-between items-center mb-6 max-sm:flex-wrap max-sm:gap-3">
+            <h1 style="font-size: 24px; font-weight: 700; color: #0F1117;">Items</h1>
             <div class="flex gap-2 max-sm:w-full max-sm:justify-between">
                 @can('create items')
                     @feature('bulk-import')
                     <button
                         wire:click="toggleImportModal"
-                        class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition"
+                        class="sf-btn sf-btn-green"
+                        style="background: #12B76A; color: white;"
                     >
-                        <i class="fas fa-file-import"></i>
+                        <i class='bx bx-import'></i>
                         <span>Import</span>
                     </button>
                     @endfeature
                     <button
                         wire:click="toggleModal"
-                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition"
+                        class="sf-btn sf-btn-blue"
+                        style="background: #4361EE; color: white;"
                     >
-                        <i class="fas fa-plus"></i>
+                        <i class='bx bx-plus'></i>
                         <span>Add Item</span>
                     </button>
                 @endcan
@@ -35,156 +41,167 @@
         </div>
 
         <!-- Search and Filters -->
-        <div class="flex flex-wrap  items-center gap-4 mb-6 max-sm:justify-between">
+        <div class="flex flex-wrap items-center gap-4 mb-6 max-sm:justify-between">
             <div class="relative w-full md:flex-1">
+                <i class='bx bx-search' style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3B8; font-size: 18px;"></i>
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
-                    placeholder="Search items..."
-                    class="w-full p-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search items by name or SKU..."
+                    class="sf-input"
+                    style="padding-left: 40px;"
                 >
-                <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
             </div>
-           <div class="w-full flex justify-end md:flex-1 md:justify-normal">
-            <button
-            wire:click="$toggle('inStockOnly')"
-            class="justify-end px-4 py-2 border rounded-md transition-colors {{ $inStockOnly ? 'bg-green-500 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' }}"
-        >
-            In Stock Only
-        </button>
-           </div>
+            <div class="w-full flex justify-end md:flex-1 md:justify-normal">
+                <button
+                    wire:click="$toggle('inStockOnly')"
+                    class="sf-btn {{ $inStockOnly ? 'sf-btn-green' : 'sf-btn-ghost' }}"
+                >
+                    <i class='bx {{ $inStockOnly ? "bx-check-circle" : "bx-package" }}'></i>
+                    In Stock Only
+                </button>
+            </div>
         </div>
 
         <!-- Main Content -->
         <div class="flex gap-6 max-sm:flex-wrap">
             <!-- Items List -->
-            <div class="w-full md:w-1/2 md:pr-3">
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-                    <div class="p-4 border-b border-gray-200 bg-gray-50">
-                        <h2 class="text-lg font-semibold text-gray-700">Item List</h2>
+            <div class="w-full md:w-1/2">
+                <div class="sf-card">
+                    <div class="sf-card-head">
+                        <h2 class="text-lg font-semibold" style="color: #0F1117;">Item List</h2>
+                        <span style="font-size: 11px; color: #9CA3B8; font-family: 'JetBrains Mono', monospace;">
+                            {{ $items->count() }} items
+                        </span>
                     </div>
-                    <div class="p-4 space-y-3 max-h-[70vh] overflow-y-auto">
-                        @forelse($items as $item)
-                            <div
-                                wire:key="item-{{ $item->id }}"
-                                wire:click="selectItem({{ $item->id }})"
-                                class="p-4 bg-white rounded-md border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors {{ $selectedItem && $selectedItem->id === $item->id ? 'ring-2 ring-blue-400' : '' }}"
-                            >
-                                <div class="flex items-center gap-4">
+                    <div style="padding: 12px 14px;">
+                        <div class="sf-item-list">
+                            @forelse($items as $item)
+                                <div
+                                    wire:key="item-{{ $item->id }}"
+                                    wire:click="selectItem({{ $item->id }})"
+                                    class="sf-item {{ $selectedItem && $selectedItem->id === $item->id ? 'selected' : '' }}"
+                                >
+                                    <div class="sf-chk"></div>
                                     @if($item->image)
-                                    <img 
-                                        src="{{ asset('storage/'.$item->image) }}" 
-                                        alt="{{ $item->name }}"
-                                        class="w-16 h-16 object-contain rounded-md"
-                                    >
-                                    @endif
-                                    <div class="flex-1">
-                                        <h3 class="font-medium text-gray-800">{{ $item->name }}</h3>
-                                        <div class="text-sm text-gray-600 mt-1">
-                                            <p>SKU: {{ $item->sku }}</p>
-                                            <p>Brand: {{ $item->brand }}</p>
-                                            <p class="mt-1">
-                                                Quantity: 
-                                                <span class="font-medium {{ $item->quantity > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                                    {{ $item->quantity }}
-                                                </span>
-                                            </p>
+                                        <img 
+                                            src="{{ asset('storage/' . $item->image) }}" 
+                                            alt="{{ $item->name }}"
+                                            class="sf-thumb"
+                                            style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px;"
+                                        >
+                                    @else
+                                        <div class="sf-thumb-ph">
+                                            <i class='bx bx-package'></i>
                                         </div>
+                                    @endif
+                                    <div class="sf-item-info">
+                                        <div class="sf-item-name">{{ $item->name }}</div>
+                                        <div class="sf-item-sku">SKU: {{ $item->sku }}</div>
+                                        <div class="sf-item-sku" style="margin-top: 2px;">{{ $item->brand }}</div>
                                     </div>
+                                    <span class="sf-pill {{ $item->quantity > 0 ? 'ok' : 'low' }}">
+                                        {{ $item->quantity }}
+                                    </span>
                                 </div>
-                            </div>
-                        @empty
-                            <div class="p-4 text-center text-gray-500">
-                                No items found matching your criteria
-                            </div>
-                        @endforelse
+                            @empty
+                                <div class="sf-empty">
+                                    <i class='bx bx-package'></i>
+                                    No items found matching your criteria
+                                </div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Item Details -->
-            <div class="w-full md:w-1/2 md:pr-3">
-                <div class="bg-white rounded-lg border border-gray-200 shadow-sm h-full">
-                    <div class="p-4 border-b border-gray-200 bg-gray-50">
-                        <h2 class="text-lg font-semibold text-gray-700">Item Details</h2>
+            <div class="w-full md:w-1/2">
+                <div class="sf-card" style="height: 100%;">
+                    <div class="sf-card-head">
+                        <h2 class="text-lg font-semibold" style="color: #0F1117;">Item Details</h2>
+                        <i class='bx bx-info-circle' style="color: #9CA3B8;"></i>
                     </div>
-                    <div class="p-4 h-[70vh] overflow-y-auto">
+                    <div style="padding: 16px; height: calc(70vh); overflow-y: auto;">
                         @if($selectedItem)
-                            <div class="space-y-4">
+                            <div class="space-y-5">
+                                <!-- Images -->
                                 @if($selectedItem->images && count($selectedItem->images) > 0)
-                                <div class="grid grid-cols-2 gap-2 mb-4">
-                                    @foreach($selectedItem->images as $img)
-                                    <img 
-                                        src="{{ asset('storage/'.$img) }}" 
-                                        alt="{{ $selectedItem->name }}"
-                                        class="w-full h-32 object-contain rounded-md border"
-                                    >
-                                    @endforeach
-                                </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        @foreach($selectedItem->images as $img)
+                                            <img 
+                                                src="{{ asset('storage/' . $img) }}" 
+                                                alt="{{ $selectedItem->name }}"
+                                                style="width: 100%; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid #E8EAF0;"
+                                            >
+                                        @endforeach
+                                    </div>
                                 @elseif($selectedItem->image)
-                                <img 
-                                    src="{{ asset('storage/'.$selectedItem->image) }}" 
-                                    alt="{{ $selectedItem->name }}"
-                                    class="w-full h-48 object-contain rounded-md mb-4 border"
-                                >
+                                    <img 
+                                        src="{{ asset('storage/' . $selectedItem->image) }}" 
+                                        alt="{{ $selectedItem->name }}"
+                                        style="width: 100%; height: 160px; object-fit: cover; border-radius: 10px; border: 1px solid #E8EAF0; margin-bottom: 4px;"
+                                    >
                                 @endif
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Name</label>
-                                        <p class="text-gray-900">{{ $selectedItem->name }}</p>
+
+                                <!-- Details Grid -->
+                                <div class="sf-row2">
+                                    <div class="sf-field">
+                                        <label class="sf-label">Name</label>
+                                        <p style="font-weight: 600; color: #0F1117;">{{ $selectedItem->name }}</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">SKU</label>
-                                        <p class="text-gray-900">{{ $selectedItem->sku }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">SKU</label>
+                                        <p style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">{{ $selectedItem->sku }}</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Brand</label>
-                                        <p class="text-gray-900">{{ $selectedItem->brand }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">Brand</label>
+                                        <p>{{ $selectedItem->brand }}</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Type</label>
-                                        <p class="text-gray-900">{{ $selectedItem->type }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">Type</label>
+                                        <p>{{ $selectedItem->type }}</p>
                                     </div>
                                     @can('view item cost')
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Cost</label>
-                                        <p class="text-gray-900">${{ number_format($selectedItem->cost, 2) }}</p>
-                                    </div>
+                                        <div class="sf-field">
+                                            <label class="sf-label">Cost Price</label>
+                                            <p style="font-family: 'JetBrains Mono', monospace;">${{ number_format($selectedItem->cost, 2) }}</p>
+                                        </div>
                                     @endcan
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Price</label>
-                                        <p class="text-gray-900">${{ number_format($selectedItem->price, 2) }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">Selling Price</label>
+                                        <p style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">${{ number_format($selectedItem->price, 2) }}</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Quantity</label>
-                                        <p class="text-gray-900 {{ $selectedItem->quantity > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    <div class="sf-field">
+                                        <label class="sf-label">Quantity</label>
+                                        <p class="{{ $selectedItem->quantity > 0 ? 'text-green-600' : 'text-red-600' }}" style="font-weight: 700;">
                                             {{ $selectedItem->quantity }}
                                         </p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Reorder Level</label>
-                                        <p class="text-gray-900">{{ $selectedItem->reorder_level ?? 0 }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">Reorder Level</label>
+                                        <p>{{ $selectedItem->reorder_level ?? 0 }}</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Reorder Qty</label>
-                                        <p class="text-gray-900">{{ $selectedItem->reorder_quantity ?? 0 }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">Reorder Qty</label>
+                                        <p>{{ $selectedItem->reorder_quantity ?? 0 }}</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 mb-1">Supplier</label>
-                                        <p class="text-gray-900">{{ $selectedItem->supplier?->name ?? 'N/A' }}</p>
+                                    <div class="sf-field">
+                                        <label class="sf-label">Supplier</label>
+                                        <p>{{ $selectedItem->supplier?->name ?? 'N/A' }}</p>
                                     </div>
                                 </div>
+
                                 @can('edit items')
-                                <button wire:click="openEditModal" class="px-3 py-2 bg-blue-600 text-white rounded-md border border-blue-700 shadow-sm">
-                                    <i class="fas fa-edit"></i> Edit Reorder/Supplier
-                                </button>
+                                    <button wire:click="openEditModal" class="sf-btn sf-btn-blue" style="width: 100%; justify-content: center;">
+                                        <i class='bx bx-edit'></i> Edit Reorder/Supplier
+                                    </button>
                                 @endcan
                             </div>
                         @else
-                            <div class="h-full flex items-center justify-center text-gray-500">
-                                Select an item to view details
+                            <div class="sf-empty" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                                <i class='bx bx-folder-open' style="font-size: 48px;"></i>
+                                <p>Select an item to view details</p>
                             </div>
                         @endif
                     </div>
@@ -192,183 +209,174 @@
             </div>
         </div>
 
-        <!-- Modals -->
+        <!-- Add Item Modal -->
         @if($isModalOpen)
-            {{-- <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
-                    <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-xl font-semibold">Add New Item</h3>
+            <div class="sf-overlay" wire:click.self="toggleModal">
+                <div class="sf-modal">
+                    <div class="sf-modal-head">
+                        <span class="sf-modal-title">
+                            <i class='bx bx-plus-circle'></i> Add New Item
+                        </span>
+                        <button type="button" wire:click="toggleModal" class="sf-modal-x">
+                            <i class='bx bx-x'></i>
+                        </button>
                     </div>
-                    <div class="p-6 space-y-4">
-                        <input type="text" wire:model="newItem.sku" placeholder="SKU" class="w-full p-2 border rounded-md">
-                        <input type="text" wire:model="newItem.name" placeholder="Name" class="w-full p-2 border rounded-md">
-                        <input type="number" wire:model="newItem.cost" placeholder="Cost" class="w-full p-2 border rounded-md">
-                        <input type="number" wire:model="newItem.price" placeholder="Price" class="w-full p-2 border rounded-md">
-                        <input type="text" wire:model="newItem.type" placeholder="Type" class="w-full p-2 border rounded-md">
-                        <input type="text" wire:model="newItem.brand" placeholder="Brand" class="w-full p-2 border rounded-md">
-                        <input type="number" wire:model="newItem.quantity" placeholder="Quantity" class="w-full p-2 border rounded-md">
-                        <input type="file" wire:model="image" class="w-full p-2 border rounded-md">
-                    </div>
-                    <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
-                        <button wire:click="toggleModal" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Cancel</button>
-                        <button wire:click="addItem" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500">Save Item</button>
-                    </div>
-                </div>
-            </div> --}}
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
-                    <div class="p-6 border-b border-gray-200">
-                        @php
-                            $tenant = tenant();
-                            $currentStoreId = Auth::user()->getCurrentStoreId();
-                            $itemCount = \App\Models\Item::where('store_id', $currentStoreId)->count();
-                            $canAddItems = $tenant ? $tenant->canAdd(\App\Enums\PlanFeature::MAX_ITEMS, $itemCount) : true;
-                        @endphp
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xl font-semibold">Add New Item</h3>
-                            @if(!$canAddItems)
-                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full border border-amber-200">
-                                    Limit Reached
-                                </span>
-                            @endif
-                        </div>
-                    </div>
+
+                    @php
+                        $tenant = tenant();
+                        $currentStoreId = Auth::user()->getCurrentStoreId();
+                        $itemCount = \App\Models\Item::where('store_id', $currentStoreId)->count();
+                        $canAddItems = $tenant ? $tenant->canAdd(\App\Enums\PlanFeature::MAX_ITEMS, $itemCount) : true;
+                    @endphp
+
                     @if(!$canAddItems)
-                        <div class="mx-6 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-                            <strong>Notice:</strong> Your plan allows 
-                            {{ $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_ITEMS) }} items per store. 
-                            Please <a href="{{ route('tenant.admin', ['tenant' => $tenantSlug, 'section' => 'billing']) }}" class="font-bold underline">upgrade your plan</a> to add more.
+                        <div style="margin: 0 18px; padding: 12px; background: #FFFAEB; border: 1px solid #FDE68A; border-radius: 10px; font-size: 13px; color: #92400E;">
+                            <i class='bx bx-info-circle'></i>
+                            <strong>Notice:</strong> Your plan allows {{ $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_ITEMS) }} items per store. 
+                            Please upgrade to add more.
                         </div>
                     @endif
-                    <div class="p-6 space-y-4 {{ !$canAddItems ? 'opacity-50 pointer-events-none' : '' }}">
-                        <div>
-                            <input type="text" wire:model="newItem.sku" placeholder="SKU" 
-                                class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                            @error('newItem.sku') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+                    <div class="sf-modal-body {{ !$canAddItems ? 'opacity-50 pointer-events-none' : '' }}">
+                        <div class="sf-field">
+                            <label class="sf-label">SKU / Barcode</label>
+                            <input type="text" wire:model="newItem.sku" placeholder="Enter SKU..." class="sf-finput">
+                            @error('newItem.sku') <div class="sf-ferr"><i class='bx bx-error-circle'></i> {{ $message }}</div> @enderror
                         </div>
-            
-                        <div>
-                            <input type="text" wire:model="newItem.name" placeholder="Name" 
-                                class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                            @error('newItem.name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+                        <div class="sf-field">
+                            <label class="sf-label">Product Name</label>
+                            <input type="text" wire:model="newItem.name" placeholder="Product name..." class="sf-finput">
+                            @error('newItem.name') <div class="sf-ferr">{{ $message }}</div> @enderror
                         </div>
-            
-                        <div class="grid grid-cols-2 gap-4">
-                            @can('view item cost')
-                            <div>
-                                <input type="number" wire:model="newItem.cost" placeholder="Cost" 
-                                    class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                @error('newItem.cost') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+                        <div class="sf-row2">
+                            <div class="sf-field">
+                                <label class="sf-label">Cost Price</label>
+                                <input type="number" step="0.01" wire:model="newItem.cost" placeholder="0.00" class="sf-finput">
+                                @error('newItem.cost') <div class="sf-ferr">{{ $message }}</div> @enderror
                             </div>
-                            @endcan
-                            <div>
-                                <input type="number" wire:model="newItem.price" placeholder="Price" 
-                                    class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                @error('newItem.price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
-            
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <input type="text" wire:model="newItem.type" placeholder="Type" 
-                                    class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                @error('newItem.type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                            </div>
-                            <div>
-                                <input type="text" wire:model="newItem.brand" placeholder="Brand" 
-                                    class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                @error('newItem.brand') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            <div class="sf-field">
+                                <label class="sf-label">Selling Price</label>
+                                <input type="number" step="0.01" wire:model="newItem.price" placeholder="0.00" class="sf-finput">
+                                @error('newItem.price') <div class="sf-ferr">{{ $message }}</div> @enderror
                             </div>
                         </div>
-            
-                        <div>
-                            <input type="number" wire:model="newItem.quantity" placeholder="Quantity" 
-                                class="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                            @error('newItem.quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+
+                        <div class="sf-row2">
+                            <div class="sf-field">
+                                <label class="sf-label">Type</label>
+                                <input type="text" wire:model="newItem.type" placeholder="e.g. Electronics" class="sf-finput">
+                                @error('newItem.type') <div class="sf-ferr">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="sf-field">
+                                <label class="sf-label">Brand</label>
+                                <input type="text" wire:model="newItem.brand" placeholder="e.g. Samsung" class="sf-finput">
+                                @error('newItem.brand') <div class="sf-ferr">{{ $message }}</div> @enderror
+                            </div>
                         </div>
-            
-                        <div class="space-y-2">
-                            <div class="flex flex-wrap gap-2">
-                                @if ($images)
+
+                        <div class="sf-field">
+                            <label class="sf-label">Initial Quantity</label>
+                            <input type="number" min="0" wire:model="newItem.quantity" placeholder="0" class="sf-finput">
+                            @error('newItem.quantity') <div class="sf-ferr">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label">Product Images <span class="opt">(optional, multiple allowed)</span></label>
+                            @if($images)
+                                <div class="flex flex-wrap gap-2 mb-2">
                                     @foreach($images as $img)
-                                        <img src="{{ $img->temporaryUrl() }}" class="w-16 h-16 object-cover rounded-md border">
+                                        <img src="{{ $img->temporaryUrl() }}" class="sf-img-prev">
                                     @endforeach
-                                @endif
-                            </div>
-                            <div class="flex-1">
-                                <input type="file" wire:model="images" multiple
-                                    class="w-full p-2 border rounded-md file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                @error('images.*') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                            </div>
+                                </div>
+                            @endif
+                            <input type="file" wire:model="images" multiple class="sf-file">
+                            @error('images.*') <div class="sf-ferr">{{ $message }}</div> @enderror
                         </div>
                     </div>
-                    <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
-                        <button wire:click="toggleModal" 
-                            class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Cancel</button>
-                        <button wire:click="addItem" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save Item</button>
+
+                    <div class="sf-modal-foot">
+                        <button type="button" wire:click="toggleModal" class="sf-btn sf-btn-ghost">Cancel</button>
+                        <button type="button" wire:click="addItem" class="sf-btn sf-btn-blue">
+                            <i class='bx bx-save'></i> Save Item
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            
         @endif
 
+        <!-- Edit Item Modal -->
         @if($isEditModalOpen)
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
-                    <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-xl font-semibold">Edit Item Fields</h3>
+            <div class="sf-overlay" wire:click.self="$set('isEditModalOpen', false)">
+                <div class="sf-modal">
+                    <div class="sf-modal-head">
+                        <span class="sf-modal-title">
+                            <i class='bx bx-edit'></i> Edit Item Fields
+                        </span>
+                        <button type="button" wire:click="$set('isEditModalOpen', false)" class="sf-modal-x">
+                            <i class='bx bx-x'></i>
+                        </button>
                     </div>
-                    <div class="p-6 space-y-4">
-                        <div>
-                            <label class="text-sm text-gray-600">Selling Price</label>
-                            <input type="number" step="0.01" min="0" wire:model="editForm.price" class="w-full p-2 border rounded-md">
-                            @error('editForm.price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    <div class="sf-modal-body">
+                        <div class="sf-field">
+                            <label class="sf-label">Selling Price</label>
+                            <input type="number" step="0.01" min="0" wire:model="editForm.price" class="sf-finput">
+                            @error('editForm.price') <div class="sf-ferr">{{ $message }}</div> @enderror
                         </div>
-                        <div>
-                            <label class="text-sm text-gray-600">Reorder Level</label>
-                            <input type="number" min="0" wire:model="editForm.reorder_level" class="w-full p-2 border rounded-md">
-                            @error('editForm.reorder_level') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        <div class="sf-field">
+                            <label class="sf-label">Reorder Level</label>
+                            <input type="number" min="0" wire:model="editForm.reorder_level" class="sf-finput">
+                            @error('editForm.reorder_level') <div class="sf-ferr">{{ $message }}</div> @enderror
                         </div>
-                        <div>
-                            <label class="text-sm text-gray-600">Reorder Quantity</label>
-                            <input type="number" min="1" wire:model="editForm.reorder_quantity" class="w-full p-2 border rounded-md">
-                            @error('editForm.reorder_quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        <div class="sf-field">
+                            <label class="sf-label">Reorder Quantity</label>
+                            <input type="number" min="1" wire:model="editForm.reorder_quantity" class="sf-finput">
+                            @error('editForm.reorder_quantity') <div class="sf-ferr">{{ $message }}</div> @enderror
                         </div>
-                        <div>
-                            <label class="text-sm text-gray-600">Supplier</label>
-                            <select wire:model="editForm.supplier_id" class="w-full p-2 border rounded-md">
+                        <div class="sf-field">
+                            <label class="sf-label">Supplier</label>
+                            <select wire:model="editForm.supplier_id" class="sf-finput">
                                 <option value="">No supplier</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                 @endforeach
                             </select>
-                            @error('editForm.supplier_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            @error('editForm.supplier_id') <div class="sf-ferr">{{ $message }}</div> @enderror
                         </div>
                     </div>
-                    <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
-                        <button wire:click="$set('isEditModalOpen', false)" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Cancel</button>
-                        <button wire:click="saveItemEdit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save</button>
+                    <div class="sf-modal-foot">
+                        <button wire:click="$set('isEditModalOpen', false)" class="sf-btn sf-btn-ghost">Cancel</button>
+                        <button wire:click="saveItemEdit" class="sf-btn sf-btn-blue">Save Changes</button>
                     </div>
                 </div>
             </div>
         @endif
 
+        <!-- Import Modal -->
         @feature('bulk-import')
         @if($isImportModalOpen)
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white w-full max-w-md rounded-lg shadow-xl">
-                    <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-xl font-semibold">Import Items</h3>
+            <div class="sf-overlay" wire:click.self="toggleImportModal">
+                <div class="sf-modal">
+                    <div class="sf-modal-head">
+                        <span class="sf-modal-title">
+                            <i class='bx bx-import'></i> Import Items
+                        </span>
+                        <button type="button" wire:click="toggleImportModal" class="sf-modal-x">
+                            <i class='bx bx-x'></i>
+                        </button>
                     </div>
-                    <div class="p-6 space-y-4">
-                        <input type="file" wire:model.live="importFile" class="w-full p-2 border rounded-md">
-                        @error('importFile') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    <div class="sf-modal-body">
+                        <div class="sf-field">
+                            <label class="sf-label">Upload CSV/Excel File</label>
+                            <input type="file" wire:model.live="importFile" class="sf-file">
+                            <div class="sf-hint">Supported formats: .csv, .xlsx, .xls</div>
+                            @error('importFile') <div class="sf-ferr">{{ $message }}</div> @enderror
+                        </div>
                     </div>
-                    <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
-                        <button wire:click="toggleImportModal" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md">Cancel</button>
-                        <button wire:click="importItems" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500">Import</button>
+                    <div class="sf-modal-foot">
+                        <button wire:click="toggleImportModal" class="sf-btn sf-btn-ghost">Cancel</button>
+                        <button wire:click="importItems" class="sf-btn sf-btn-green">Import Items</button>
                     </div>
                 </div>
             </div>

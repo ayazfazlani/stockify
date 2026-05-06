@@ -34,7 +34,7 @@ class Dashboard extends Component
     // Store and team filtering
     public $selectedStoreId = null;
     public $selectedUserId = null;
-    public $dateRange = 'current_month'; // current_month, last_month, current_quarter, current_year
+    public $dateRange = 'current_month';
     public $startDate = null;
     public $endDate = null;
 
@@ -45,9 +45,12 @@ class Dashboard extends Component
     // UI State
     public $isLoading = false;
 
-    protected $currentTenantId = null;
+    // Debug info
+    public $debugInfo = [];
 
-    // Listeners for Livewire events
+    protected $currentTenantId = null;
+    protected $currentStoreId = null;
+
     protected $listeners = ['refreshDashboard' => 'refreshData', 'storeChanged' => 'handleStoreChange'];
 
     public function mount()
@@ -58,75 +61,26 @@ class Dashboard extends Component
         $this->refreshData();
     }
 
-    /**
-     * Initialize tenant context
-     */
     protected function initializeTenant()
     {
         if (auth()->check()) {
             $this->currentTenantId = Auth::user()->tenant_id;
+            $this->currentStoreId = Auth::user()->getCurrentStoreId();
 
-            // If user has a default store, use it
             if (!$this->selectedStoreId) {
-                $this->selectedStoreId = Auth::user()->getCurrentStoreId();
+                $this->selectedStoreId = $this->currentStoreId;
             }
 
-            // If still no store, get first available store for tenant
-            if (!$this->selectedStoreId && $this->currentTenantId) {
-                $store = Store::where('tenant_id', $this->currentTenantId)->first();
-                if ($store) {
-                    $this->selectedStoreId = $store->id;
-                }
-            }
+            // Debug: Log the store IDs
+            \Log::info('Dashboard initializeTenant', [
+                'current_store_id' => $this->currentStoreId,
+                'selected_store_id' => $this->selectedStoreId,
+                'user_id' => Auth::id(),
+                'user_stores' => Auth::user()->stores()->pluck('stores.id')->toArray()
+            ]);
         }
     }
 
-    /**
-     * Load available stores and users for filtering
-     */
-    // protected function loadAvailableFilters()
-    // {
-    //     if (!auth()->check()) {
-    //         return;
-    //     }
-
-    //     $user = Auth::user();
-
-    //     // Load stores based on user role
-    //     if ($user->hasRole('super admin') || $user->hasRole('tenant_admin')) {
-    //         // Super admin or tenant admin can see all stores in tenant
-    //         $this->availableStores = Store::where('tenant_id', $this->currentTenantId)
-    //             ->orderBy('name')
-    //             ->get(['id', 'name'])
-    //             ->toArray();
-
-    //         // Can see all users in tenant
-    //         $this->availableUsers = User::where('tenant_id', $this->currentTenantId)
-    //             ->orderBy('name')
-    //             ->get(['id', 'name', 'email'])
-    //             ->toArray();
-    //     } else {
-    //         // Regular user can only see their assigned stores
-    //         $this->availableStores = $user->stores()
-    //             ->orderBy('name')
-    //             ->get(['stores.id', 'stores.name'])
-    //             ->toArray();
-
-    //         // Can only see users who share at least one store
-    //         $storeIds = $user->stores()->pluck('stores.id');
-    //         $this->availableUsers = User::whereHas('stores', function ($query) use ($storeIds) {
-    //             $query->whereIn('stores.id', $storeIds);
-    //         })
-    //             ->where('tenant_id', $this->currentTenantId)
-    //             ->orderBy('name')
-    //             ->get(['id', 'name', 'email'])
-    //             ->toArray();
-    //     }
-    // }
-
-    /**
-     * Load available stores and users for filtering - WORKAROUND VERSION
-     */
     protected function loadAvailableFilters()
     {
         if (!auth()->check()) {
@@ -135,64 +89,22 @@ class Dashboard extends Component
 
         $user = Auth::user();
 
-        // Load stores based on user role
-        if ($user->hasRole('super admin') || $user->hasRole('tenant_admin')) {
-            // Super admin or tenant admin can see all stores in tenant
-            $this->availableStores = Store::where('tenant_id', $this->currentTenantId)
-                ->orderBy('name')
-                ->get(['id', 'name'])
-                ->toArray();
+        // Get stores - using the same pattern as ItemList
+        $this->availableStores = Store::query()
+            ->where('tenant_id', $this->currentTenantId)
+            ->orderBy('name')
+            ->select('id', 'name')
+            ->get()
+            ->toArray();
 
-            // Can see all users in tenant
-            $this->availableUsers = User::where('tenant_id', $this->currentTenantId)
-                ->orderBy('name')
-                ->get(['id', 'name', 'email'])
-                ->toArray();
-        } else {
-            // WORKAROUND: Direct query instead of using relationship
-            // Regular user can only see their assigned stores via store_user pivot
-            $this->availableStores = DB::table('stores')
-                ->join('store_user', 'stores.id', '=', 'store_user.store_id')
-                ->where('store_user.user_id', $user->id)
-                ->orderBy('stores.name')
-                ->select('stores.id', 'stores.name')
-                ->get()
-                ->toArray();
-
-            // Can only see users who share at least one store
-            $storeIds = DB::table('store_user')
-                ->where('user_id', $user->id)
-                ->pluck('store_id');
-
-            if ($storeIds->isNotEmpty()) {
-                $this->availableUsers = DB::table('users')
-                    ->join('store_user', 'users.id', '=', 'store_user.user_id')
-                    ->whereIn('store_user.store_id', $storeIds)
-                    ->where('users.tenant_id', $this->currentTenantId)
-                    ->where('users.id', '!=', $user->id)
-                    ->orderBy('users.name')
-                    ->select('users.id', 'users.name', 'users.email')
-                    ->distinct()
-                    ->get()
-                    ->toArray();
-            } else {
-                $this->availableUsers = [];
-            }
-        }
-
-        // Convert stdClass objects to arrays if needed
-        $this->availableStores = array_map(function ($item) {
-            return (array) $item;
-        }, $this->availableStores);
-
-        $this->availableUsers = array_map(function ($item) {
-            return (array) $item;
-        }, $this->availableUsers);
+        // Get users from the same tenant
+        $this->availableUsers = User::where('tenant_id', $this->currentTenantId)
+            ->where('id', '!=', $user->id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'email'])
+            ->toArray();
     }
 
-    /**
-     * Set default date range based on selected period
-     */
     protected function setDefaultDateRange()
     {
         $now = now();
@@ -217,18 +129,12 @@ class Dashboard extends Component
         }
     }
 
-    /**
-     * Handle store change event
-     */
     public function handleStoreChange($storeId)
     {
         $this->selectedStoreId = $storeId;
         $this->refreshData();
     }
 
-    /**
-     * Refresh all dashboard data
-     */
     public function refreshData()
     {
         $this->isLoading = true;
@@ -244,66 +150,7 @@ class Dashboard extends Component
     }
 
     /**
-     * Apply tenant and team filters to a query
-     */
-    protected function applyFilters($query, $tablePrefix = null)
-    {
-        if (!auth()->check()) {
-            return $query;
-        }
-
-        $user = Auth::user();
-        $prefix = $tablePrefix ? $tablePrefix . '.' : '';
-
-        // Apply store filter
-        if ($this->selectedStoreId) {
-            $query->where($prefix . 'store_id', $this->selectedStoreId);
-        } elseif (!$user->hasRole('super admin') && !$user->hasRole('tenant_admin')) {
-            // Regular user: only show their accessible stores
-            $storeIds = $user->stores()->pluck('stores.id');
-            $query->whereIn($prefix . 'store_id', $storeIds);
-        }
-
-        // Apply user filter (for team filtering)
-        if ($this->selectedUserId && $this->selectedUserId !== 'all') {
-            $query->where($prefix . 'user_id', $this->selectedUserId);
-        }
-
-        // Apply date range filter
-        if ($this->startDate && $this->endDate) {
-            if ($this->isDateColumnAvailable($query->getModel()->getTable(), 'created_at')) {
-                $query->whereBetween($prefix . 'created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
-            }
-        }
-
-        return $query;
-    }
-
-    /**
-     * Check if date column exists in table
-     */
-    protected function isDateColumnAvailable($table, $column)
-    {
-        try {
-            return \Schema::hasColumn($table, $column);
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Apply tenant filter for Store-related queries
-     */
-    protected function applyTenantFilter($query)
-    {
-        if ($this->currentTenantId) {
-            $query->where('tenant_id', $this->currentTenantId);
-        }
-        return $query;
-    }
-
-    /**
-     * Fetch summary statistics
+     * Fetch summary statistics - COMPLETELY REWRITTEN
      */
     public function fetchSummary()
     {
@@ -313,48 +160,100 @@ class Dashboard extends Component
         }
 
         try {
-            $query = Analytics::query();
-            $query = $this->applyFilters($query, 'analytics');
+            // Determine which store ID to use
+            $storeId = $this->selectedStoreId;
 
-            // Get totals using separate queries to avoid ambiguity
-            $totalInventory = (clone $query)->sum('analytics.current_quantity');
-            $stockIn = (clone $query)->sum('analytics.total_stock_in');
-            $stockOut = (clone $query)->sum('analytics.total_stock_out');
-            $inventoryEquity = (clone $query)->sum('analytics.inventory_assets');
+            // If no store selected, get from user's current store
+            if (!$storeId) {
+                $storeId = Auth::user()->getCurrentStoreId();
+            }
 
-            // Potential Revenue - requires join
-            $potentialRevenue = (float) Analytics::query()
-                ->join('items', 'analytics.item_id', '=', 'items.id')
-                ->when($this->selectedStoreId, function ($q) {
-                    return $q->where('analytics.store_id', $this->selectedStoreId);
-                })
-                ->when($this->selectedUserId && $this->selectedUserId !== 'all', function ($q) {
-                    return $q->where('analytics.user_id', $this->selectedUserId);
-                })
-                ->when($this->startDate && $this->endDate, function ($q) {
-                    return $q->whereBetween('analytics.created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
-                })
-                ->sum(DB::raw('analytics.current_quantity * items.price'));
+            // If still no store, get first store from user's stores
+            if (!$storeId) {
+                $firstStore = Auth::user()->stores()->first();
+                $storeId = $firstStore ? $firstStore->id : null;
+            }
+
+            // If still no store, get any store from tenant
+            if (!$storeId && $this->currentTenantId) {
+                $anyStore = Store::where('tenant_id', $this->currentTenantId)->first();
+                $storeId = $anyStore ? $anyStore->id : null;
+            }
+
+            // Debug info
+            $this->debugInfo['store_id_used'] = $storeId;
+            $this->debugInfo['selected_store_id'] = $this->selectedStoreId;
+            $this->debugInfo['current_store_id_method'] = Auth::user()->getCurrentStoreId();
+
+            if (!$storeId) {
+                \Log::warning('No store ID found for dashboard summary');
+                $this->summary = $this->getEmptySummary();
+                return;
+            }
+
+            // Get total inventory from items table
+            $totalInventory = Item::where('store_id', $storeId)->sum('quantity');
+
+            // Get inventory equity
+            $inventoryEquity = Item::where('store_id', $storeId)
+                ->sum(DB::raw('quantity * cost'));
+
+            // Get potential revenue
+            $potentialRevenue = Item::where('store_id', $storeId)
+                ->sum(DB::raw('quantity * price'));
 
             $potentialProfit = $potentialRevenue - $inventoryEquity;
 
+            // Get stock in/out from inventory_audits
+            $stockInQuery = InventoryAudit::where('store_id', $storeId)
+                ->where('type', 'STOCK_IN');
+
+            $stockOutQuery = InventoryAudit::where('store_id', $storeId)
+                ->where('type', 'STOCK_OUT');
+
+            if ($this->startDate && $this->endDate) {
+                $stockInQuery->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
+                $stockOutQuery->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
+            }
+
+            if ($this->selectedUserId && $this->selectedUserId !== 'all') {
+                $stockInQuery->where('user_id', $this->selectedUserId);
+                $stockOutQuery->where('user_id', $this->selectedUserId);
+            }
+
+            $stockIn = (int) $stockInQuery->sum('quantity');
+            $stockOut = (int) $stockOutQuery->sum('quantity');
+
+            // Debug: Log the actual values
+            \Log::info('Dashboard Summary Values', [
+                'store_id' => $storeId,
+                'total_inventory' => $totalInventory,
+                'stock_in' => $stockIn,
+                'stock_out' => $stockOut,
+                'inventory_equity' => $inventoryEquity,
+                'potential_revenue' => $potentialRevenue
+            ]);
+
             $this->summary = [
                 'totalInventory' => (int) $totalInventory,
-                'stockIn' => (int) $stockIn,
-                'stockOut' => (int) $stockOut,
-                'inventoryEquity' => (float) $inventoryEquity,
-                'potentialRevenue' => (float) $potentialRevenue,
-                'potentialProfit' => (float) $potentialProfit,
+                'stockIn' => $stockIn,
+                'stockOut' => $stockOut,
+                'inventoryEquity' => round((float) $inventoryEquity, 2),
+                'potentialRevenue' => round((float) $potentialRevenue, 2),
+                'potentialProfit' => round((float) $potentialProfit, 2),
             ];
+
+            // Update the selected store ID in the UI for display
+            if ($storeId && !$this->selectedStoreId) {
+                $this->selectedStoreId = $storeId;
+            }
+
         } catch (\Exception $e) {
             \Log::error('Error fetching summary: ' . $e->getMessage());
             $this->summary = $this->getEmptySummary();
         }
     }
 
-    /**
-     * Get empty summary array
-     */
     protected function getEmptySummary()
     {
         return [
@@ -368,7 +267,7 @@ class Dashboard extends Component
     }
 
     /**
-     * Fetch total inventory data for charts
+     * Fetch total inventory data
      */
     public function fetchTotalInventoryData()
     {
@@ -379,36 +278,42 @@ class Dashboard extends Component
         }
 
         try {
-            $query = Analytics::query()
-                ->with('item')
-                ->orderBy('current_quantity', 'desc')
-                ->take(10);
+            $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            $query = $this->applyFilters($query, 'analytics');
+            if (!$storeId) {
+                $this->totalInventoryData = [];
+                $this->topBrandsData = [];
+                return;
+            }
 
-            $data = $query->get();
+            $items = Item::where('store_id', $storeId)
+                ->where('quantity', '>', 0)
+                ->orderBy('quantity', 'desc')
+                ->take(10)
+                ->get();
 
-            $this->totalInventoryData = $data->map(function ($stat) {
+            $this->totalInventoryData = $items->map(function ($item) {
                 return [
-                    'name' => $stat->item->name ?? 'Unknown',
-                    'quantity' => (int) $stat->current_quantity,
-                    'sku' => $stat->item->sku ?? 'N/A',
-                    'value' => (float) ($stat->current_quantity * ($stat->item->price ?? 0)),
+                    'name' => $item->name ?? 'Unknown',
+                    'quantity' => (int) $item->quantity,
+                    'sku' => $item->sku ?? 'N/A',
+                    'value' => (float) ($item->quantity * $item->price),
                 ];
             })->values()->all();
 
             // Brand-wise distribution
-            $this->topBrandsData = $data->groupBy(function ($stat) {
-                return $stat->item->brand ?? 'No Brand';
+            $this->topBrandsData = $items->groupBy(function ($item) {
+                return $item->brand ?? 'No Brand';
             })->map(function ($group, $brand) {
                 return [
                     'brand' => $brand,
-                    'count' => $group->sum('current_quantity'),
-                    'total_value' => $group->sum(function ($stat) {
-                        return $stat->current_quantity * ($stat->item->price ?? 0);
+                    'count' => $group->sum('quantity'),
+                    'total_value' => $group->sum(function ($item) {
+                        return $item->quantity * $item->price;
                     }),
                 ];
             })->values()->all();
+
         } catch (\Exception $e) {
             \Log::error('Error fetching inventory data: ' . $e->getMessage());
             $this->totalInventoryData = [];
@@ -422,37 +327,33 @@ class Dashboard extends Component
     public function fetchLowStockItems()
     {
         if (!auth()->check()) {
-            $this->lowStockItems = [];
+            $this->lowStockItems = collect();
             return;
         }
 
         try {
-            $query = Item::query()
-                ->with('supplier')
-                ->whereColumn('quantity', '<=', 'reorder_level')
-                ->orderBy('quantity', 'asc')
-                ->take(5);
+            $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            // Apply tenant filter
-            $query = $this->applyTenantFilter($query);
-
-            // Apply store filter
-            if ($this->selectedStoreId) {
-                $query->where('store_id', $this->selectedStoreId);
-            } elseif (!auth()->user()->hasRole('super admin') && !auth()->user()->hasRole('tenant_admin')) {
-                $storeIds = auth()->user()->stores()->pluck('stores.id');
-                $query->whereIn('store_id', $storeIds);
+            if (!$storeId) {
+                $this->lowStockItems = collect();
+                return;
             }
 
-            $this->lowStockItems = $query->get();
+            $this->lowStockItems = Item::with('supplier')
+                ->where('store_id', $storeId)
+                ->whereColumn('quantity', '<=', 'reorder_level')
+                ->orderBy('quantity', 'asc')
+                ->take(5)
+                ->get();
+
         } catch (\Exception $e) {
             \Log::error('Error fetching low stock items: ' . $e->getMessage());
-            $this->lowStockItems = [];
+            $this->lowStockItems = collect();
         }
     }
 
     /**
-     * Fetch margin leaders (most profitable items)
+     * Fetch margin leaders
      */
     public function fetchMarginLeaders(): void
     {
@@ -462,41 +363,37 @@ class Dashboard extends Component
         }
 
         try {
-            $query = Item::query()
-                ->where('quantity', '>', 0)
-                ->orderByRaw('(price - cost) * quantity DESC')
-                ->take(8);
+            $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            // Apply tenant filter
-            $query = $this->applyTenantFilter($query);
-
-            // Apply store filter
-            if ($this->selectedStoreId) {
-                $query->where('store_id', $this->selectedStoreId);
-            } elseif (!auth()->user()->hasRole('super admin') && !auth()->user()->hasRole('tenant_admin')) {
-                $storeIds = auth()->user()->stores()->pluck('stores.id');
-                $query->whereIn('store_id', $storeIds);
+            if (!$storeId) {
+                $this->marginLeaders = [];
+                return;
             }
 
-            $this->marginLeaders = $query->get()
-                ->map(function ($item) {
-                    $marginValue = max(0, (float) $item->price - (float) $item->cost);
-                    $marginPct = $item->price > 0 ? ($marginValue / (float) $item->price) * 100 : 0;
-                    $profitPool = $marginValue * (int) $item->quantity;
+            $items = Item::where('store_id', $storeId)
+                ->where('quantity', '>', 0)
+                ->orderByRaw('(price - cost) * quantity DESC')
+                ->take(8)
+                ->get();
 
-                    return [
-                        'id' => $item->id,
-                        'name' => $item->name,
-                        'sku' => $item->sku,
-                        'qty' => (int) $item->quantity,
-                        'price' => (float) $item->price,
-                        'cost' => (float) $item->cost,
-                        'margin_value' => round($marginValue, 2),
-                        'margin_pct' => round($marginPct, 2),
-                        'profit_pool' => round($profitPool, 2),
-                    ];
-                })
-                ->all();
+            $this->marginLeaders = $items->map(function ($item) {
+                $marginValue = max(0, (float) $item->price - (float) $item->cost);
+                $marginPct = $item->price > 0 ? ($marginValue / (float) $item->price) * 100 : 0;
+                $profitPool = $marginValue * (int) $item->quantity;
+
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'sku' => $item->sku,
+                    'qty' => (int) $item->quantity,
+                    'price' => (float) $item->price,
+                    'cost' => (float) $item->cost,
+                    'margin_value' => round($marginValue, 2),
+                    'margin_pct' => round($marginPct, 2),
+                    'profit_pool' => round($profitPool, 2),
+                ];
+            })->all();
+
         } catch (\Exception $e) {
             \Log::error('Error fetching margin leaders: ' . $e->getMessage());
             $this->marginLeaders = [];
@@ -509,46 +406,41 @@ class Dashboard extends Component
     public function fetchRecentAudits(): void
     {
         if (!auth()->check()) {
-            $this->recentAudits = [];
+            $this->recentAudits = collect();
             return;
         }
 
         try {
+            $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
+
+            if (!$storeId) {
+                $this->recentAudits = collect();
+                return;
+            }
+
             $query = InventoryAudit::with(['item', 'user'])
+                ->where('store_id', $storeId)
                 ->latest()
                 ->take(10);
 
-            // Apply store filter
-            if ($this->selectedStoreId) {
-                $query->where('store_id', $this->selectedStoreId);
-            } elseif (!auth()->user()->hasRole('super admin') && !auth()->user()->hasRole('tenant_admin')) {
-                $storeIds = auth()->user()->stores()->pluck('stores.id');
-                $query->whereIn('store_id', $storeIds);
-            }
-
-            // Apply user filter
             if ($this->selectedUserId && $this->selectedUserId !== 'all') {
                 $query->where('user_id', $this->selectedUserId);
             }
 
-            // Apply date range
             if ($this->startDate && $this->endDate) {
                 $query->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
             }
 
             $this->recentAudits = $query->get();
+
         } catch (\Exception $e) {
             \Log::error('Error fetching recent audits: ' . $e->getMessage());
-            $this->recentAudits = [];
+            $this->recentAudits = collect();
         }
     }
 
-    /**
-     * Send low stock alerts to suppliers
-     */
     public function sendLowStockAlerts(): void
     {
-        // Refresh low stock items with current filters
         $this->fetchLowStockItems();
 
         if ($this->lowStockItems->isEmpty()) {
@@ -556,7 +448,7 @@ class Dashboard extends Component
             return;
         }
 
-        $alerts = $this->lowStockItems->map(function ($item) {
+        $alerts = collect($this->lowStockItems)->map(function ($item) {
             return [
                 'name' => $item->name,
                 'sku' => $item->sku,
@@ -566,11 +458,9 @@ class Dashboard extends Component
                 'supplier_name' => $item->supplier?->name,
                 'supplier_email' => $item->supplier?->email,
                 'supplier_whatsapp' => $item->supplier?->whatsapp,
-                'store_name' => $item->store?->name,
             ];
         })->all();
 
-        // Send emails
         $emails = collect($alerts)->pluck('supplier_email')->filter()->unique();
         if ($emails->isNotEmpty()) {
             foreach ($emails as $email) {
@@ -582,46 +472,30 @@ class Dashboard extends Component
             }
         }
 
-        // Send WhatsApp notifications
         $whatsAppNotifier = app(WhatsAppNotifier::class);
         $whatsappNumbers = collect($alerts)->pluck('supplier_whatsapp')->filter()->unique();
 
         foreach ($whatsappNumbers as $phone) {
             try {
-                $message = '🚨 Low Stock Alert for ' . ($this->selectedStoreId ? 'Store' : 'Your Stores') . ":\n\n";
+                $message = '🚨 Low Stock Alert:\n\n';
                 $message .= collect($alerts)->take(5)->map(function ($a) {
                     return "📦 {$a['name']}\n   Stock: {$a['current']} (Min: {$a['reorder_level']})\n   Suggested: {$a['suggested_order']} units";
                 })->implode("\n\n");
-
-                if (count($alerts) > 5) {
-                    $message .= "\n\n... and " . (count($alerts) - 5) . " more items.";
-                }
-
                 $whatsAppNotifier->send($phone, $message);
             } catch (\Exception $e) {
                 \Log::error('Failed to send WhatsApp alert: ' . $e->getMessage());
             }
         }
 
-        session()->flash('message', sprintf(
-            'Low stock alerts dispatched: %d emails, %d WhatsApp messages',
-            $emails->count(),
-            $whatsappNumbers->count()
-        ));
+        session()->flash('message', 'Low stock alerts dispatched.');
     }
 
-    /**
-     * Update date range based on selection
-     */
     public function updatedDateRange()
     {
         $this->setDefaultDateRange();
         $this->refreshData();
     }
 
-    /**
-     * Handle manual date range change
-     */
     public function updatedStartDate()
     {
         if ($this->startDate && $this->endDate) {
@@ -638,25 +512,16 @@ class Dashboard extends Component
         }
     }
 
-    /**
-     * Handle store selection change
-     */
     public function updatedSelectedStoreId()
     {
         $this->refreshData();
     }
 
-    /**
-     * Handle user selection change
-     */
     public function updatedSelectedUserId()
     {
         $this->refreshData();
     }
 
-    /**
-     * Reset all filters
-     */
     public function resetFilters()
     {
         $this->selectedStoreId = null;
@@ -665,64 +530,21 @@ class Dashboard extends Component
         $this->setDefaultDateRange();
         $this->loadAvailableFilters();
         $this->refreshData();
-
         session()->flash('message', 'All filters have been reset.');
     }
 
-    /**
-     * Export current data as CSV
-     */
     public function exportData()
     {
         $filename = 'dashboard_export_' . now()->format('Y-m-d_His') . '.csv';
         $handle = fopen('php://temp', 'w+');
 
-        // Headers
-        fputcsv($handle, ['Metric', 'Value', 'Date Range', 'Store', 'User']);
-
-        // Summary data
-        fputcsv($handle, [
-            'Total Inventory',
-            $this->summary['totalInventory'],
-            $this->dateRange,
-            $this->selectedStoreId ?? 'All',
-            $this->selectedUserId ?? 'All'
-        ]);
-        fputcsv($handle, [
-            'Stock In',
-            $this->summary['stockIn'],
-            $this->dateRange,
-            $this->selectedStoreId ?? 'All',
-            $this->selectedUserId ?? 'All'
-        ]);
-        fputcsv($handle, [
-            'Stock Out',
-            $this->summary['stockOut'],
-            $this->dateRange,
-            $this->selectedStoreId ?? 'All',
-            $this->selectedUserId ?? 'All'
-        ]);
-        fputcsv($handle, [
-            'Inventory Equity',
-            $this->summary['inventoryEquity'],
-            $this->dateRange,
-            $this->selectedStoreId ?? 'All',
-            $this->selectedUserId ?? 'All'
-        ]);
-        fputcsv($handle, [
-            'Potential Revenue',
-            $this->summary['potentialRevenue'],
-            $this->dateRange,
-            $this->selectedStoreId ?? 'All',
-            $this->selectedUserId ?? 'All'
-        ]);
-        fputcsv($handle, [
-            'Potential Profit',
-            $this->summary['potentialProfit'],
-            $this->dateRange,
-            $this->selectedStoreId ?? 'All',
-            $this->selectedUserId ?? 'All'
-        ]);
+        fputcsv($handle, ['Metric', 'Value', 'Date Range', 'Store ID', 'User ID']);
+        fputcsv($handle, ['Total Inventory', $this->summary['totalInventory'] ?? 0, $this->dateRange, $this->selectedStoreId ?? 'All', $this->selectedUserId ?? 'All']);
+        fputcsv($handle, ['Stock In', $this->summary['stockIn'] ?? 0, $this->dateRange, $this->selectedStoreId ?? 'All', $this->selectedUserId ?? 'All']);
+        fputcsv($handle, ['Stock Out', $this->summary['stockOut'] ?? 0, $this->dateRange, $this->selectedStoreId ?? 'All', $this->selectedUserId ?? 'All']);
+        fputcsv($handle, ['Inventory Equity', $this->summary['inventoryEquity'] ?? 0, $this->dateRange, $this->selectedStoreId ?? 'All', $this->selectedUserId ?? 'All']);
+        fputcsv($handle, ['Potential Revenue', $this->summary['potentialRevenue'] ?? 0, $this->dateRange, $this->selectedStoreId ?? 'All', $this->selectedUserId ?? 'All']);
+        fputcsv($handle, ['Potential Profit', $this->summary['potentialProfit'] ?? 0, $this->dateRange, $this->selectedStoreId ?? 'All', $this->selectedUserId ?? 'All']);
 
         rewind($handle);
         $csv = stream_get_contents($handle);
@@ -733,9 +555,6 @@ class Dashboard extends Component
         }, $filename, ['Content-Type' => 'text/csv']);
     }
 
-    /**
-     * Sync chart payloads for JavaScript
-     */
     protected function syncChartPayloads(): void
     {
         $this->summaryJson = json_encode($this->summary, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
@@ -750,9 +569,6 @@ class Dashboard extends Component
         ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
     }
 
-    /**
-     * Get role-based access info for UI
-     */
     public function getUserRoleInfo()
     {
         if (!auth()->check()) {
@@ -767,18 +583,14 @@ class Dashboard extends Component
         ];
     }
 
-    /**
-     * Render the dashboard view
-     */
     public function render()
     {
         return view('livewire.dashboard', [
             'userRoleInfo' => $this->getUserRoleInfo(),
-            'filtersApplied' => !is_null($this->selectedStoreId) ||
-                (!is_null($this->selectedUserId) && $this->selectedUserId !== 'all') ||
+            'filtersApplied' => ($this->selectedStoreId && $this->selectedStoreId !== 'all') ||
+                ($this->selectedUserId && $this->selectedUserId !== 'all') ||
                 $this->dateRange !== 'current_month',
-        ])->layout('layouts.app', [
-                    'title' => 'Dashboard - Stock Management System'
-                ]);
+            'debugInfo' => $this->debugInfo, // Add this to your blade if needed
+        ]);
     }
 }

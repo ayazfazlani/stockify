@@ -132,6 +132,22 @@
     @livewireScripts
 
     {{-- @vite(['resources/js/app.js']) --}}
+    <!-- Keep this part in your app.blade.php - it's already there -->
+    <script>
+        // Immediate sidebar state restoration to prevent flicker
+        (function () {
+            const state = localStorage.getItem('sidebarState');
+            const isMobile = window.innerWidth <= 768;
+
+            // On mobile, default to closed unless explicitly 'open'
+            // On desktop, default to open unless explicitly 'closed'
+            const shouldBeClosed = isMobile ? (state !== 'open') : (state === 'closed');
+
+            if (shouldBeClosed) {
+                document.documentElement.classList.add('sidebar-closed-init');
+            }
+        })();
+    </script>
 </body>
 
 </html>

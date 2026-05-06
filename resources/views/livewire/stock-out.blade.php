@@ -1,180 +1,202 @@
-<div class="p-4 md:p-6 bg-white text-gray-900">
-    <!-- Notifications -->
-    @if(session()->has('message'))
-        <div class="p-4 mb-4 text-sm text-white bg-green-500 rounded-lg" role="alert">
-            {{ session('message') }}
-        </div>
-    @elseif(session()->has('success'))
-        <div class="p-4 mb-4 text-sm text-white bg-blue-500 rounded-lg" role="alert">
-            {{ session('success') }}
-        </div>
-    @elseif(session()->has('error'))
-        <div class="p-4 mb-4 text-sm text-white bg-red-500 rounded-lg" role="alert">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    <!-- Header Section -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-semibold">Stock out</h1>
-        <div class="flex gap-2">
-            <button wire:click="loadItems" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md">
-                Refresh
+<div data-stockify>
+    <div class="p-6" style="background: #F4F5F8; min-height: 100vh;">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div>
+                <h1 class="sf-page-title">
+                    <i class='bx bx-cart-alt mr-2' style="color: #4361EE;"></i>
+                    Stock Out
+                </h1>
+                <p class="sf-page-subtitle mt-1">Process customer sales and manage inventory outbound</p>
+            </div>
+            <button wire:click="loadItems" class="sf-btn sf-btn-ghost">
+                <i class='bx bx-refresh'></i> Refresh
             </button>
         </div>
-    </div>
 
-    <!-- Scanner -->
-    @feature('barcode-scanning')
-    <div class="mb-6">
-        <livewire:qr-scanner />
-    </div>
-    @else
-    <div class="mb-6 p-4 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-900">
-        Camera barcode scanning is not included in your current plan. You can still search items below.
-    </div>
-    @endfeature
-
-    <!-- Search and Date Filter -->
-    <div class="flex items-center gap-4 mb-6 max-sm:flex-wrap">
-        <div class="flex-1">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search items by name or SKU..."
-                class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        <div class="w-full flex justify-between md:justify-end md:flex-1 items-center gap-2">
-            <input type="date" wire:model.live="dateRange.start"
-                class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 max-w-36">
-            <span class="text-gray-500">to</span>
-            <input type="date" wire:model.live="dateRange.end"
-                class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 max-w-36">
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Left Column: Stock Out Operations -->
-        <div class="space-y-6">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div class="p-4 border-b border-gray-200 bg-gray-50">
-                    <h2 class="text-lg font-semibold">Stock Out Operations</h2>
+        <!-- Scanner -->
+        @feature('barcode-scanning')
+            <div class="sf-card mb-6">
+                <div class="p-4">
+                    <div class="sf-scan-label mb-3">
+                        <i class='bx bx-scan'></i> Scan barcode to add item
+                    </div>
+                    <livewire:qr-scanner />
                 </div>
-                <div class="p-4 space-y-4">
-                    <!-- Item Selection -->
-                    <div class="border rounded-lg p-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-medium">Select Items</h3>
-                        </div>
-                        <ul class="space-y-2 max-h-96 overflow-auto">
-                            @foreach($items as $item)
-                                <li wire:key="item-{{ $item->id }}" wire:click="toggleItemSelection({{ $item->id }})"
-                                    class="p-3 border rounded-md cursor-pointer hover:bg-gray-50 {{ in_array($item->id, array_column($selectedItems, 'id')) ? 'bg-red-50 border-red-200' : '' }}">
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex items-center gap-3">
-                                            @if($item->image)
-                                                <img src="{{ Storage::url($item->image) }}" class="w-10 h-10 object-cover rounded-md">
-                                            @endif
-                                            <span>{{ $item->name }} ({{ $item->sku }})</span>
+            </div>
+        @else
+            <div class="sf-alert sf-alert-warning mb-6">
+                <i class='bx bx-camera-off'></i>
+                <div>
+                    <strong>Camera scanning not available</strong>
+                    <p class="text-sm mt-1">Camera barcode scanning is not included in your current plan. You can still search items below.</p>
+                </div>
+            </div>
+        @endfeature
+
+        <!-- Search and Date Filter -->
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <div class="flex-1 relative">
+                <i class='bx bx-search' style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3B8; font-size: 18px;"></i>
+                <input type="text" wire:model.live.debounce.300ms="search" 
+                    placeholder="Search items by name or SKU..."
+                    class="sf-input" style="padding-left: 40px;">
+            </div>
+            <div class="sf-daterange">
+                <i class='bx bx-calendar'></i>
+                <input type="date" wire:model.live="dateRange.start">
+                <span>—</span>
+                <input type="date" wire:model.live="dateRange.end">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Column: Stock Out Operations -->
+            <div class="space-y-6">
+                <div class="sf-card">
+                    <div class="sf-card-head">
+                        <h2 class="sf-card-title">
+                            <i class='bx bx-package mr-2' style="color: #4361EE;"></i>
+                            Stock Out Operations
+                        </h2>
+                    </div>
+                    <div class="p-5 space-y-5">
+                        <!-- Item Selection -->
+                        <div>
+                            <h3 class="sf-section-title mb-3">
+                                <i class='bx bx-list-ul'></i> Select Items
+                            </h3>
+                            <div class="sf-item-list" style="max-height: 320px;">
+                                @foreach($items as $item)
+                                    <div wire:key="item-{{ $item->id }}" 
+                                        wire:click="toggleItemSelection({{ $item->id }})"
+                                        class="sf-item {{ in_array($item->id, array_column($selectedItems, 'id')) ? 'selected' : '' }}"
+                                        style="border-left-color: {{ in_array($item->id, array_column($selectedItems, 'id')) ? '#F04438' : '#E8EAF0' }};">
+                                        <div class="sf-chk"></div>
+                                        @if($item->image)
+                                            <img src="{{ Storage::url($item->image) }}" class="sf-thumb">
+                                        @else
+                                            <div class="sf-thumb-ph"><i class='bx bx-package'></i></div>
+                                        @endif
+                                        <div class="sf-item-info">
+                                            <div class="sf-item-name">{{ $item->name }}</div>
+                                            <div class="sf-item-sku">SKU: {{ $item->sku }}</div>
                                         </div>
-                                        <span class="text-sm {{ $item->quantity > 0 ? 'text-green-600' : 'text-red-600' }}">
-                                            Qty: {{ $item->quantity }}
+                                        <span class="sf-pill {{ $item->quantity > 0 ? 'ok' : 'low' }}">
+                                            {{ $item->quantity }}
                                         </span>
                                     </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-
-                    <!-- Selected Items -->
-                    @if(count($selectedItems) > 0)
-                        <div class="border rounded-lg p-4">
-                            <h3 class="font-medium mb-3">Selected for Stock Out</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
-                                <input
-                                    type="text"
-                                    wire:model.defer="customerName"
-                                    placeholder="Customer name (optional)"
-                                    class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                >
-                                <input
-                                    type="text"
-                                    wire:model.defer="customerPhone"
-                                    placeholder="Customer phone (optional)"
-                                    class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                >
+                                @endforeach
                             </div>
-                            <ul class="space-y-2">
-                                @foreach($selectedItems as $index => $item)
-                                    <li wire:key="selected-{{ $item['id'] }}"
-                                        class="flex justify-between items-center p-2 border rounded-md bg-gray-50">
-                                        <div class="flex items-center gap-3">
-                                            @if($item['image'])
-                                                <img src="{{ Storage::url($item['image']) }}" class="w-8 h-8 object-cover rounded-md">
-                                            @endif
-                                            <span>{{ $item['name'] }}</span>
+                            @if(count($items) === 0)
+                                <div class="sf-empty">
+                                    <i class='bx bx-package'></i>
+                                    <p>No items found</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Selected Items -->
+                        @if(count($selectedItems) > 0)
+                            <div class="sf-selected-section">
+                                <h3 class="sf-section-title mb-3">
+                                    <i class='bx bx-check-double'></i> Selected for Stock Out
+                                </h3>
+                                
+                                <!-- Customer Info -->
+                                <div class="sf-customer-info mb-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div class="sf-field">
+                                            <label class="sf-label">Customer Name</label>
+                                            <input type="text" wire:model.defer="customerName" 
+                                                placeholder="Customer name (optional)"
+                                                class="sf-input">
                                         </div>
-                                        <div class="flex flex-col gap-2">
-                                            <input type="number" min="1" max="{{ \App\Models\Item::find($item['id'])->quantity }}"
-                                                wire:model.debounce.300ms="selectedItems.{{ $index }}.quantity"
-                                                class="w-24 px-2 py-1 border rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                step="0.01"
-                                                wire:model.debounce.300ms="selectedItems.{{ $index }}.sale_price"
-                                                class="w-24 px-2 py-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                                title="Sale price"
-                                            >
-                                            @if(isset($item['selected_serials']))
-                                                <div class="flex flex-wrap gap-1 mt-1 max-w-48">
+                                        <div class="sf-field">
+                                            <label class="sf-label">Customer Phone</label>
+                                            <input type="text" wire:model.defer="customerPhone" 
+                                                placeholder="Customer phone (optional)"
+                                                class="sf-input">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Selected Items List -->
+                                <div class="space-y-2">
+                                    @foreach($selectedItems as $index => $item)
+                                        <div wire:key="selected-{{ $item['id'] }}" class="sf-selected-item">
+                                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                <div class="flex items-center gap-3">
+                                                    @if($item['image'])
+                                                        <img src="{{ Storage::url($item['image']) }}" class="w-8 h-8 object-cover rounded-sm">
+                                                    @endif
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">{{ $item['name'] }}</div>
+                                                        <div class="sf-meta-text">Available: {{ \App\Models\Item::find($item['id'])->quantity }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-wrap items-center gap-3">
+                                                    <input type="number" min="1" max="{{ \App\Models\Item::find($item['id'])->quantity }}"
+                                                        wire:model.live.debounce.300ms="selectedItems.{{ $index }}.quantity"
+                                                        class="sf-qty-input" style="width: 80px;">
+                                                    <input type="number" min="0" step="0.01"
+                                                        wire:model.live.debounce.300ms="selectedItems.{{ $index }}.sale_price"
+                                                        class="sf-price-input" style="width: 100px;" placeholder="Sale price">
+                                                </div>
+                                            </div>
+                                            @if(isset($item['selected_serials']) && count($item['selected_serials']) > 0)
+                                                <div class="flex flex-wrap gap-1 mt-2">
                                                     @foreach($item['selected_serials'] as $serial)
-                                                        <span class="text-[10px] bg-blue-100 text-blue-700 px-1 rounded">{{ $serial }}</span>
+                                                        <span class="sf-serial-chip">{{ $serial }}</span>
                                                     @endforeach
                                                 </div>
                                             @endif
                                         </div>
-                                    </li>
-                                @endforeach
-                            </ul>
-                            <div class="mt-4 flex justify-between items-center">
-                                <div class="text-sm text-gray-600">
-                                    Items: {{ count($selectedItems) }} |
-                                    Qty: {{ array_sum(array_column($selectedItems, 'quantity')) }}
+                                    @endforeach
                                 </div>
-                                @can('manage stock')
-                                    <button wire:click="handleStockOut" wire:loading.attr="disabled"
-                                        class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-bold shadow-md transition-all active:scale-95">
-                                        <span wire:loading.remove>
-                                            <i class="fas fa-check-circle mr-1"></i> COMPLETE CHECKOUT
-                                        </span>
-                                        <span wire:loading>
-                                            PROCESSING...
-                                            <i class="fas fa-spinner fa-spin ml-2"></i>
-                                        </span>
-                                    </button>
-                                @endcan
+
+                                <!-- Checkout Footer -->
+                                <div class="sf-checkout-footer">
+                                    <div class="sf-checkout-summary">
+                                        <span>Items: <strong>{{ count($selectedItems) }}</strong></span>
+                                        <span>Total Qty: <strong>{{ array_sum(array_column($selectedItems, 'quantity')) }}</strong></span>
                                     </div>
+                                    @can('manage stock')
+                                        <button wire:click="handleStockOut" wire:loading.attr="disabled"
+                                            class="sf-btn sf-btn-red" style="min-width: 180px;">
+                                            <span wire:loading.remove>
+                                                <i class='bx bx-check-circle'></i> COMPLETE CHECKOUT
+                                            </span>
+                                            <span wire:loading>
+                                                <i class='bx bx-loader-alt bx-spin'></i> PROCESSING...
+                                            </span>
+                                        </button>
+                                    @endcan
                                 </div>
-                            @endif
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Right Column: Sales History -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="p-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-lg font-semibold">Customer Sales History</h2>
-            </div>
-            <div class="p-4">
-                <div class="overflow-auto max-h-[500px]">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
+            <!-- Right Column: Sales History -->
+            <div class="sf-card" style="height: fit-content;">
+                <div class="sf-card-head">
+                    <h2 class="sf-card-title">
+                        <i class='bx bx-history mr-2' style="color: #4361EE;"></i>
+                        Customer Sales History
+                    </h2>
+                    <span class="sf-badge sf-badge-gray">{{ $salesHistory->count() }} sales</span>
+                </div>
+                <div class="overflow-x-auto" style="max-height: 500px; overflow-y: auto;">
+                    <table class="sf-table">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Date</th>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Time</th>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Customer</th>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Phone</th>
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Items</th>
+                                <th>Date / Time</th>
+                                <th>Customer</th>
+                                <th>Items</th>
                                 @can('view financial metrics')
-                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Bill Total</th>
+                                    <th>Total</th>
                                 @endcan
                             </tr>
                         </thead>
@@ -182,23 +204,29 @@
                             @forelse($salesHistory as $sale)
                                 <tr wire:key="history-sale-{{ $sale->id }}"
                                     wire:click="viewReceipt({{ $sale->id }})"
-                                    class="border-b hover:bg-blue-50 cursor-pointer transition-colors group">
-                                    <td class="px-4 py-3 text-sm flex items-center gap-2">
-                                        <i class="fas fa-receipt text-gray-300 group-hover:text-blue-500 transition-colors"></i>
-                                        {{ \Carbon\Carbon::parse($sale->created_at)->format('M d, Y') }}
+                                    class="sf-table-row sf-clickable-row">
+                                    <td>
+                                        <div class="font-medium">{{ $sale->created_at->format('M d, Y') }}</div>
+                                        <div class="sf-meta-text">{{ $sale->created_at->format('h:i A') }}</div>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-600">{{ \Carbon\Carbon::parse($sale->created_at)->format('h:i:s A') }}</td>
-                                    <td class="px-4 py-3 text-sm font-medium">{{ $sale->customer_name ?: 'Walk-in #'.$sale->id }}</td>
-                                    <td class="px-4 py-3 text-sm text-gray-600">{{ $sale->customer_phone ?: '-' }}</td>
-                                    <td class="px-4 py-3 text-sm font-bold text-gray-600">{{ $sale->transactions_count }}</td>
+                                    <td>
+                                        <div class="font-medium">{{ $sale->customer_name ?: 'Walk-in #' . $sale->id }}</div>
+                                        <div class="sf-meta-text">{{ $sale->customer_phone ?: '-' }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="sf-badge sf-badge-light">{{ $sale->transactions_count }} items</span>
+                                    </td>
                                     @can('view financial metrics')
-                                    <td class="px-4 py-3 text-sm font-bold text-gray-900">${{ number_format($sale->total_amount, 2) }}</td>
+                                        <td class="sf-currency-value">${{ number_format($sale->total_amount, 2) }}</td>
                                     @endcan
                                 </tr>
                             @empty
-                                <tr>
-                                    <td colspan="6" class="px-4 py-6 text-center text-gray-500">
-                                        No customer sales found
+                                <tr class="sf-table-empty">
+                                    <td colspan="4">
+                                        <div class="sf-empty">
+                                            <i class='bx bx-receipt'></i>
+                                            <p>No customer sales found</p>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
@@ -207,157 +235,109 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Receipt Modal -->
-    @if($showReceipt && $currentSale)
-    <div class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[9999] print:bg-white print:p-0">
-        <div id="receipt-modal-content" class="bg-white w-11/12 md:w-1/4 rounded-lg shadow-2xl overflow-hidden border border-gray-200 print:shadow-none print:max-w-none print:m-0">
-            <!-- Receipt Header -->
-            <div class="p-3 text-center border-b border-dashed bg-gray-900 text-white print:border-none">
-                <h2 class="text-base font-bold uppercase tracking-wide">{{ $currentSale->store->name ?? 'Stockify' }}</h2>
-                <p class="text-[10px] text-gray-200 mt-1">Sales Receipt</p>
-                <p class="text-xs text-gray-300 mt-1">Transaction ID: #{{ str_pad($currentSale->id, 6, '0', STR_PAD_LEFT) }}</p>
-            </div>
-
-            <!-- Receipt Items -->
-            <div class="p-3">
-                <div class="mb-2 grid grid-cols-2 gap-2 text-[10px] text-gray-600">
-                    <p><span class="font-semibold">Date:</span> {{ $currentSale->created_at->format('M d, Y - h:i A') }}</p>
-                    <p class="text-right"><span class="font-semibold">Cashier:</span> {{ $currentSale->user->name ?? 'System' }}</p>
-                    <p><span class="font-semibold">Customer:</span> {{ $currentSale->customer_name ?: 'Walk-in #'.$currentSale->id }}</p>
-                    <p class="text-right"><span class="font-semibold">Phone:</span> {{ $currentSale->customer_phone ?: '-' }}</p>
+        <!-- Receipt Modal -->
+        @if($showReceipt && $currentSale)
+        <div class="sf-overlay" wire:click.self="$set('showReceipt', false)">
+            <div class="sf-modal sf-receipt-modal" id="receipt-modal-content">
+                <!-- Receipt Header -->
+                <div class="sf-receipt-header">
+                    <h2 class="font-bold text-lg tracking-wide">{{ $currentSale->store->name ?? 'Stockify' }}</h2>
+                    <p class="text-xs opacity-80 mt-1">Sales Receipt</p>
+                    <p class="text-sm mt-2 font-mono">#{{ str_pad($currentSale->id, 6, '0', STR_PAD_LEFT) }}</p>
                 </div>
-                <table class="w-full text-[11px]">
-                    <thead>
-                        <tr class="border-b border-gray-200 text-left">
-                            <th class="pb-1">Item</th>
-                            <th class="pb-1 text-center">Qty</th>
-                            <th class="pb-1 text-right">Price</th>
-                            <th class="pb-1 text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 italic">
-                        @foreach($currentSale->transactions as $trans)
-                        <tr>
-                            <td class="py-1.5">
-                                <div>{{ $trans->item_name }}</div>
-                                @php
-                                    $serials = \App\Models\ItemSerial::where('item_id', $trans->item_id)
-                                                ->where('status', 'sold')
-                                                ->where('updated_at', '>=', $trans->created_at->subSeconds(15))
-                                                ->take($trans->quantity)
-                                                ->pluck('serial_number');
-                                @endphp
-                                @if($serials->count() > 0)
-                                    <div class="text-[10px] text-gray-400 leading-tight">
-                                        SN: {{ $serials->implode(', ') }}
-                                    </div>
-                                @endif
-                            </td>
-                            <td class="py-1.5 text-center">{{ $trans->quantity }}</td>
-                            <td class="py-1.5 text-right">{{ number_format($trans->unit_price, 2) }}</td>
-                            <td class="py-1.5 text-right font-medium">{{ number_format($trans->total_price, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
 
-                <div class="mt-3 border-t pt-2 space-y-1">
-                    <div class="flex justify-between text-sm font-bold">
-                        <span>GRAND TOTAL</span>
-                        <span>{{ number_format($currentSale->total_amount, 2) }}</span>
+                <!-- Receipt Body -->
+                <div class="sf-receipt-body">
+                    <div class="sf-receipt-info">
+                        <div><span>Date:</span> {{ $currentSale->created_at->format('M d, Y - h:i A') }}</div>
+                        <div><span>Cashier:</span> {{ $currentSale->user->name ?? 'System' }}</div>
+                        <div><span>Customer:</span> {{ $currentSale->customer_name ?: 'Walk-in #'.$currentSale->id }}</div>
+                        <div><span>Phone:</span> {{ $currentSale->customer_phone ?: '-' }}</div>
                     </div>
+
+                    <table class="sf-receipt-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-right">Price</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($currentSale->transactions as $trans)
+                            <tr>
+                                <td>
+                                    <div>{{ $trans->item_name }}</div>
+                                    @php
+                                        $serials = \App\Models\ItemSerial::where('item_id', $trans->item_id)
+                                                    ->where('status', 'sold')
+                                                    ->where('updated_at', '>=', $trans->created_at->subSeconds(15))
+                                                    ->take($trans->quantity)
+                                                    ->pluck('serial_number');
+                                    @endphp
+                                    @if($serials->count() > 0)
+                                        <div class="sf-serial-chip text-[9px] mt-1">SN: {{ $serials->implode(', ') }}</div>
+                                    @endif
+                                </td>
+                                <td class="text-center">{{ $trans->quantity }}</td>
+                                <td class="text-right">{{ number_format($trans->unit_price, 2) }}</td>
+                                <td class="text-right font-medium">{{ number_format($trans->total_price, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="sf-receipt-total">
+                                <td colspan="3" class="text-right font-bold">GRAND TOTAL</td>
+                                <td class="text-right font-bold">{{ number_format($currentSale->total_amount, 2) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-            </div>
 
-            <!-- Receipt Footer -->
-            <div class="p-3 bg-gray-50 text-center text-[10px] text-gray-500 border-t border-dashed print:bg-white">
-                <p>Thank you for your purchase!</p>
-                <p class="mt-1">Handled by: {{ $currentSale->user->name ?? 'System' }}</p>
-            </div>
+                <!-- Receipt Footer -->
+                <div class="sf-receipt-footer">
+                    <p>Thank you for your purchase!</p>
+                    <p class="mt-1">Handled by: {{ $currentSale->user->name ?? 'System' }}</p>
+                </div>
 
-            <!-- Modal Actions -->
-            <div class="px-3 pt-3 bg-gray-100 print:hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <div class="space-y-2">
-                        <label class="text-xs font-semibold text-gray-600 uppercase">Share by Email</label>
-                        <div class="flex gap-2">
-                            <input
-                                type="email"
-                                wire:model.defer="shareEmail"
-                                placeholder="customer@email.com"
-                                class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
-                            >
-                            <button wire:click="shareReceiptByEmail({{ $currentSale->id }})" class="bg-indigo-600 text-white px-3 py-2 rounded-md text-sm hover:bg-indigo-700">
-                                Send
-                            </button>
+                <!-- Modal Actions -->
+                <div class="sf-receipt-actions">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div class="space-y-2">
+                            <label class="sf-label">Share by Email</label>
+                            <div class="flex gap-2">
+                                <input type="email" wire:model.defer="shareEmail" placeholder="customer@email.com" class="sf-input">
+                                <button wire:click="shareReceiptByEmail({{ $currentSale->id }})" class="sf-btn sf-btn-blue sf-btn-sm">
+                                    Send
+                                </button>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-gray-500">Auto-filled from your last shared receipt.</p>
-                        @error('shareEmail') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-semibold text-gray-600 uppercase">Share by WhatsApp</label>
-                        <div class="flex gap-2">
-                            <input
-                                type="text"
-                                wire:model.defer="sharePhone"
-                                placeholder="+92xxxxxxxxxx"
-                                class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
-                            >
-                            <button wire:click="shareReceiptByWhatsApp({{ $currentSale->id }})" class="bg-emerald-600 text-white px-3 py-2 rounded-md text-sm hover:bg-emerald-700">
-                                Send
-                            </button>
+                        <div class="space-y-2">
+                            <label class="sf-label">Share by WhatsApp</label>
+                            <div class="flex gap-2">
+                                <input type="text" wire:model.defer="sharePhone" placeholder="+92xxxxxxxxxx" class="sf-input">
+                                <button wire:click="shareReceiptByWhatsApp({{ $currentSale->id }})" class="sf-btn sf-btn-green sf-btn-sm">
+                                    Send
+                                </button>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-gray-500">Auto-filled from your last shared receipt.</p>
-                        @error('sharePhone') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="window.print()" class="sf-btn sf-btn-blue flex-1">
+                            <i class='bx bx-printer'></i> Print
+                        </button>
+                        <button wire:click="downloadReceiptPdf({{ $currentSale->id }})" class="sf-btn sf-btn-green flex-1">
+                            <i class='bx bx-download'></i> PDF
+                        </button>
+                        <button wire:click="$set('showReceipt', false)" class="sf-btn sf-btn-ghost flex-1">
+                            Close
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div class="p-3 bg-gray-100 flex gap-2 justify-center print:hidden">
-                <button onclick="window.print()" class="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium transition">
-                    <i class="fas fa-print mr-2"></i> Print Receipt
-                </button>
-                <button wire:click="downloadReceiptPdf({{ $currentSale->id }})" class="flex-1 bg-emerald-600 text-white py-2 rounded-md hover:bg-emerald-700 font-medium transition">
-                    <i class="fas fa-file-pdf mr-2"></i> Download PDF
-                </button>
-                <button wire:click="$set('showReceipt', false)" class="flex-1 bg-white text-gray-700 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition">
-                    Close
-                </button>
             </div>
         </div>
+        @endif
     </div>
-
-    <!-- Print Styles -->
-    <style>
-        @media print {
-            body * {
-                visibility: hidden !important;
-            }
-            #receipt-modal-content, #receipt-modal-content * {
-                visibility: visible !important;
-            }
-            #receipt-modal-content {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-            }
-            .print\:hidden {
-                display: none !important;
-            }
-            @page {
-                size: 80mm auto;
-                margin: 2mm;
-            }
-            #receipt-modal-content {
-                width: 80mm !important;
-            }
-        }
-    </style>
-    @endif
 </div>

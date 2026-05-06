@@ -67,8 +67,8 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $this->items = Item::where('store_id', $teamId)
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%'.$this->search.'%')
-                    ->orWhere('sku', 'like', '%'.$this->search.'%');
+                $query->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('sku', 'like', '%' . $this->search . '%');
             })
             ->get();
     }
@@ -78,10 +78,10 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock in')
-            ->when($teamId, fn ($q) => $q->where('store_id', $teamId))
+            ->when($teamId, fn($q) => $q->where('store_id', $teamId))
             ->when(
                 $this->dateRange['start'] && $this->dateRange['end'],
-                fn ($q) => $q->whereBetween('date', [
+                fn($q) => $q->whereBetween('date', [
                     $this->dateRange['start'],
                     $this->dateRange['end'],
                 ])
@@ -98,6 +98,31 @@ class StockInComponent extends Component
     public function updatedDateRange()
     {
         $this->loadTransactions();
+    }
+
+    public function openModal()
+    {
+        $this->resetValidation();
+        $this->reset(['newItem', 'scannedSerials', 'currentSerial', 'additionalCodes', 'isScanningForSku']);
+        $this->newItem = [
+            'sku' => '',
+            'name' => '',
+            'cost' => '',
+            'price' => '',
+            'type' => '',
+            'brand' => '',
+            'quantity' => 0,
+            'image' => null,
+            'tracking_type' => 'standard',
+        ];
+        $this->isModalOpen = true;
+    }
+
+    public function closeModal()
+    {
+        $this->isModalOpen = false;
+        $this->resetValidation();
+        $this->reset(['newItem', 'scannedSerials', 'currentSerial', 'additionalCodes', 'isScanningForSku']);
     }
 
     #[On('scannedData')]
@@ -143,9 +168,9 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $tenant = $this->resolveTenant();
 
-        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
+        if (!$tenant || !$tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
             session()->flash('error', 'You have reached the maximum number of items allowed for your plan. Please upgrade to add more.');
-            $this->isModalOpen = false;
+            $this->closeModal();
 
             return;
         }
@@ -206,7 +231,7 @@ class StockInComponent extends Component
             }
 
             $codes = collect(explode(',', (string) $this->additionalCodes))
-                ->map(fn ($value) => trim($value))
+                ->map(fn($value) => trim($value))
                 ->filter()
                 ->unique()
                 ->values();
@@ -218,8 +243,8 @@ class StockInComponent extends Component
                     ->pluck('code')
                     ->all();
 
-                if (! empty($existingCodes)) {
-                    throw new \RuntimeException('These barcodes are already in use: '.implode(', ', $existingCodes));
+                if (!empty($existingCodes)) {
+                    throw new \RuntimeException('These barcodes are already in use: ' . implode(', ', $existingCodes));
                 }
 
                 foreach ($codes as $code) {
@@ -250,12 +275,11 @@ class StockInComponent extends Component
             session()->flash('message', 'Item added successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error adding item: '.$e->getMessage());
+            session()->flash('error', 'Error adding item: ' . $e->getMessage());
         }
 
-        $this->reset(['newItem', 'scannedSerials', 'currentSerial', 'additionalCodes']);
+        $this->closeModal();
         $this->loadItems();
-        $this->isModalOpen = false;
     }
 
     public function handleStockIn()
@@ -297,7 +321,7 @@ class StockInComponent extends Component
             session()->flash('message', 'Stock-in completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error during stock-in: '.$e->getMessage());
+            session()->flash('error', 'Error during stock-in: ' . $e->getMessage());
         }
 
         $this->reset('selectedItems');
@@ -308,7 +332,7 @@ class StockInComponent extends Component
     public function addSerial()
     {
         $this->currentSerial = trim($this->currentSerial);
-        if (! $this->currentSerial) {
+        if (!$this->currentSerial) {
             return;
         }
 
@@ -336,7 +360,7 @@ class StockInComponent extends Component
         }
 
         $tenantId = Auth::user()?->tenant_id;
-        if (! $tenantId) {
+        if (!$tenantId) {
             return null;
         }
 

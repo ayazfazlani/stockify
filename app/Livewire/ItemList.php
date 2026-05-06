@@ -70,9 +70,9 @@ class ItemList extends Component
             })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('sku', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%');
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('sku', 'like', '%' . $this->search . '%')
+                        ->orWhere('brand', 'like', '%' . $this->search . '%');
                 });
             })
             ->when($this->inStockOnly, function ($query) {
@@ -105,18 +105,18 @@ class ItemList extends Component
 
     public function toggleImportModal()
     {
-        if (! $this->tenantCanBulkImport()) {
+        if (!$this->tenantCanBulkImport()) {
             session()->flash('error', 'Bulk import is not included in your current plan. Upgrade to import items from a file.');
 
             return;
         }
 
-        $this->isImportModalOpen = ! $this->isImportModalOpen;
+        $this->isImportModalOpen = !$this->isImportModalOpen;
     }
 
     public function importItems()
     {
-        if (! $this->tenantCanBulkImport()) {
+        if (!$this->tenantCanBulkImport()) {
             session()->flash('error', 'Bulk import is not included in your current plan.');
 
             return;
@@ -135,7 +135,7 @@ class ItemList extends Component
 
     public function openEditModal(): void
     {
-        if (! $this->selectedItem) {
+        if (!$this->selectedItem) {
             return;
         }
 
@@ -175,8 +175,8 @@ class ItemList extends Component
 
     public function toggleModal()
     {
-        $this->isModalOpen = ! $this->isModalOpen;
-        if (! $this->isModalOpen) {
+        $this->isModalOpen = !$this->isModalOpen;
+        if (!$this->isModalOpen) {
             $this->resetNewItem();
         }
     }
@@ -197,7 +197,7 @@ class ItemList extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $tenant = $this->resolveTenant();
 
-        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
+        if (!$tenant || !$tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
             session()->flash('error', 'You have reached the maximum number of items allowed for your plan. Please upgrade to add more.');
             $this->toggleModal();
 
@@ -209,8 +209,8 @@ class ItemList extends Component
             'store_id' => $teamId,
             'user_id' => Auth::id(),
             ...$this->newItem,
-            'image' => ! empty($this->images) ? $this->images[0]->store('item_images', 'public') : null,
-            'images' => array_map(fn ($img) => $img->store('item_images', 'public'), $this->images),
+            'image' => !empty($this->images) ? $this->images[0]->store('item_images', 'public') : null,
+            'images' => array_map(fn($img) => $img->store('item_images', 'public'), $this->images),
         ]);
 
         Transaction::create([
@@ -256,7 +256,7 @@ class ItemList extends Component
         }
 
         $tenantId = Auth::user()?->tenant_id;
-        if (! $tenantId) {
+        if (!$tenantId) {
             return null;
         }
 

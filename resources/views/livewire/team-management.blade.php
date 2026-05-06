@@ -1,235 +1,279 @@
-<div class="p-4 max-w-7xl mx-auto bg-white">
-
-    <h1 class=" text-3xl font-bold text-gray-800 mb-6">Store Management</h1>
-
-    @if (session()->has('status'))
-        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-            {{ session('status') }}
-        </div>
-    @endif
-
-    <!-- Create Store Section -->
-    <div class="mb-8 bg-gray-50 p-4">
-        @php
-            $tenant = tenant();
-            $canCreate = $tenant ? $tenant->canAdd(\App\Enums\PlanFeature::MAX_STORES, $stores->count()) : true;
-        @endphp
-
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-gray-700">Create New Store</h2>
-            @if(!$canCreate)
-                <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-200">
-                    <i class="fas fa-lock mr-1"></i> Plan Limit Reached
-                </span>
-            @endif
+<div data-stockify>
+    <div class="sf-store-container">
+        <div class="sf-store-header">
+            <h1 class="sf-page-title">
+                <i class='bx bx-store-alt mr-2'></i>
+                Store Management
+            </h1>
+            <p class="sf-page-subtitle">Create and manage multiple stores, assign users, and control access</p>
         </div>
 
-        @if(!$canCreate)
-            <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
-                <p class="text-sm text-amber-800">
-                    <strong>Notice:</strong> Your current plan allows for a maximum of 
-                    {{ $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_STORES) }} 
-                    {{ Str::plural('store', $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_STORES)) }}. 
-                    Please <a href="{{ route('tenant.admin', ['tenant' => $tenantSlug, 'section' => 'billing']) }}" class="font-bold underline">upgrade your plan</a> to create more stores.
-                </p>
+        @if (session()->has('status'))
+            <div class="sf-alert sf-alert-success mb-5">
+                <i class='bx bx-check-circle'></i>
+                {{ session('status') }}
             </div>
         @endif
 
-    <form wire:submit.prevent="createStore" class="space-y-4 {{ !$canCreate ? 'opacity-50 pointer-events-none' : '' }}">
-        <div class="grid grid-cols-1 gap-4">
-            <div>
-                <label for="storeName" class="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
-                <input type="text" wire:model="storeName"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter store name" required>
-            </div>
-            <div>
-                <label for="storeDescription" class="block text-sm font-medium text-gray-700 mb-1">Store
-                    Description</label>
-                <textarea wire:model="storeDescription"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter store description" rows="3"></textarea>
-            </div>
-            <div>
-                <label for="storeImage" class="block text-sm font-medium text-gray-700 mb-1">Store Logo</label>
-                <input id="storeImage" type="file" wire:model="image" accept="image/*"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <p class="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 2MB.</p>
-                @error('image')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
-                <div wire:loading wire:target="image" class="text-xs text-blue-600 mt-1">Uploading...</div>
-            </div>
-        </div>
-        <button type="submit"
-            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Create Store
-        </button>
-    </form>
-</div>
-
-<!-- Add User to Store Section -->
-<div class="mb-8 bg-white p-6">
-    <h2 class="text-xl font-semibold text-gray-700 mb-4">Add User to Store</h2>
-    <div class="flex-wrap md:flex md:space-x-4">
-        <div class="w-full md:flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
-            <select wire:model="selectedUsers"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Select a User</option>
-                @foreach($availableUsers as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="w-full md:flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Select Store</label>
-            <select wire:model="selectedStore"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Select a Store</option>
-                @foreach($stores as $store)
-                    <option value="{{ $store->id }}">{{ $store->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="fles items-end mt-6">
-            <button wire:click="addUserToStore"
-                class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                Add User
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Change User Role Section -->
-<div class="mb-8 bg-white p-6">
-    <h2 class="text-xl font-semibold text-gray-700 mb-4">Change User Role</h2>
-    <div class="flex-wrap md:flex md:space-x-4">
-        <div class="w-full md:flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
-            <select wire:model="selectedUser"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Select a User</option>
-                @foreach($availableUsers as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="w-full md:flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Select Role</label>
-            <select wire:model="selectedRole"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Select a Role</option>
-                @foreach($availableRoles as $role)
-                    <option value="{{ $role->name }}">{{ $role->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="fles items-end mt-6">
-            <button wire:click="changeUserRole"
-                class="px-6 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                Change Role
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Stores List Section -->
-<div class="bg-white p-6">
-    <h2 class="text-xl font-semibold text-gray-700 mb-4">Existing Stores</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        @foreach($stores as $store)
-            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div class="flex items-center gap-3 mb-2">
-                    <img
-                        src="{{ $store->logo ? \Illuminate\Support\Facades\Storage::disk('public')->url($store->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($store->name) }}"
-                        alt="{{ $store->name }} logo"
-                        class="w-10 h-10 rounded-lg object-cover border border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800">{{ $store->name }}</h3>
-                </div>
-                {{-- <p class="text-sm text-gray-600 mb-2">Owner: {{ $store->owner->name }}</p> --}}
-                <div class="border-t pt-2">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Store Members</h4>
-                    <ul class="space-y-1">
-                        @foreach($store->users as $user)
-                            <li class="flex justify-between items-center text-sm">
-                                <span>{{ $user->name }}</span>
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-xs text-gray-500">
-                                        {{ $user->getRoleNames()->first() ?? 'No Role' }}
-                                    </span>
-                                    <button wire:click="removeUserFromStore({{ $user->id }}, {{ $store->id }})"
-                                        class="text-red-600 hover:text-red-800 text-sm"
-                                        onclick="return confirm('Are you sure you want to remove this user from the store?')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                @if($store->owner_id === Auth::id() || Auth::user()->hasRole('super admin'))
-                <div class="mt-4 flex justify-end space-x-2">
-                    <button wire:click="confirmDeleteStore({{ $store->id }})"
-                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                        Delete Store
-                    </button>
-                </div>
+        <!-- Create Store Section -->
+        <div class="sf-card mb-6">
+            <div class="sf-card-head">
+                <h2 class="sf-card-title">
+                    <i class='bx bx-plus-circle mr-2'></i>
+                    Create New Store
+                </h2>
+                @php
+                    $tenant = tenant();
+                    $canCreate = $tenant ? $tenant->canAdd(\App\Enums\PlanFeature::MAX_STORES, $stores->count()) : true;
+                @endphp
+                @if(!$canCreate)
+                    <span class="sf-badge sf-badge-warning">
+                        <i class='bx bx-lock-alt'></i> Plan Limit Reached
+                    </span>
                 @endif
             </div>
-        @endforeach
-    </div>
-</div>
+            <div class="sf-card-body">
+                @if(!$canCreate)
+                    <div class="sf-warning-box mb-4">
+                        <i class='bx bx-info-circle'></i>
+                        <div>
+                            <strong>Notice:</strong> Your current plan allows for a maximum of 
+                            {{ $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_STORES) }} 
+                            {{ Str::plural('store', $tenant->getFeatureLimit(\App\Enums\PlanFeature::MAX_STORES)) }}. 
+                            <a href="{{ route('tenant.admin', ['tenant' => $tenantSlug, 'section' => 'billing']) }}" class="font-bold underline">Upgrade your plan</a> to create more stores.
+                        </div>
+                    </div>
+                @endif
 
-<!-- Delete Confirmation Modal -->
-@if($showDeleteModal && $deletingStore)
-<div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div class="px-6 py-4 border-b flex items-center justify-between">
-            <h3 class="text-lg font-bold text-red-600">
-                Delete Store Permanently?
-            </h3>
-            <button wire:click="$set('showDeleteModal', false)" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        
-        <div class="p-6">
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                <p class="font-bold mb-1">Warning: This action cannot be undone.</p>
-                <p>All items, orders, and data associated with <strong>{{ $deletingStore->name }}</strong> will be permanently deleted.</p>
-            </div>
-            
-            <p class="text-sm text-gray-600 mb-4">
-                Please type <strong>{{ $deletingStore->name }}</strong> to confirm deletion:
-            </p>
-            
-            <input type="text" 
-                   wire:model.live="confirmStoreName" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-red-500 focus:ring-red-500 mb-2" 
-                   placeholder="Type store name here...">
-            
-            @error('confirmStoreName')
-                <span class="text-red-500 text-xs block mb-4">{{ $message }}</span>
-            @enderror
-            
-            <div class="flex gap-3 justify-end mt-6">
-                <button wire:click="$set('showDeleteModal', false)" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                    Cancel
-                </button>
-                <button wire:click="delete" 
-                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-                        {{ $confirmStoreName !== $deletingStore->name ? 'disabled' : '' }}>
-                    Delete Store
-                </button>
+                <form wire:submit.prevent="createStore" class="space-y-4 {{ !$canCreate ? 'sf-disabled-form' : '' }}">
+                    <div class="sf-row2">
+                        <div class="sf-field">
+                            <label class="sf-label">Store Name</label>
+                            <input type="text" wire:model="storeName"
+                                class="sf-input"
+                                placeholder="Enter store name" required>
+                            @error('storeName') <div class="sf-ferr">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="sf-field">
+                            <label class="sf-label">Store Logo</label>
+                            <input type="file" wire:model="image" accept="image/*" class="sf-file">
+                            <div class="sf-hint">PNG, JPG, WEBP up to 2MB.</div>
+                            @error('image') <div class="sf-ferr">{{ $message }}</div> @enderror
+                            <div wire:loading wire:target="image" class="sf-hint text-blue-600">Uploading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="sf-field">
+                        <label class="sf-label">Store Description</label>
+                        <textarea wire:model="storeDescription"
+                            class="sf-input" rows="3"
+                            placeholder="Enter store description"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="sf-btn sf-btn-blue">
+                        <i class='bx bx-store'></i> Create Store
+                    </button>
+                </form>
             </div>
         </div>
-    </div>
-</div>
-@endif
 
+        <!-- Add User to Store Section -->
+        <div class="sf-card mb-6">
+            <div class="sf-card-head">
+                <h2 class="sf-card-title">
+                    <i class='bx bx-user-plus mr-2'></i>
+                    Add User to Store
+                </h2>
+            </div>
+            <div class="sf-card-body">
+                <div class="sf-row2">
+                    <div class="sf-field">
+                        <label class="sf-label">Select User</label>
+                        <select wire:model="selectedUsers" class="sf-input">
+                            <option value="">Select a User</option>
+                            @foreach($availableUsers as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="sf-field">
+                        <label class="sf-label">Select Store</label>
+                        <select wire:model="selectedStore" class="sf-input">
+                            <option value="">Select a Store</option>
+                            @foreach($stores as $store)
+                                <option value="{{ $store->id }}">{{ $store->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <button wire:click="addUserToStore" class="sf-btn sf-btn-green mt-2">
+                    <i class='bx bx-user-check'></i> Add User to Store
+                </button>
+            </div>
+        </div>
+
+        <!-- Change User Role Section -->
+        <div class="sf-card mb-6">
+            <div class="sf-card-head">
+                <h2 class="sf-card-title">
+                    <i class='bx bx-shield mr-2'></i>
+                    Change User Role
+                </h2>
+            </div>
+            <div class="sf-card-body">
+                <div class="sf-row2">
+                    <div class="sf-field">
+                        <label class="sf-label">Select User</label>
+                        <select wire:model="selectedUser" class="sf-input">
+                            <option value="">Select a User</option>
+                            @foreach($availableUsers as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="sf-field">
+                        <label class="sf-label">Select Role</label>
+                        <select wire:model="selectedRole" class="sf-input">
+                            <option value="">Select a Role</option>
+                            @foreach($availableRoles as $role)
+                                <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <button wire:click="changeUserRole" class="sf-btn sf-btn-warning mt-2">
+                    <i class='bx bx-refresh'></i> Change Role
+                </button>
+            </div>
+        </div>
+
+        <!-- Stores List Section -->
+        <div class="sf-card">
+            <div class="sf-card-head">
+                <h2 class="sf-card-title">
+                    <i class='bx bx-store mr-2'></i>
+                    Existing Stores
+                </h2>
+                <span class="sf-badge sf-badge-gray">{{ $stores->count() }} stores</span>
+            </div>
+            <div class="sf-card-body">
+                <div class="sf-stores-grid">
+                    @foreach($stores as $store)
+                        <div class="sf-store-card">
+                            <div class="sf-store-card-header">
+                                <div class="sf-store-info">
+                                    <img src="{{ $store->logo ? Storage::disk('public')->url($store->logo) : 'https://ui-avatars.com/api/?name=' . urlencode($store->name) }}"
+                                        alt="{{ $store->name }} logo" class="sf-store-logo">
+                                    <div>
+                                        <h3 class="sf-store-name">{{ $store->name }}</h3>
+                                        <span class="sf-store-id">ID: {{ $store->id }}</span>
+                                    </div>
+                                </div>
+                                @if($store->owner_id === Auth::id() || Auth::user()->hasRole('super admin'))
+                                    <button wire:click="confirmDeleteStore({{ $store->id }})"
+                                        class="sf-icon-btn sf-icon-btn-danger" title="Delete Store">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                @endif
+                            </div>
+
+                            @if($store->description)
+                                <p class="sf-store-description">{{ $store->description }}</p>
+                            @endif
+
+                            <div class="sf-store-members">
+                                <div class="sf-members-header">
+                                    <i class='bx bx-group'></i>
+                                    <span>Store Members ({{ $store->users->count() }})</span>
+                                </div>
+                                <div class="sf-members-list">
+                                    @foreach($store->users as $user)
+                                        <div class="sf-member-item">
+                                            <div class="sf-member-info">
+                                                <div class="sf-member-avatar">
+                                                    {{ substr($user->name, 0, 1) }}
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium">{{ $user->name }}</div>
+                                                    <div class="sf-meta-text">{{ $user->email }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="sf-role-badge {{ $user->getRoleNames()->first() ?? 'none' }}">
+                                                    {{ ucfirst($user->getRoleNames()->first() ?? 'No Role') }}
+                                                </span>
+                                                <button wire:click="removeUserFromStore({{ $user->id }}, {{ $store->id }})"
+                                                    class="sf-icon-btn sf-icon-btn-danger sf-icon-sm"
+                                                    onclick="return confirm('Are you sure you want to remove this user from the store?')"
+                                                    title="Remove user">
+                                                    <i class='bx bx-user-minus'></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                @if($stores->isEmpty())
+                    <div class="sf-empty">
+                        <i class='bx bx-store-alt'></i>
+                        <p>No stores created yet</p>
+                        <p class="text-sm mt-1">Use the form above to create your first store</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Delete Store Confirmation Modal -->
+        @if($showDeleteModal && $deletingStore)
+            <div class="sf-overlay" wire:click.self="$set('showDeleteModal', false)">
+                <div class="sf-modal sf-modal-danger">
+                    <div class="sf-modal-head">
+                        <span class="sf-modal-title">
+                            <i class='bx bx-trash' style="color: #F04438;"></i>
+                            Delete Store Permanently?
+                        </span>
+                        <button type="button" wire:click="$set('showDeleteModal', false)" class="sf-modal-x">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+
+                    <div class="sf-modal-body">
+                        <div class="sf-warning-box sf-warning-box-danger mb-4">
+                            <i class='bx bx-error-circle'></i>
+                            <div>
+                                <p class="font-bold mb-1">Warning: This action cannot be undone.</p>
+                                <p>All items, orders, and data associated with <strong>{{ $deletingStore->name }}</strong> will be permanently deleted.</p>
+                            </div>
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label">Please type <strong>{{ $deletingStore->name }}</strong> to confirm deletion:</label>
+                            <input type="text" 
+                                   wire:model.live="confirmStoreName" 
+                                   class="sf-input" 
+                                   placeholder="Type store name here...">
+                            @error('confirmStoreName')
+                                <div class="sf-ferr mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="sf-modal-foot">
+                        <button wire:click="$set('showDeleteModal', false)" class="sf-btn sf-btn-ghost">
+                            Cancel
+                        </button>
+                        <button wire:click="delete" 
+                                class="sf-btn sf-btn-red"
+                                {{ $confirmStoreName !== $deletingStore->name ? 'disabled' : '' }}>
+                            <i class='bx bx-trash'></i> Delete Store
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
 </div>

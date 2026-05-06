@@ -1,104 +1,176 @@
-<div class="flex flex-1 z-0 flex-col min-h-screen max-w-screen overflow-x-auto bg text-gray-700">
-    <div class="p-6 flex justify-between bg-white w-full">
-        <h1 class="text-2xl font-semibold">Analytics</h1>
-       
-            <button wire:click="exportExcel" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Export Excel</button>
+<div data-stockify>
+    <div class="p-6 flex justify-between items-center">
+        <h1 class="sf-page-title">
+            <i class='bx bx-line-chart mr-2' style="color: #4361EE;"></i>
+            Analytics
+        </h1>
+        <button wire:click="exportExcel" class="sf-btn sf-btn-green">
+            <i class='bx bx-export'></i> Export Excel
+        </button>
     </div>
 
-    <div class="flex flex-grow flex-col p-4 gap-6">
-        <!-- Export Button (Above Filter Section) -->
-        {{-- <div class="flex justify-end mb-4">
-            <button wire:click="exportExcel" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Export to Excel</button>
-        </div> --}}
-
+    <div class="px-6 pb-6 space-y-6">
         <!-- Filter Section -->
-        <div class="w-full bg-white px-4 rounded-lg max-sm:flex-wrap">
-            <h3 class="text-lg font-semibold mb-4">Filter</h3>
-            <div class="flex w-full gap-2">
-                <div class="flex w-full md:flex-1 items-center gap-2">
-                    <input type="text" wire:model.live="filterName" id="item_name" 
-                           class="flex-1 p-2 border rounded-lg" 
-                           placeholder="Enter item name" />
-                </div>
-                <div class="md:flex-1">
-                    {{-- <button wire:click="fetchData" 
-                    class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
-                Filter
-            </button> --}}
+        <div class="sf-card">
+            <div class="p-5">
+                <h3 class="sf-section-title mb-4">
+                    <i class='bx bx-filter-alt mr-2' style="color: #4361EE;"></i>
+                    Filter Analytics
+                </h3>
+                <div class="flex w-full gap-3">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <i class='bx bx-search' style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3B8; font-size: 18px;"></i>
+                            <input type="text" wire:model.live="filterName" 
+                                   class="sf-input" style="padding-left: 40px;"
+                                   placeholder="Search by item name..." />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
 
-        <!-- Main Table Section -->
-        <div class="bg-white p-4 rounded-lg  overflow-x-auto max-h-[400px] overflow-y-auto">
-            <h3 class="text-lg font-semibold mb-4">Item Analytics</h3>
-            <div class="flex overflow-hidden">
-                <!-- Left Section: Item Info -->
-                <div class="w-1/4 hidden md:block bg-gray-50 flex-none">
-                    <table class="min-w-full bg-white border rounded-lg table-auto">
+        <!-- Analytics Table Section -->
+        <div class="sf-card">
+            <div class="sf-card-head">
+                <h3 class="sf-card-title">
+                    <i class='bx bx-data mr-2' style="color: #4361EE;"></i>
+                    Item Analytics
+                </h3>
+                <span class="sf-badge sf-badge-gray">{{ count(json_decode($filteredAnalyticsDataJson, true)) }} items</span>
+            </div>
+            
+            <div class="sf-analytics-container">
+                <!-- Sticky Left Column (Item Names) -->
+                <div class="sf-sticky-col">
+                    <table class="sf-table sf-table-sticky">
                         <thead>
-                            <tr class="bg-gray-200">
-                                <th class="h-[48px] text-sm">Item Name</th>
+                            <tr>
+                                <th class="sf-sticky-header">Item Name</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach (json_decode($itemsDataJson, true) as $item) --}}
                             @foreach (json_decode($filteredAnalyticsDataJson, true) as $data)
-                                <tr class="pr-3 border-b hover:bg-gray-50">
-                                    <td class="h-[48px] p-3  text-sm">{{ $data['item_name'] }}</td>
+                                <tr class="sf-table-row">
+                                    <td class="sf-sticky-cell">
+                                        <div class="font-medium text-gray-900">{{ $data['item_name'] }}</div>
+                                        <div class="sf-meta-text mt-1">SKU: {{ $data['sku'] ?? 'N/A' }}</div>
+                                    </td>
                                 </tr>
                             @endforeach
+                            <tr class="sf-table-row sf-total-row">
+                                <td class="sf-sticky-cell sf-total-cell">
+                                    <div class="font-bold">Total Summary</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Right Section: Analytics Table -->
-                <div class="flex-1 overflow-x-auto">
-                    <table class="min-w-full bg-white border rounded-lg table-auto">
+                <!-- Scrollable Analytics Columns -->
+                <div class="sf-scrollable-col">
+                    <table class="sf-table">
                         <thead>
-                            <tr class="bg-gray-200">
-                                <th class="p-3 md:min-w-[200px]">Item</th>
-                                <th class="p-3 md:min-w-[200px]">Current Quantity</th>
-                                <th class="p-3 md:min-w-[200px]">Inventory Assets</th>
-                                <th class="p-3 md:md:min-w-[200px]">Average Quantity</th>
-                                <th class="p-3 md:min-w-[200px]">Turnover Ratio</th>
-                                <th class="p-3 md:min-w-[200px]">Stock Out Days</th>
-                                <th class="p-3 md:min-w-[200px]">Total Stock in</th>
-                                <th class="p-3 md:min-w-[200px]">Total Stock Out</th>
-                                <th class="p-3 md:min-w-[200px]">Avg Daily Stock In</th>
-                                <th class="p-3 md:min-w-[200px]">Avg Daily Stock Out</th>
+                            <tr>
+                                <th>Current Qty</th>
+                                <th>Inventory Assets</th>
+                                <th>Avg Quantity</th>
+                                <th>Turnover Ratio</th>
+                                <th>Stock Out Days</th>
+                                <th>Total Stock In</th>
+                                <th>Total Stock Out</th>
+                                <th>Avg Daily In</th>
+                                <th>Avg Daily Out</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (json_decode($filteredAnalyticsDataJson, true) as $data)
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="p-3">{{ $data['item_name'] }}</td>
-                                    <td class="p-3">{{ $data['current_quantity'] }}</td>
-                                    <td class="p-3">${{ number_format($data['inventory_assets'], 2) }}</td>
-                                    <td class="p-3">{{ $data['average_quantity'] }}</td>
-                                    <td class="p-3">{{ $data['turnover_ratio'] }}</td>
-                                    <td class="p-3">{{ $data['stock_out_days_estimate'] }}</td>
-                                    <td class="p-3">{{ $data['total_stock_in'] }}</td>
-                                    <td class="p-3">{{ $data['total_stock_out'] }}</td>
-                                    <td class="p-3">{{ $data['avg_daily_stock_in'] }}</td>
-                                    <td class="p-3">{{ $data['avg_daily_stock_out'] }}</td>
+                                <tr class="sf-table-row">
+                                    <td class="sf-value-cell">{{ number_format($data['current_quantity']) }}</td>
+                                    <td class="sf-value-cell sf-currency">${{ number_format($data['inventory_assets'], 2) }}</td>
+                                    <td class="sf-value-cell">{{ number_format($data['average_quantity'], 1) }}</td>
+                                    <td class="sf-value-cell">
+                                        <span class="sf-badge {{ $data['turnover_ratio'] > 2 ? 'sf-badge-success' : 'sf-badge-warning' }}">
+                                            {{ number_format($data['turnover_ratio'], 2) }}
+                                        </span>
+                                    </td>
+                                    <td class="sf-value-cell">
+                                        @php
+                                            $stockOutDays = $data['stock_out_days_estimate'];
+                                            $isCritical = $stockOutDays <= 7 && $stockOutDays > 0;
+                                            $isOut = $stockOutDays <= 0;
+                                        @endphp
+                                        @if($isOut)
+                                            <span class="sf-badge sf-badge-danger">Out of Stock</span>
+                                        @elseif($isCritical)
+                                            <span class="sf-badge sf-badge-warning">{{ number_format($stockOutDays, 1) }} days</span>
+                                        @else
+                                            <span>{{ number_format($stockOutDays, 1) }} days</span>
+                                        @endif
+                                    </td>
+                                    <td class="sf-value-cell sf-positive">+{{ number_format($data['total_stock_in']) }}</td>
+                                    <td class="sf-value-cell sf-negative">-{{ number_format($data['total_stock_out']) }}</td>
+                                    <td class="sf-value-cell">{{ number_format($data['avg_daily_stock_in'], 1) }}</td>
+                                    <td class="sf-value-cell">{{ number_format($data['avg_daily_stock_out'], 1) }}</td>
                                 </tr>
                             @endforeach
-                            <tr class="bg-gray-200">
-                                <td class="p-3 font-semibold">Total</td>
-                                <td class="p-3">{{ $this->calculate('current_quantity') }}</td>
-                                <td class="p-3">{{ $this->calculate('inventory_assets') }}</td>
-                                <td class="p-3">{{ $this->calculate('average_quantity') }}</td>
-                                <td class="p-3">{{ $this->calculate('turnover_ratio') }}</td>
-                                <td class="p-3">{{ $this->calculate('stock_out_days_estimate') }}</td>
-                                <td class="p-3">{{ $this->calculate('total_stock_in') }}</td>
-                                <td class="p-3">{{ $this->calculate('total_stock_out') }}</td>
-                                <td class="p-3">{{ $this->calculate('avg_daily_stock_in') }}</td>
-                                <td class="p-3">{{ $this->calculate('avg_daily_stock_out') }}</td>
+                            <!-- Total Row -->
+                            <tr class="sf-table-row sf-total-row">
+                                <td class="sf-total-cell">{{ number_format($this->calculate('current_quantity')) }}</td>
+                                <td class="sf-total-cell sf-currency">${{ number_format($this->calculate('inventory_assets'), 2) }}</td>
+                                <td class="sf-total-cell">{{ number_format($this->calculate('average_quantity'), 1) }}</td>
+                                <td class="sf-total-cell">{{ number_format($this->calculate('turnover_ratio'), 2) }}</td>
+                                <td class="sf-total-cell">{{ number_format($this->calculate('stock_out_days_estimate'), 1) }} days</td>
+                                <td class="sf-total-cell sf-positive">+{{ number_format($this->calculate('total_stock_in')) }}</td>
+                                <td class="sf-total-cell sf-negative">-{{ number_format($this->calculate('total_stock_out')) }}</td>
+                                <td class="sf-total-cell">{{ number_format($this->calculate('avg_daily_stock_in'), 1) }}</td>
+                                <td class="sf-total-cell">{{ number_format($this->calculate('avg_daily_stock_out'), 1) }}</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="sf-summary-card">
+                <div class="sf-summary-icon sf-summary-icon-total">
+                    <i class='bx bx-package'></i>
+                </div>
+                <div>
+                    <p class="sf-summary-label">Total Items</p>
+                    <p class="sf-summary-value">{{ count(json_decode($filteredAnalyticsDataJson, true)) }}</p>
+                </div>
+            </div>
+            
+            <div class="sf-summary-card">
+                <div class="sf-summary-icon sf-summary-icon-assets">
+                    <i class='bx bx-dollar'></i>
+                </div>
+                <div>
+                    <p class="sf-summary-label">Total Inventory Value</p>
+                    <p class="sf-summary-value">${{ number_format($this->calculate('inventory_assets'), 2) }}</p>
+                </div>
+            </div>
+            
+            <div class="sf-summary-card">
+                <div class="sf-summary-icon sf-summary-icon-in">
+                    <i class='bx bx-arrow-to-bottom'></i>
+                </div>
+                <div>
+                    <p class="sf-summary-label">Total Stock In</p>
+                    <p class="sf-summary-value sf-positive">+{{ number_format($this->calculate('total_stock_in')) }}</p>
+                </div>
+            </div>
+            
+            <div class="sf-summary-card">
+                <div class="sf-summary-icon sf-summary-icon-out">
+                    <i class='bx bx-arrow-to-top'></i>
+                </div>
+                <div>
+                    <p class="sf-summary-label">Total Stock Out</p>
+                    <p class="sf-summary-value sf-negative">-{{ number_format($this->calculate('total_stock_out')) }}</p>
                 </div>
             </div>
         </div>
