@@ -185,7 +185,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
+            <a href="{{ route('home') }}" class="flex items-center gap-2">
                 <img src="/images/logo.sv" alt="POS for Shops" class="h-8">
             </a>
             <div class="w-8"></div>
@@ -205,7 +205,7 @@
             </div>
 
             <div class="p-6 border-b border-slate-800">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+                <a href="{{ route('home') }}" class="flex items-center gap-3">
                     <div
                         class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -305,8 +305,8 @@
         <!-- Mobile Bottom Navigation (FoodiesPakistan Style) -->
         <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-bottom pb-safe">
             <div class="flex justify-around items-center h-16">
-                <a href="{{ route('dashboard') }}"
-                    class="flex flex-col items-center gap-1 p-2 {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-500' }}">
+                <a href="{{ route('tenant.dashboard') }}"
+                    class="flex flex-col items-center gap-1 p-2 {{ request()->routeIs('tenant.dashboard') ? 'text-blue-600' : 'text-gray-500' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
