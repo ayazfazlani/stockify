@@ -84,6 +84,49 @@ class Dashboard extends Component
     /**
      * Load available stores and users for filtering
      */
+    // protected function loadAvailableFilters()
+    // {
+    //     if (!auth()->check()) {
+    //         return;
+    //     }
+
+    //     $user = Auth::user();
+
+    //     // Load stores based on user role
+    //     if ($user->hasRole('super admin') || $user->hasRole('tenant_admin')) {
+    //         // Super admin or tenant admin can see all stores in tenant
+    //         $this->availableStores = Store::where('tenant_id', $this->currentTenantId)
+    //             ->orderBy('name')
+    //             ->get(['id', 'name'])
+    //             ->toArray();
+
+    //         // Can see all users in tenant
+    //         $this->availableUsers = User::where('tenant_id', $this->currentTenantId)
+    //             ->orderBy('name')
+    //             ->get(['id', 'name', 'email'])
+    //             ->toArray();
+    //     } else {
+    //         // Regular user can only see their assigned stores
+    //         $this->availableStores = $user->stores()
+    //             ->orderBy('name')
+    //             ->get(['stores.id', 'stores.name'])
+    //             ->toArray();
+
+    //         // Can only see users who share at least one store
+    //         $storeIds = $user->stores()->pluck('stores.id');
+    //         $this->availableUsers = User::whereHas('stores', function ($query) use ($storeIds) {
+    //             $query->whereIn('stores.id', $storeIds);
+    //         })
+    //             ->where('tenant_id', $this->currentTenantId)
+    //             ->orderBy('name')
+    //             ->get(['id', 'name', 'email'])
+    //             ->toArray();
+    //     }
+    // }
+
+    /**
+     * Load available stores and users for filtering - WORKAROUND VERSION
+     */
     protected function loadAvailableFilters()
     {
         if (!auth()->check()) {
@@ -106,22 +149,45 @@ class Dashboard extends Component
                 ->get(['id', 'name', 'email'])
                 ->toArray();
         } else {
-            // Regular user can only see their assigned stores
-            $this->availableStores = $user->stores()
-                ->orderBy('name')
-                ->get(['stores.id', 'stores.name'])
+            // WORKAROUND: Direct query instead of using relationship
+            // Regular user can only see their assigned stores via store_user pivot
+            $this->availableStores = DB::table('stores')
+                ->join('store_user', 'stores.id', '=', 'store_user.store_id')
+                ->where('store_user.user_id', $user->id)
+                ->orderBy('stores.name')
+                ->select('stores.id', 'stores.name')
+                ->get()
                 ->toArray();
 
             // Can only see users who share at least one store
-            $storeIds = $user->stores()->pluck('stores.id');
-            $this->availableUsers = User::whereHas('stores', function ($query) use ($storeIds) {
-                $query->whereIn('stores.id', $storeIds);
-            })
-                ->where('tenant_id', $this->currentTenantId)
-                ->orderBy('name')
-                ->get(['id', 'name', 'email'])
-                ->toArray();
+            $storeIds = DB::table('store_user')
+                ->where('user_id', $user->id)
+                ->pluck('store_id');
+
+            if ($storeIds->isNotEmpty()) {
+                $this->availableUsers = DB::table('users')
+                    ->join('store_user', 'users.id', '=', 'store_user.user_id')
+                    ->whereIn('store_user.store_id', $storeIds)
+                    ->where('users.tenant_id', $this->currentTenantId)
+                    ->where('users.id', '!=', $user->id)
+                    ->orderBy('users.name')
+                    ->select('users.id', 'users.name', 'users.email')
+                    ->distinct()
+                    ->get()
+                    ->toArray();
+            } else {
+                $this->availableUsers = [];
+            }
         }
+
+        // Convert stdClass objects to arrays if needed
+        $this->availableStores = array_map(function ($item) {
+            return (array) $item;
+        }, $this->availableStores);
+
+        $this->availableUsers = array_map(function ($item) {
+            return (array) $item;
+        }, $this->availableUsers);
     }
 
     /**

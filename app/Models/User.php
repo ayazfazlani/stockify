@@ -85,7 +85,7 @@ class User extends Authenticatable
     public function switchTeam($teamId)
     {
         // Verify user belongs to this team
-        if (! $this->teams()->where('store_id', $teamId)->exists()) {
+        if (!$this->teams()->where('store_id', $teamId)->exists()) {
             return false;
         }
 
@@ -132,11 +132,16 @@ class User extends Authenticatable
     //     return $this->hasOne(Subscription::class);
     // }
 
-    public function stores(): HasMany
-    {
-        return $this->hasMany(Store::class);
-    }
+    // public function stores(): HasMany
+    // {
+    //     return $this->hasMany(Store::class);
+    // }
 
+    public function stores()
+    {
+        return $this->belongsToMany(Store::class, 'store_user', 'user_id', 'store_id')
+            ->withTimestamps();
+    }
     // Helper methods
     public function hasActiveSubscription(): bool
     {
@@ -148,14 +153,14 @@ class User extends Authenticatable
     public function canCreateMoreStores(): bool
     {
         $tenant = tenant();
-        if (! $tenant || ! $tenant->subscribed('default')) {
+        if (!$tenant || !$tenant->subscribed('default')) {
             return false;
         }
 
         $currentStoreCount = $this->stores()->count();
         $plan = Plan::where('slug', $tenant->subscription_plan)->first();
 
-        if (! $plan) {
+        if (!$plan) {
             return false;
         }
 
