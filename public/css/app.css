@@ -3726,3 +3726,9 @@ body.dark [data-stockify] .sf-checkout-summary {
         gap: 0.5rem;
     }
 }
+
+@media (max-width: 640px) {
+    .showcase-container {
+        height: 420px !important;
+    }
+}

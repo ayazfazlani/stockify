@@ -17,29 +17,27 @@
 <div>
   @push('seo')
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "POS for Shops",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "All",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
-        "url": "{{ url('/') }}"
-      }
-      </script>
+                                    {
+                                      "@context": "https://schema.org",
+                                      "@type": "SoftwareApplication",
+                                      "name": "POS for Shops",
+                                      "applicationCategory": "BusinessApplication",
+                                      "operatingSystem": "All",
+                                      "offers": {
+                                        "@type": "Offer",
+                                        "price": "0",
+                                        "priceCurrency": "USD"
+                                      },
+                                      "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
+                                      "url": "{{ url('/') }}"
+                                    }
+                                    </script>
   @endpush
 
   <!-- ========================================== -->
   <!-- HERO SECTION                               -->
   <!-- ========================================== -->
-  <!-- HERO SECTION (Centered) -->
-  <!-- ========================================== -->
-  <section class="relative pt-24 md:pt-32 pb-20 md:pb-28 bg-white overflow-hidden">
+  <section class="relative pt-24 md:pt-32 pb-16 md:pb-20 bg-white overflow-hidden">
     <!-- Decorative blurred blobs -->
     <div
       class="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-100 rounded-full blur-3xl opacity-30 pointer-events-none">
@@ -100,110 +98,139 @@
           No credit card required • Cancel anytime
         </p>
       </div>
+    </div>
+  </section>
 
-      <!-- Floating App Mockup - Centered & Larger -->
-      <div class="flex justify-center mt-16 md:mt-20" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
-        <div class="relative">
-          <!-- Floating decorative icons -->
-          <div
-            class="absolute -top-10 -left-12 w-16 h-16 bg-white rounded-3xl shadow-xl shadow-slate-200/70 flex items-center justify-center animate-float">
-            <svg class="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-          </div>
+  <!-- ========================================== -->
+  <!-- PRODUCT SHOWCASE — STACKED ON MOBILE       -->
+  <!-- ========================================== -->
+  <section class="py-16 md:py-24 bg-gray-50 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div
-            class="absolute top-12 -right-14 w-14 h-14 bg-white rounded-2xl shadow-xl shadow-slate-200/70 flex items-center justify-center animate-float"
-            style="animation-delay: 1.2s;">
-            <svg class="w-7 h-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              stroke-width="1.75">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
+      <!-- Header -->
+      <div class="text-center mb-10 md:mb-16">
+        <h2 class="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">
+          See It In Action
+        </h2>
+        <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+          Clean, fast, and intuitive inventory management on both desktop and mobile.
+        </p>
+      </div>
 
-          <div
-            class="absolute -bottom-8 left-16 w-20 h-20 bg-white rounded-3xl shadow-2xl shadow-slate-200/70 flex items-center justify-center animate-float"
-            style="animation-delay: 2.5s;">
-            <svg class="w-9 h-9 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
+      <!-- MOBILE VIEW: Stacked vertically -->
+      <div class="md:hidden space-y-6">
 
-          <!-- Main App Mockup -->
-          <div class="bg-white rounded-3xl shadow-2xl shadow-slate-300/60 border border-slate-100 p-6 w-full max-w-lg">
-            <!-- App Header -->
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-              <div class="flex items-center gap-3">
-                <div class="h-9 w-9 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                  <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <div>
-                  <span class="font-bold text-slate-900 text-lg tracking-tight">Stockify</span>
-                </div>
+        <!-- Desktop Screenshot -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+          <div class="bg-gray-100 border-b border-gray-200 px-3 py-2 flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+            </div>
+            <div class="flex-1 mx-2">
+              <div
+                class="bg-white rounded-md px-2 py-1 text-[10px] text-gray-400 text-center border border-gray-200 truncate">
+                posforshops.com
               </div>
+            </div>
+          </div>
+          <img src="{{ asset('assets/posforshops.com_jmart_adjust (1).png') }}" alt="J Mart POS - Desktop View"
+            class="w-full h-auto">
+        </div>
+
+        <!-- Mobile Screenshot — Centered, not overlapping -->
+        <div class="flex justify-center">
+          <div class="relative w-48">
+            <!-- Phone Frame -->
+            <div class="bg-gray-900 rounded-[2rem] p-2 shadow-2xl border-4 border-gray-800">
+              <!-- Notch -->
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-4 bg-gray-900 rounded-b-xl z-10"></div>
+              <div class="bg-white rounded-[1.5rem] overflow-hidden">
+                <img src="{{ asset('assets/posforshops.com_jmart_adjust(Samsung Galaxy S20 Ultra).png') }}"
+                  alt="J Mart POS - Mobile View" class="w-full h-auto rounded-[1.5rem]">
+              </div>
+            </div>
+            <!-- Label below instead of floating badge -->
+            <div class="text-center m-3">
               <span
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Live
+                class="inline-flex items-center bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                Mobile Ready
               </span>
-            </div>
-
-            <!-- Stats -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <div class="bg-slate-50 rounded-2xl p-5">
-                <p class="text-xs text-slate-500">Total Products</p>
-                <p class="text-3xl font-bold text-slate-900 mt-1">1,247</p>
-                <div class="flex items-center gap-1 text-emerald-600 text-sm mt-2">
-                  <span>↑ 12%</span>
-                </div>
-              </div>
-              <div class="bg-slate-50 rounded-2xl p-5">
-                <p class="text-xs text-slate-500">Low Stock Items</p>
-                <p class="text-3xl font-bold text-amber-600 mt-1">23</p>
-                <div class="flex items-center gap-1 text-rose-600 text-sm mt-2">
-                  <span>↓ 5</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Inventory Health -->
-            <div class="mb-6">
-              <div class="flex justify-between text-xs mb-2">
-                <span class="font-medium text-slate-600">Inventory Health</span>
-                <span class="font-bold text-indigo-600">85%</span>
-              </div>
-              <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full" style="width: 85%">
-                </div>
-              </div>
-            </div>
-
-            <!-- Bottom Row -->
-            <div class="grid grid-cols-3 text-center pt-6 border-t border-slate-100">
-              <div>
-                <p class="text-2xl font-bold text-slate-900">12</p>
-                <p class="text-[10px] text-slate-500 tracking-widest">PENDING</p>
-              </div>
-              <div>
-                <p class="text-2xl font-bold text-slate-900">8</p>
-                <p class="text-[10px] text-slate-500 tracking-widest">SHIPPED</p>
-              </div>
-              <div>
-                <p class="text-2xl font-bold text-slate-900">$4.2k</p>
-                <p class="text-[10px] text-slate-500 tracking-widest">REVENUE</p>
-              </div>
             </div>
           </div>
         </div>
+
       </div>
+
+      <!-- DESKTOP VIEW: Overlapping layout (hidden on mobile) -->
+      <div class="hidden md:block relative w-full max-w-6xl mx-auto">
+
+        <!-- Desktop Screenshot -->
+        <div class="relative z-10 w-full">
+          <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+            <!-- Browser Chrome -->
+            <div class="bg-gray-100 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
+              <div class="flex gap-1.5">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <div class="flex-1 mx-4">
+                <div
+                  class="bg-white rounded-md px-3 py-1 text-xs text-gray-400 text-center border border-gray-200 truncate">
+                  posforshops.com/jmart/adjust
+                </div>
+              </div>
+            </div>
+            <img src="{{ asset('assets/posforshops.com_jmart_adjust (1).png') }}" alt="J Mart POS - Desktop View"
+              class="w-full h-auto">
+          </div>
+        </div>
+
+        <!-- Mobile Screenshot — Floating Overlapping on Desktop -->
+        <div class="absolute -bottom-12 right-12 z-20 w-56">
+          <div class="relative">
+            <!-- Phone Frame -->
+            <div class="bg-gray-900 rounded-[2rem] p-2 shadow-2xl border-4 border-gray-800">
+              <!-- Notch -->
+              <div class="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-5 bg-gray-900 rounded-b-xl z-10"></div>
+              <div class="bg-white rounded-[1.5rem] overflow-hidden">
+                <img src="{{ asset('assets/posforshops.com_jmart_adjust(Samsung Galaxy S20 Ultra).png') }}"
+                  alt="J Mart POS - Mobile View" class="w-full h-auto rounded-[1.5rem]">
+              </div>
+            </div>
+
+            <!-- Floating Badge -->
+            <div
+              class="absolute -top-3 -left-3 bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg block sm:hidden">
+              Mobile Ready
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Trust Bar -->
+      <div
+        class="flex flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-2 md:gap-y-3 mt-12 md:mt-24 text-xs md:text-sm text-gray-500">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Real-time Sync
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Easy Stock Adjustment
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Fully Mobile Optimized
+        </div>
+      </div>
+
     </div>
   </section>
+
   <!-- ========================================== -->
   <!-- TRUSTED BY SECTION                         -->
   <!-- ========================================== -->
