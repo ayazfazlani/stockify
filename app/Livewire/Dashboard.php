@@ -63,7 +63,9 @@ class Dashboard extends Component
     public function fetchSummary()
     {
         if (auth()->check()) {
-            $query = Analytics::query();
+            $query = Analytics::query()
+                ->where('analytics.store_id', $this->currentStore->id) // Added 'analytics.' prefix
+                ->where('analytics.user_id', auth()->id()); // Added 'analytics.' prefix
 
             // Filter by current store only (not super admin)
             if (!auth()->user()->hasRole('super admin') && $this->currentStoreId) {
