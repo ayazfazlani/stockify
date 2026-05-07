@@ -7,11 +7,23 @@ use App\Models\Item;
 use App\Models\Store;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class MarketplaceSettings extends Component
 {
+    use WithFileUploads;
+
     public $store;
+
+    public $hasMarketplaceFeature = false;
+
+    public $name;
+
+    public $slug;
+
+    public $description;
 
     public $is_public;
 
@@ -31,11 +43,23 @@ class MarketplaceSettings extends Component
 
     public $currency_symbol;
 
+    public $logo;
+
+    public $banner;
+
     public $tenantSlug;
 
     public $showDeleteModal = false;
 
     public $confirmName = '';
+
+    // Edit Item
+    public $showEditItemModal = false;
+    public $editingItem = null;
+    public $editItemName = '';
+    public $editItemDescription = '';
+    public $editItemPrice = 0;
+    public $editItemImage;
 
     public function mount()
     {
@@ -68,6 +92,9 @@ class MarketplaceSettings extends Component
         }
 
         $this->store = $store;
+        $this->name = $this->store->name;
+        $this->slug = $this->store->slug;
+        $this->description = $this->store->description;
         $this->is_public = (bool) $this->store->is_public;
         $this->address = $this->store->address;
         $this->city = $this->store->city;
@@ -217,6 +244,9 @@ class MarketplaceSettings extends Component
         }
 
         $this->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|alpha_dash|max:100|unique:stores,slug,' . $this->store->id,
+            'description' => 'nullable|string|max:1000',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:100',
             'area' => 'nullable|string|max:100',
@@ -225,9 +255,14 @@ class MarketplaceSettings extends Component
             'currency_symbol' => 'required|string|max:10',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'logo' => 'nullable|image|max:1024',
+            'banner' => 'nullable|image|max:2048',
         ]);
 
-        $this->store->update([
+        $data = [
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => $this->description,
             'is_public' => $this->is_public,
             'address' => $this->address,
             'city' => $this->city,
@@ -237,7 +272,23 @@ class MarketplaceSettings extends Component
             'currency_symbol' => $this->currency_symbol,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
-        ]);
+        ];
+
+        if ($this->logo) {
+            if ($this->store->logo) {
+                Storage::disk('public')->delete($this->store->logo);
+            }
+            $data['logo'] = $this->logo->store('logos', 'public');
+        }
+
+        if ($this->banner) {
+            if ($this->store->banner) {
+                Storage::disk('public')->delete($this->store->banner);
+            }
+            $data['banner'] = $this->banner->store('banners', 'public');
+        }
+
+        $this->store->update($data);
 
         session()->flash('status', 'Marketplace settings updated successfully.');
     }
@@ -255,6 +306,47 @@ class MarketplaceSettings extends Component
         $item = Item::withoutGlobalScopes()->where('store_id', $this->store->id)->findOrFail($itemId);
         $item->update(['is_public' => !$item->is_public]);
         session()->flash('status', 'Item visibility updated successfully.');
+    }
+
+    public function editItem($itemId)
+    {
+        $this->editingItem = Item::withoutGlobalScopes()->where('store_id', $this->store->id)->findOrFail($itemId);
+        $this->editItemName = $this->editingItem->name;
+        $this->editItemDescription = $this->editingItem->description;
+        $this->editItemPrice = $this->editingItem->price;
+        $this->editItemImage = null; // Clear any previously uploaded file
+        $this->showEditItemModal = true;
+    }
+
+    public function updateItem()
+    {
+        if (!$this->editingItem) return;
+
+        $this->validate([
+            'editItemName' => 'required|string|max:255',
+            'editItemDescription' => 'nullable|string',
+            'editItemPrice' => 'required|numeric|min:0',
+            'editItemImage' => 'nullable|image|max:2048',
+        ]);
+
+        $data = [
+            'name' => $this->editItemName,
+            'description' => $this->editItemDescription,
+            'price' => $this->editItemPrice,
+        ];
+
+        if ($this->editItemImage) {
+            if ($this->editingItem->image) {
+                Storage::disk('public')->delete($this->editingItem->image);
+            }
+            $data['image'] = $this->editItemImage->store('items', 'public');
+        }
+
+        $this->editingItem->update($data);
+
+        session()->flash('status', 'Item marketplace details updated successfully!');
+        $this->showEditItemModal = false;
+        $this->editingItem = null;
     }
 
     public function confirmDelete()

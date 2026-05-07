@@ -15,7 +15,6 @@
         </div>
 
         <!-- Scanner -->
-        @feature('barcode-scanning')
             <div class="sf-card mb-6">
                 <div class="p-4">
                     <div class="sf-scan-label mb-3">
@@ -24,15 +23,6 @@
                     <livewire:qr-scanner />
                 </div>
             </div>
-        @else
-            <div class="sf-alert sf-alert-warning mb-6">
-                <i class='bx bx-camera-off'></i>
-                <div>
-                    <strong>Camera scanning not available</strong>
-                    <p class="text-sm mt-1">Camera barcode scanning is not included in your current plan. You can still search items below.</p>
-                </div>
-            </div>
-        @endfeature
 
         <!-- Search and Date Filter -->
         <div class="flex flex-col md:flex-row gap-4 mb-6">

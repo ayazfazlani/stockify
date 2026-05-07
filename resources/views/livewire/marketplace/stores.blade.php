@@ -111,8 +111,8 @@
                                     <p class="text-xs text-gray-500 line-clamp-2 h-8 mb-4">{{ $store->description }}</p>
                                     <div class="flex items-center justify-between border-t pt-3">
                                         <span class="text-[10px] text-gray-400">Verified Partner</span>
-                                        <a href="{{ route('marketplace.search', ['store' => $store->slug]) }}"
-                                            class="bg-teal-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Browse</a>
+                                        <a href="{{ route('marketplace.store', $store->slug) }}"
+                                            class="bg-teal-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Visit Store</a>
                                     </div>
                                 </div>
                             </div>

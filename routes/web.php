@@ -27,6 +27,7 @@ use App\Livewire\Marketplace\Checkout;
 use App\Livewire\Marketplace\MyOrders;
 use App\Livewire\Marketplace\ProductDetails;
 use App\Livewire\Marketplace\Search;
+use App\Livewire\Marketplace\StoreProfile;
 use App\Livewire\Marketplace\Stores;
 use App\Livewire\SuperAdmin\PricingPlans;
 use App\Livewire\SuperAdmin\SubscriptionManager;
@@ -141,7 +142,7 @@ Route::get('/marketplace/category/{category}', Search::class)->name('marketplace
 Route::get('/marketplace/product/{item}', ProductDetails::class)->name('marketplace.product');
 Route::get('/marketplace/checkout', Checkout::class)->name('marketplace.checkout');
 Route::get('/marketplace/my-orders', MyOrders::class)->name('marketplace.my-orders');
-Route::get('/marketplace/store/{store}', Search::class)->name('marketplace.store'); // We'll update this later to a specific StoreView component
+Route::get('/marketplace/store/{store}', StoreProfile::class)->name('marketplace.store');
 
 Route::get('/invite', InviteUser::class)->name('invite');
 Route::get('/login', Login::class)->name('login');

@@ -170,10 +170,16 @@
                                     </div>
                                 </div>
                                 @if($store->owner_id === Auth::id() || Auth::user()->hasRole('super admin'))
-                                    <button wire:click="confirmDeleteStore({{ $store->id }})"
-                                        class="sf-icon-btn sf-icon-btn-danger" title="Delete Store">
-                                        <i class='bx bx-trash'></i>
-                                    </button>
+                                    <div class="flex items-center space-x-2">
+                                        <button wire:click="editStore({{ $store->id }})"
+                                            class="sf-icon-btn text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100" title="Edit Store">
+                                            <i class='bx bx-edit'></i>
+                                        </button>
+                                        <button wire:click="confirmDeleteStore({{ $store->id }})"
+                                            class="sf-icon-btn sf-icon-btn-danger" title="Delete Store">
+                                            <i class='bx bx-trash'></i>
+                                        </button>
+                                    </div>
                                 @endif
                             </div>
 
@@ -270,6 +276,64 @@
                                 class="sf-btn sf-btn-red"
                                 {{ $confirmStoreName !== $deletingStore->name ? 'disabled' : '' }}>
                             <i class='bx bx-trash'></i> Delete Store
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Edit Store Modal -->
+        @if($showEditStoreModal && $editingStore)
+            <div class="sf-overlay" wire:click.self="$set('showEditStoreModal', false)">
+                <div class="sf-modal rounded-lg shadow-xl bg-white w-full max-w-md overflow-hidden">
+                    <div class="sf-modal-head bg-gray-50 flex items-center justify-between p-4 border-b">
+                        <span class="sf-modal-title text-gray-900 font-bold flex items-center">
+                            <i class='bx border-2 border-gray-200 bx-edit p-1 rounded mr-2' style="color: #4361EE;"></i>
+                            Edit Store details
+                        </span>
+                        <button type="button" wire:click="$set('showEditStoreModal', false)" class="text-gray-400 hover:text-gray-500">
+                            <i class='bx bx-x text-2xl'></i>
+                        </button>
+                    </div>
+
+                    <div class="sf-modal-body p-6">
+                        <div class="sf-field">
+                            <label class="sf-label block text-sm font-medium text-gray-700 mb-2">Store Name</label>
+                            <input type="text" 
+                                   wire:model="editStoreName" 
+                                   class="sf-input w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                   placeholder="Enter store name...">
+                            @error('editStoreName')
+                                <div class="sf-ferr mt-1 text-sm text-red-600">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="sf-field mt-4">
+                            <label class="sf-label block text-sm font-medium text-gray-700 mb-2">Store Logo (Optional)</label>
+                            <input type="file" wire:model="editStoreLogo" accept="image/*" class="sf-input w-full border-gray-300 rounded-md shadow-sm">
+                            <div class="sf-hint mt-1 text-xs text-gray-500">Leave empty to keep the existing logo. PNG, JPG, WEBP up to 2MB.</div>
+                            @error('editStoreLogo') <div class="sf-ferr mt-1 text-sm text-red-600">{{ $message }}</div> @enderror
+                            <div wire:loading wire:target="editStoreLogo" class="sf-hint mt-1 text-xs text-blue-600">Uploading preview...</div>
+                            
+                            @if($editStoreLogo)
+                                <div class="mt-2">
+                                    <img src="{{ $editStoreLogo->temporaryUrl() }}" class="h-16 rounded object-cover border">
+                                </div>
+                            @elseif($editingStore->logo)
+                                <div class="mt-2">
+                                    <img src="{{ Storage::disk('public')->url($editingStore->logo) }}" class="h-16 rounded object-cover border">
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="sf-modal-foot bg-gray-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-gray-100">
+                        <button wire:click="$set('showEditStoreModal', false)" class="sf-btn sf-btn-ghost px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button wire:click="updateStore" 
+                                class="sf-btn border border-transparent bg-blue-600 text-white rounded-md hover:bg-blue-700 px-4 py-2 text-sm font-medium">
+                            <i class='bx bx-check mr-1'></i> Update Store
                         </button>
                     </div>
                 </div>

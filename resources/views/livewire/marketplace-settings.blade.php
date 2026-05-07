@@ -43,9 +43,23 @@
 
         <div class="sf-marketplace-grid">
             <!-- Left Column: Store Visibility & Location -->
-            <div class="sf-marketplace-left">
+            <form wire:submit.prevent="updateStoreSettings" class="sf-marketplace-left">
+                <!-- Public Link (if public) -->
+                @if($is_public && $store)
+                    <div class="sf-card bg-indigo-50 border-indigo-100">
+                        <div class="sf-card-body flex justify-between items-center">
+                            <div>
+                                <h3 class="font-semibold text-indigo-900 mb-1">Your Store is Live!</h3>
+                                <p class="text-sm text-indigo-700">Customers can visit your store globally.</p>
+                            </div>
+                            <a href="{{ route('marketplace.store', $store->slug) }}" target="_blank" class="sf-btn sf-btn-blue shadow-sm">
+                                <i class='bx bx-external-link'></i> View Store
+                            </a>
+                        </div>
+                    </div>
+                @endif
                 <!-- Store Visibility Card -->
-                <div class="sf-card mb-5">
+                <div class="sf-card">
                     <div class="sf-card-head">
                         <h3 class="sf-card-title">
                             <i class='bx bx-show-alt mr-2'></i>
@@ -58,7 +72,7 @@
                                 <div class="font-medium">Public Mode</div>
                                 <div class="sf-meta-text">Show store in marketplace search</div>
                             </div>
-                            <button wire:click="$toggle('is_public')"
+                            <button type="button" wire:click="$toggle('is_public')"
                                 class="sf-toggle {{ $is_public ? 'on' : 'off' }} {{ !$hasMarketplaceFeature ? 'disabled' : '' }}"
                                 @if(!$hasMarketplaceFeature) disabled @endif>
                                 <span class="sf-toggle-slider"></span>
@@ -74,6 +88,74 @@
                     </div>
                 </div>
 
+                <!-- Store Profile Card -->
+                <div class="sf-card">
+                    <div class="sf-card-head">
+                        <h3 class="sf-card-title">
+                            <i class='bx bx-id-card mr-2'></i>
+                            Store Profile
+                        </h3>
+                    </div>
+                    <div class="sf-card-body space-y-4">
+                        <div class="sf-field">
+                            <label class="sf-label">Store Name</label>
+                            <input type="text" wire:model="name" class="sf-input" placeholder="Enter store name">
+                            @error('name') <span class="sf-ferr text-xs text-red-500">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label">Store Slug / URL</label>
+                            <div class="flex items-center">
+                                <span class="text-gray-500 text-sm bg-gray-100 border border-r-0 border-gray-200 px-3 py-2 rounded-l-sm">{{ url('/marketplace/store') }}/</span>
+                                <input type="text" wire:model="slug" class="sf-input rounded-l-none" placeholder="my-store-slug">
+                            </div>
+                            <div class="sf-meta-text mt-1">This will be your unique accessible store URL. Must be lowercase, numbers, and dashes only.</div>
+                            @error('slug') <span class="sf-ferr text-xs text-red-500">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label">About Store (Description)</label>
+                            <textarea wire:model="description" class="sf-input" rows="3" placeholder="Tell customers what your store is about..."></textarea>
+                            <div class="sf-meta-text mt-1">A brief description visible on your public store page.</div>
+                            @error('description') <span class="sf-ferr text-xs text-red-500">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="sf-row2">
+                            <div class="sf-field">
+                                <label class="sf-label">Store Logo</label>
+                                @if($logo)
+                                    <div class="mb-2">
+                                        <img src="{{ $logo->temporaryUrl() }}" class="w-16 h-16 rounded object-cover border">
+                                    </div>
+                                @elseif($store->logo)
+                                    <div class="mb-2">
+                                        <img src="{{ Storage::url($store->logo) }}" class="w-16 h-16 rounded object-cover border">
+                                    </div>
+                                @endif
+                                <input type="file" wire:model="logo" class="sf-input">
+                                <div class="sf-meta-text mt-1">PNG, JPG up to 1MB</div>
+                                @error('logo') <span class="sf-ferr text-xs text-red-500">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="sf-field">
+                                <label class="sf-label">Store Banner</label>
+                                @if($banner)
+                                    <div class="mb-2">
+                                        <img src="{{ $banner->temporaryUrl() }}" class="w-full h-16 rounded object-cover border">
+                                    </div>
+                                @elseif($store->banner)
+                                    <div class="mb-2">
+                                        <img src="{{ Storage::url($store->banner) }}" class="w-full h-16 rounded object-cover border">
+                                    </div>
+                                @endif
+                                <input type="file" wire:model="banner" class="sf-input">
+                                <div class="sf-meta-text mt-1">PNG, JPG up to 2MB</div>
+                                @error('banner') <span class="sf-ferr text-xs text-red-500">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Location Data Card -->
                 <div class="sf-card">
                     <div class="sf-card-head">
@@ -82,80 +164,82 @@
                             Location Data
                         </h3>
                     </div>
-                    <div class="sf-card-body">
-                        <form wire:submit.prevent="updateStoreSettings" class="space-y-4">
-                            <div class="sf-field">
-                                <label class="sf-label">Street Address</label>
-                                <input type="text" wire:model="address" class="sf-input"
-                                    placeholder="Enter street address">
-                            </div>
+                    <div class="sf-card-body space-y-4">
+                        <div class="sf-field">
+                            <label class="sf-label">Street Address</label>
+                            <input type="text" wire:model="address" class="sf-input"
+                                placeholder="Enter street address">
+                        </div>
 
-                            <div class="sf-field">
-                                <label class="sf-label">City</label>
-                                <input type="text" wire:model="city" class="sf-input" placeholder="Enter city">
-                            </div>
+                        <div class="sf-field">
+                            <label class="sf-label">City</label>
+                            <input type="text" wire:model="city" class="sf-input" placeholder="Enter city">
+                        </div>
 
-                            <div class="sf-field">
-                                <label class="sf-label">Area / Neighborhood</label>
-                                <input type="text" wire:model="area" class="sf-input"
-                                    placeholder="e.g., Clifton, Saddar, DHA">
-                            </div>
+                        <div class="sf-field">
+                            <label class="sf-label">Area / Neighborhood</label>
+                            <input type="text" wire:model="area" class="sf-input"
+                                placeholder="e.g., Clifton, Saddar, DHA">
+                        </div>
 
+                        <div class="sf-field">
+                            <label class="sf-label">Country</label>
+                            <select wire:model.live="country" class="sf-input">
+                                <option value="">Select Country</option>
+                                @foreach($countries as $c)
+                                    <option value="{{ $c }}">{{ $c }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="sf-row2">
                             <div class="sf-field">
-                                <label class="sf-label">Country</label>
-                                <select wire:model.live="country" class="sf-input">
-                                    <option value="">Select Country</option>
-                                    @foreach($countries as $c)
-                                        <option value="{{ $c }}">{{ $c }}</option>
+                                <label class="sf-label">Currency</label>
+                                <select wire:model="currency" class="sf-input">
+                                    <option value="">Select Currency</option>
+                                    @foreach($currencies as $curr)
+                                        <option value="{{ $curr }}">{{ $curr }}</option>
                                     @endforeach
                                 </select>
                             </div>
-
-                            <div class="sf-row2">
-                                <div class="sf-field">
-                                    <label class="sf-label">Currency</label>
-                                    <select wire:model="currency" class="sf-input">
-                                        <option value="">Select Currency</option>
-                                        @foreach($currencies as $curr)
-                                            <option value="{{ $curr }}">{{ $curr }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="sf-field">
-                                    <label class="sf-label">Currency Symbol</label>
-                                    <select wire:model="currency_symbol" class="sf-input">
-                                        <option value="">Select Symbol</option>
-                                        @foreach($symbols as $sym)
-                                            <option value="{{ $sym }}">{{ $sym }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                            <div class="sf-field">
+                                <label class="sf-label">Currency Symbol</label>
+                                <select wire:model="currency_symbol" class="sf-input">
+                                    <option value="">Select Symbol</option>
+                                    @foreach($symbols as $sym)
+                                        <option value="{{ $sym }}">{{ $sym }}</option>
+                                    @endforeach
+                                </select>
                             </div>
+                        </div>
 
-                            <div class="sf-row2">
-                                <div class="sf-field">
-                                    <label class="sf-label">Latitude</label>
-                                    <input type="text" wire:model="latitude" class="sf-input"
-                                        placeholder="e.g., 24.8607">
-                                </div>
-                                <div class="sf-field">
-                                    <label class="sf-label">Longitude</label>
-                                    <input type="text" wire:model="longitude" class="sf-input"
-                                        placeholder="e.g., 67.0011">
-                                </div>
+                        <div class="sf-row2">
+                            <div class="sf-field">
+                                <label class="sf-label">Latitude</label>
+                                <input type="text" wire:model="latitude" class="sf-input"
+                                    placeholder="e.g., 24.8607">
                             </div>
+                            <div class="sf-field">
+                                <label class="sf-label">Longitude</label>
+                                <input type="text" wire:model="longitude" class="sf-input"
+                                    placeholder="e.g., 67.0011">
+                            </div>
+                        </div>
 
+                        <div class="flex flex-col gap-3">
                             <button type="button" onclick="detectLocation()" class="sf-btn sf-btn-outline w-full">
                                 <i class='bx bx-target-lock'></i> Fetch My Coordinates
                             </button>
 
-                            <button type="submit" class="sf-btn sf-btn-blue w-full">
-                                <i class='bx bx-save'></i> Save Changes
+                            <button type="submit" class="sf-btn sf-btn-blue w-full" wire:loading.attr="disabled">
+                                <i class='bx bx-save' wire:loading.remove></i>
+                                <span wire:loading><i class='bx bx-loader-alt animate-spin'></i> Saving...</span>
+                                <span wire:loading.remove>Save All Marketplace Settings</span>
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Right Column: Item Visibility -->
             <div class="sf-marketplace-right">
@@ -175,14 +259,26 @@
                                     <th>Item</th>
                                     <th>Price</th>
                                     <th class="text-right">Marketplace</th>
+                                    <th class="text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($items as $item)
                                     <tr class="sf-table-row">
                                         <td>
-                                            <div class="font-medium text-gray-900">{{ $item->name }}</div>
-                                            <div class="sf-meta-text mt-1">SKU: {{ $item->sku }}</div>
+                                            <div class="flex items-center gap-3">
+                                                @if($item->image)
+                                                    <img src="{{ Storage::url($item->image) }}" class="w-10 h-10 rounded object-cover">
+                                                @else
+                                                    <div class="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-teal-600">
+                                                        <i class="bx bx-package"></i>
+                                                    </div>
+                                                @endif
+                                                <div>
+                                                    <div class="font-medium text-gray-900">{{ $item->name }}</div>
+                                                    <div class="sf-meta-text mt-1">SKU: {{ $item->sku }}</div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
                                             <div class="font-semibold sf-currency-value">
@@ -194,6 +290,11 @@
                                                 class="sf-toggle sf-toggle-sm {{ $item->is_public ? 'on' : 'off' }} {{ !$hasMarketplaceFeature ? 'disabled' : '' }}"
                                                 @if(!$hasMarketplaceFeature) disabled @endif>
                                                 <span class="sf-toggle-slider"></span>
+                                            </button>
+                                        </td>
+                                        <td class="text-right">
+                                            <button wire:click="editItem({{ $item->id }})" class="sf-btn sf-btn-ghost sf-btn-sm" title="Edit Marketplace Details">
+                                                <i class='bx bx-edit'></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -264,6 +365,87 @@
                         </button>
                         <button wire:click="delete" class="sf-btn sf-btn-red" {{ $confirmName !== $store->name ? 'disabled' : '' }}>
                             <i class='bx bx-check'></i> Confirm Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Edit Item Modal -->
+        @if($showEditItemModal && $editingItem)
+            <div class="sf-overlay" wire:click.self="$set('showEditItemModal', false)">
+                <div class="sf-modal rounded-lg shadow-xl bg-white w-full max-w-lg overflow-x-hidden md:overflow-x-visible overflow-y-auto max-h-[90vh]">
+                    <div class="sf-modal-head bg-gray-50 flex items-center justify-between p-4 border-b">
+                        <span class="sf-modal-title text-gray-900 font-bold flex items-center">
+                            <i class='bx border-2 border-gray-200 bx-package p-1 rounded mr-2' style="color: #4361EE;"></i>
+                            Edit Marketplace Item
+                        </span>
+                        <button type="button" wire:click="$set('showEditItemModal', false)" class="text-gray-400 hover:text-gray-500">
+                            <i class='bx bx-x text-2xl'></i>
+                        </button>
+                    </div>
+
+                    <div class="sf-modal-body p-6 space-y-4">
+                        <div class="sf-field">
+                            <label class="sf-label block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                            <input type="text" 
+                                   wire:model="editItemName" 
+                                   class="sf-input w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                   placeholder="Enter public name...">
+                            @error('editItemName')
+                                <div class="sf-ferr mt-1 text-sm text-red-600">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label block text-sm font-medium text-gray-700 mb-2">Marketplace Price</label>
+                            <input type="number" 
+                                   step="0.01"
+                                   wire:model="editItemPrice" 
+                                   class="sf-input w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                   placeholder="Enter public price...">
+                            @error('editItemPrice')
+                                <div class="sf-ferr mt-1 text-sm text-red-600">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label block text-sm font-medium text-gray-700 mb-2">Public Description</label>
+                            <textarea wire:model="editItemDescription" 
+                                      class="sf-input w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                      rows="3"
+                                      placeholder="Write a description for marketplace visitors..."></textarea>
+                            @error('editItemDescription')
+                                <div class="sf-ferr mt-1 text-sm text-red-600">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="sf-field">
+                            <label class="sf-label block text-sm font-medium text-gray-700 mb-2">Primary Image</label>
+                            @if($editItemImage)
+                                <div class="mb-2">
+                                    <img src="{{ $editItemImage->temporaryUrl() }}" class="w-16 h-16 rounded object-cover border">
+                                </div>
+                            @elseif($editingItem->image)
+                                <div class="mb-2">
+                                    <img src="{{ Storage::url($editingItem->image) }}" class="w-16 h-16 rounded object-cover border">
+                                </div>
+                            @endif
+                            <input type="file" wire:model="editItemImage" accept="image/*" class="sf-input">
+                            <div class="sf-meta-text mt-1 text-xs text-gray-500">PNG, JPG up to 2MB</div>
+                            @error('editItemImage')
+                                <div class="sf-ferr mt-1 text-sm text-red-600">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="sf-modal-foot bg-gray-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-gray-100">
+                        <button wire:click="$set('showEditItemModal', false)" class="sf-btn sf-btn-ghost px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button wire:click="updateItem" 
+                                class="sf-btn border border-transparent bg-blue-600 text-white rounded-md hover:bg-blue-700 px-4 py-2 text-sm font-medium">
+                            <i class='bx bx-check mr-1'></i> Save Details
                         </button>
                     </div>
                 </div>

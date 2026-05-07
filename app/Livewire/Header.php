@@ -2,10 +2,17 @@
 
 namespace App\Livewire;
 
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Header extends Component
 {
+    #[On('avatarUpdated')]
+    public function refreshAvatar()
+    {
+        // This causes the component to re-render
+    }
+
     public function logout()
     {
         $user = auth()->user();

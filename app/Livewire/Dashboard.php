@@ -206,10 +206,14 @@ class Dashboard extends Component
 
             // Get stock in/out from inventory_audits
             $stockInQuery = InventoryAudit::where('store_id', $storeId)
-                ->where('type', 'STOCK_IN');
+                ->where(function($q) {
+                    $q->where('action', 'stock_in')->orWhere('action', 'in');
+                });
 
             $stockOutQuery = InventoryAudit::where('store_id', $storeId)
-                ->where('type', 'STOCK_OUT');
+                ->where(function($q) {
+                    $q->where('action', 'stock_out')->orWhere('action', 'out');
+                });
 
             if ($this->startDate && $this->endDate) {
                 $stockInQuery->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
@@ -221,8 +225,8 @@ class Dashboard extends Component
                 $stockOutQuery->where('user_id', $this->selectedUserId);
             }
 
-            $stockIn = (int) $stockInQuery->sum('quantity');
-            $stockOut = (int) $stockOutQuery->sum('quantity');
+            $stockIn = (int) $stockInQuery->sum('change_qty');
+            $stockOut = abs((int) $stockOutQuery->sum('change_qty'));
 
             // Debug: Log the actual values
             \Log::info('Dashboard Summary Values', [

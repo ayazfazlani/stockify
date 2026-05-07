@@ -165,7 +165,7 @@ class Dashboard extends Component
             'avatar' => 'nullable|image|max:2048',
         ]);
 
-        $tenant = tenant();
+        $tenant = $this->resolveTenant();
         if ($tenant) {
             $updates = [
                 'name' => $this->companyName,
@@ -184,6 +184,7 @@ class Dashboard extends Component
             $tenant->update($updates);
             $this->currentAvatar = $tenant->avatar ? Storage::url($tenant->avatar) : null;
             $this->reset('avatar');
+            $this->dispatch('avatarUpdated');
         }
 
         session()->flash('settings-success', 'General settings saved successfully!');
@@ -194,7 +195,7 @@ class Dashboard extends Component
      */
     public function saveNotificationPrefs()
     {
-        $tenant = tenant();
+        $tenant = $this->resolveTenant();
         if ($tenant) {
             $tenant->update([
                 'notify_security' => $this->notifySecurityAlerts,
@@ -288,7 +289,7 @@ class Dashboard extends Component
 
     public function changePlan(int $planId): void
     {
-        $tenant = tenant();
+        $tenant = $this->resolveTenant();
         if (!$tenant) {
             session()->flash('settings-error', 'Tenant not found.');
             return;

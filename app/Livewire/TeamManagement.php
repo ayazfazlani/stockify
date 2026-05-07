@@ -48,6 +48,15 @@ class TeamManagement extends Component
 
     public $confirmStoreName = '';
 
+    // Edit Store
+    public $showEditStoreModal = false;
+
+    public $editingStore = null;
+
+    public $editStoreName = '';
+
+    public $editStoreLogo;
+
     public function mount()
     {
         $tenant = tenant();
@@ -142,6 +151,47 @@ class TeamManagement extends Component
         session()->flash('status', 'Store '.$this->deletingStore->name.' deleted successfully!');
         $this->showDeleteModal = false;
         $this->deletingStore = null;
+        $this->loadData();
+    }
+
+    public function editStore($storeId)
+    {
+        $this->editingStore = Store::findOrFail($storeId);
+        $this->editStoreName = $this->editingStore->name;
+        $this->editStoreLogo = null;
+        $this->showEditStoreModal = true;
+    }
+
+    public function updateStore()
+    {
+        if (! $this->editingStore) {
+            return;
+        }
+
+        $this->validate([
+            'editStoreName' => 'required|unique:stores,name,' . $this->editingStore->id,
+            'editStoreLogo' => 'nullable|image|max:2048',
+        ], [
+            'editStoreName.required' => 'Store name is required.',
+            'editStoreName.unique' => 'This store name is already taken.',
+        ]);
+
+        $data = [
+            'name' => $this->editStoreName,
+        ];
+
+        if ($this->editStoreLogo) {
+            if ($this->editingStore->logo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->editingStore->logo);
+            }
+            $data['logo'] = $this->editStoreLogo->store('logos', 'public');
+        }
+
+        $this->editingStore->update($data);
+
+        session()->flash('status', 'Store updated successfully!');
+        $this->showEditStoreModal = false;
+        $this->editingStore = null;
         $this->loadData();
     }
 

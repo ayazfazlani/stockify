@@ -16,7 +16,9 @@
 
     <!-- Right Side Icons -->
     <div class="flex items-center space-x-4">
+        <div></div>
         @auth
+
             <!-- Notification Icon -->
             <div class="relative">
                 <button id="notificationButton" class="text-gray-500 hover:text-gray-700 focus:outline-none">
@@ -53,19 +55,19 @@
                     class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
                     @php
                         $adminUrl = '#';
-                        if ($user->isSuperAdmin()) {
-                            $adminUrl = route('tenant.admin');
-                        } elseif (tenancy()->initialized) {
+                        if (tenancy()->initialized) {
                             $adminUrl = route('tenant.admin', ['tenant' => tenant('slug')]);
+                        } elseif ($user->isSuperAdmin()) {
+                            $adminUrl = route('super-admin.dashboard');
                         } elseif ($user && isset($user->tenant_id)) {
                             $tenantSlug = \App\Models\Tenant::where('id', $user->tenant_id)->value('slug');
                             if ($tenantSlug) {
                                 $adminUrl = route('tenant.admin', ['tenant' => $tenantSlug]);
                             } else {
-                                $adminUrl = route('admin');
+                                $adminUrl = '/';
                             }
                         } else {
-                            $adminUrl = route('admin');
+                            $adminUrl = '/';
                         }
 
                         $logoutUrl = $user->isSuperAdmin() ? route('super-admin.logout') : url('/logout');

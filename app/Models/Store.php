@@ -34,6 +34,7 @@ class Store extends Model
         'is_public',
         'currency',
         'currency_symbol',
+        'banner',
     ];
 
     protected $casts = [
