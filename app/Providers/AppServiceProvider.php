@@ -62,10 +62,11 @@ class AppServiceProvider extends ServiceProvider
         Item::observe(ItemMetricsObserver::class);
 
         // Set application locale based on tenant preference
-        if ($tenant = tenant()) {
-            if ($tenant->locale) {
-                app()->setLocale($tenant->locale);
-            }
-        }
+        // This is now handled by SetLocale middleware which also handles session/cookie
+        // if ($tenant = tenant()) {
+        //     if ($tenant->locale) {
+        //         app()->setLocale($tenant->locale);
+        //     }
+        // }
     }
 }

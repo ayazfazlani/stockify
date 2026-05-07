@@ -269,8 +269,8 @@
             <header
                 class="hidden md:flex items-center justify-between bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-30">
                 <div>
-                    <h2 class="text-xl font-semibold text-gray-900">@yield('page_title', 'Dashboard')</h2>
-                    <p class="text-sm text-gray-500">{{ now()->format('l, F j, Y') }}</p>
+                    <h2 class="text-xl font-semibold text-gray-900">@yield('page_title', __('app.dashboard.title'))</h2>
+                    <p class="text-sm text-gray-500">{{ now()->translatedFormat('l, F j, Y') }}</p>
                 </div>
 
                 <div class="flex items-center gap-4">
@@ -280,7 +280,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <input type="text" placeholder="Search items, orders..."
+                        <input type="text" placeholder="{{ __('app.header.search_placeholder') }}"
                             class="pl-10 pr-4 py-2 bg-gray-100 border-0 rounded-lg text-sm w-64 focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
                     </div>
 
@@ -292,6 +292,24 @@
                         <span
                             class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     </button>
+
+                    <!-- Language Switcher -->
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                        <button @click="open = !open" class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                            <span class="uppercase">{{ app()->getLocale() }}</span>
+                            <svg class="w-4 h-4 text-gray-500 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50">
+                            <a href="{{ route('locale.switch', 'en') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors">
+                                <span class="text-lg">🇺🇸</span> English
+                            </a>
+                            <a href="{{ route('locale.switch', 'ur') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50 transition-colors">
+                                <span class="text-lg">🇵🇰</span> اردو
+                            </a>
+                        </div>
+                    </div>
 
                     @livewire('team-switcher')
                 </div>

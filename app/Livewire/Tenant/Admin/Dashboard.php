@@ -27,29 +27,44 @@ class Dashboard extends Component
 
     // ── General Settings ────────────────────────────
     public string $companyName = '';
+
     public string $contactEmail = '';
+
     public string $companyDescription = '';
+
     public string $timezone = 'UTC';
+
     public string $dateFormat = 'Y-m-d';
+
     public string $tenantSlug = '';
+
     public $avatar;
+
     public ?string $currentAvatar = null;
 
     // ── Notification Preferences ────────────────────
     public bool $notifySecurityAlerts = true;
+
     public bool $notifyBilling = true;
+
     public bool $notifyProductUpdates = false;
+
     public bool $notifyLowStock = true;
 
     // ── Analytics ───────────────────────────────────
     public array $marginLeaders = [];
+
     public $recentAudits = [];
 
     // ── Cached Billing Data ─────────────────────────
     protected $cachedCurrentPlan = null;
+
     protected $cachedSubscription = null;
+
     protected $cachedUsageStats = null;
+
     protected $cachedAvailablePlans = null;
+
     protected $cachedPlanFeatures = null;
 
     // ── Listeners ───────────────────────────────────
@@ -61,6 +76,9 @@ class Dashboard extends Component
 
         $tenant = $this->resolveTenant();
         $user = Auth::user();
+        if (! $user->isAdmin()) {
+            abort(403, 'Unauthorized access to admin settings.');
+        }
 
         if ($tenant) {
             $this->tenantSlug = (string) $tenant->slug;
@@ -142,7 +160,7 @@ class Dashboard extends Component
     {
         if ($section === 'billing') {
             $user = auth()->user();
-            if (!$user->isStoreAdmin() && !$user->isSuperAdmin() && tenant('owner_id') !== $user->id) {
+            if (! $user->isStoreAdmin() && ! $user->isSuperAdmin() && tenant('owner_id') !== $user->id) {
                 abort(403, 'Unauthorized access to billing.');
             }
             // Refresh billing data when switching to billing section
@@ -151,11 +169,12 @@ class Dashboard extends Component
         $this->activeSection = $section;
     }
 
-    /**
-     * Save general settings
-     */
     public function saveGeneralSettings()
     {
+        if (! Auth::user()->isAdmin()) {
+            abort(403);
+        }
+
         $this->validate([
             'companyName' => 'required|string|max:255',
             'contactEmail' => 'required|email|max:255',
@@ -195,6 +214,10 @@ class Dashboard extends Component
      */
     public function saveNotificationPrefs()
     {
+        if (! Auth::user()->isAdmin()) {
+            abort(403);
+        }
+
         $tenant = $this->resolveTenant();
         if ($tenant) {
             $tenant->update([
@@ -218,7 +241,7 @@ class Dashboard extends Component
         }
 
         $tenant = $this->resolveTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             return null;
         }
 
@@ -226,12 +249,13 @@ class Dashboard extends Component
             $plan = Plan::with('planFeatures')->find($tenant->plan_id);
             if ($plan) {
                 $this->cachedCurrentPlan = $plan;
+
                 return $plan;
             }
         }
 
         $subscription = $this->currentSubscription;
-        if (!$subscription) {
+        if (! $subscription) {
             return null;
         }
 
@@ -239,12 +263,14 @@ class Dashboard extends Component
             $plan = Plan::with('planFeatures')->find($subscription->plan_id);
             if ($plan) {
                 $this->cachedCurrentPlan = $plan;
+
                 return $plan;
             }
         }
 
         $plan = Plan::with('planFeatures')->where('stripe_price_id', $subscription->stripe_price)->first();
         $this->cachedCurrentPlan = $plan;
+
         return $plan;
     }
 
@@ -258,7 +284,7 @@ class Dashboard extends Component
         }
 
         $tenant = $this->resolveTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             return null;
         }
 
@@ -268,6 +294,7 @@ class Dashboard extends Component
             ->first();
 
         $this->cachedSubscription = $subscription;
+
         return $subscription;
     }
 
@@ -277,7 +304,7 @@ class Dashboard extends Component
     public function getPaymentHistoryProperty()
     {
         $tenant = $this->resolveTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             return collect([]);
         }
 
@@ -290,30 +317,35 @@ class Dashboard extends Component
     public function changePlan(int $planId): void
     {
         $tenant = $this->resolveTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             session()->flash('settings-error', 'Tenant not found.');
+
             return;
         }
 
         $plan = Plan::where('active', true)->find($planId);
-        if (!$plan) {
+        if (! $plan) {
             session()->flash('settings-error', 'Selected plan is not available.');
+
             return;
         }
 
-        if (!$tenant->subscribed('default')) {
+        if (! $tenant->subscribed('default')) {
             session()->flash('settings-error', 'No active subscription found. Please subscribe first.');
+
             return;
         }
 
         $currentSubscription = $tenant->subscription('default');
-        if (!$currentSubscription) {
+        if (! $currentSubscription) {
             session()->flash('settings-error', 'Subscription record not found.');
+
             return;
         }
 
         if ($currentSubscription->stripe_price === $plan->stripe_price_id) {
             session()->flash('settings-success', 'You are already on this plan.');
+
             return;
         }
 
@@ -325,9 +357,9 @@ class Dashboard extends Component
                 ->where('type', 'default')
                 ->latest()
                 ->first()?->update([
-                        'plan_id' => $plan->id,
-                        'stripe_status' => 'active',
-                    ]);
+                    'plan_id' => $plan->id,
+                    'stripe_status' => 'active',
+                ]);
 
             $tenant->update([
                 'plan_id' => $plan->id,
@@ -347,7 +379,7 @@ class Dashboard extends Component
     protected function syncPlanFromActiveSubscription(): void
     {
         $tenant = $this->resolveTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             return;
         }
 
@@ -357,7 +389,7 @@ class Dashboard extends Component
             ->latest()
             ->first();
 
-        if (!$activeSubscription) {
+        if (! $activeSubscription) {
             return;
         }
 
@@ -366,11 +398,11 @@ class Dashboard extends Component
             $plan = Plan::find($activeSubscription->plan_id);
         }
 
-        if (!$plan && $activeSubscription->stripe_price) {
+        if (! $plan && $activeSubscription->stripe_price) {
             $plan = Plan::where('stripe_price_id', $activeSubscription->stripe_price)->first();
         }
 
-        if (!$plan) {
+        if (! $plan) {
             return;
         }
 
@@ -378,7 +410,7 @@ class Dashboard extends Component
             $activeSubscription->update(['plan_id' => $plan->id]);
         }
 
-        if ((int) $tenant->plan_id !== (int) $plan->id || !$tenant->is_active || $tenant->subscription_plan !== $plan->slug) {
+        if ((int) $tenant->plan_id !== (int) $plan->id || ! $tenant->is_active || $tenant->subscription_plan !== $plan->slug) {
             $tenant->update([
                 'plan_id' => $plan->id,
                 'subscription_plan' => $plan->slug,
@@ -397,7 +429,7 @@ class Dashboard extends Component
         }
 
         $tenant = $this->resolveTenant();
-        if (!$tenant) {
+        if (! $tenant) {
             return [];
         }
 
@@ -435,6 +467,7 @@ class Dashboard extends Component
         ];
 
         $this->cachedUsageStats = $stats;
+
         return $stats;
     }
 
@@ -453,6 +486,7 @@ class Dashboard extends Component
             ->get();
 
         $this->cachedAvailablePlans = $plans;
+
         return $plans;
     }
 
@@ -466,14 +500,14 @@ class Dashboard extends Component
         }
 
         $plan = $this->getCurrentPlanProperty();
-        if (!$plan) {
+        if (! $plan) {
             return [];
         }
 
         $features = $plan->planFeatures
             ->map(function ($pf) {
                 $enum = PlanFeature::tryFrom($pf->feature);
-                if (!$enum) {
+                if (! $enum) {
                     return null;
                 }
 
@@ -491,6 +525,7 @@ class Dashboard extends Component
             ->toArray();
 
         $this->cachedPlanFeatures = $features;
+
         return $features;
     }
 
@@ -503,6 +538,7 @@ class Dashboard extends Component
         if ($tenant) {
             return $tenant->hasFeature($feature);
         }
+
         return false;
     }
 
@@ -511,11 +547,12 @@ class Dashboard extends Component
         $resolved = tenant();
         if ($resolved) {
             $resolved->refresh();
+
             return $resolved;
         }
 
         $tenantId = Auth::user()?->tenant_id;
-        if (!$tenantId) {
+        if (! $tenantId) {
             return null;
         }
 
@@ -527,7 +564,7 @@ class Dashboard extends Component
         // Security check for billing access when using URL persistence
         if ($this->activeSection === 'billing') {
             $user = auth()->user();
-            if (!$user->isStoreAdmin() && !$user->isSuperAdmin() && tenant('owner_id') !== $user->id) {
+            if (! $user->isStoreAdmin() && ! $user->isSuperAdmin() && tenant('owner_id') !== $user->id) {
                 $this->activeSection = 'general';
             }
         }

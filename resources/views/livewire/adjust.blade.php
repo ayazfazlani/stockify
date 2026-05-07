@@ -44,12 +44,11 @@
             <div class="w-full sm:flex-1 sf-card" style="height: calc(100vh - 280px); display: flex; flex-direction: column;">
                 <div class="sf-card-head">
                     <h2 class="text-lg font-semibold" style="color: #0F1117;">Select Items</h2>
-                    @role('viewer')
-                    @else
+                    @can('create items')
                     <button wire:click="openModal" class="sf-btn sf-btn-green sf-btn-sm">
                         <i class='bx bx-plus'></i> Add Item
                     </button>
-                    @endrole
+                    @endcan
                 </div>
                 
                 <div style="flex: 1; overflow-y: auto; padding: 12px 14px;">
@@ -78,15 +77,16 @@
                                         {{ $item->quantity }}
                                     </div>
                                     <div class="flex gap-1">
-                                        @role('viewer')
-                                        @else
+                                        @can('edit items')
                                             <button wire:click="openModal({{ $item->id }})" class="sf-icon-btn" title="Edit">
                                                 <i class='bx bx-edit'></i>
                                             </button>
+                                        @endcan
+                                        @can('delete items')
                                             <button wire:click.prevent="deleteItem({{ $item->id }})" class="sf-icon-btn sf-icon-btn-danger" title="Delete">
                                                 <i class='bx bx-trash'></i>
                                             </button>
-                                        @endrole
+                                        @endcan
                                     </div>
                                 </div>
                             @endforeach
@@ -143,11 +143,13 @@
 
                     <!-- Cost & Price -->
                     <div class="sf-row2">
+                        @can('view item cost')
                         <div class="sf-field">
                             <label class="sf-label">Cost Price</label>
                             <input type="number" step="0.01" wire:model="newItem.cost" placeholder="0.00" class="sf-finput">
-                            @error('newItem.cost') <div class="sf-ferr">{{ $message }}</div> @enderror
+                            @error('newItem.cost') <div class="sf-ferr"><i class='bx bx-error-circle'></i> {{ $message }}</div> @enderror
                         </div>
+                        @endcan
                         <div class="sf-field">
                             <label class="sf-label">Selling Price</label>
                             <input type="number" step="0.01" wire:model="newItem.price" placeholder="0.00" class="sf-finput">

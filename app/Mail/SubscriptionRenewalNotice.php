@@ -4,14 +4,16 @@ namespace App\Mail;
 
 use App\Models\Team;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SubscriptionRenewalNotice extends Mailable
+class SubscriptionRenewalNotice extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $team;
+
     public $isTrialEnding;
 
     public function __construct(Team $team, bool $isTrialEnding = false)

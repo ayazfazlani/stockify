@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ur' ? 'rtl' : 'ltr' }}">
 
 <head>
   <meta charset="UTF-8">
@@ -7,7 +7,7 @@
   <title>POS for Shops | Simple Inventory Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ asset('css/fontawesome/css/all.min.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu&display=swap"
     rel="stylesheet">
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script> -->
@@ -186,6 +186,28 @@
     .faq-item.active .faq-icon {
       transform: rotate(180deg);
     }
+
+    [dir="rtl"] {
+      font-family: 'Noto Nastaliq Urdu', 'Inter', system-ui, sans-serif;
+    }
+
+    [dir="rtl"] .ml-auto {
+      margin-right: auto;
+      margin-left: 0;
+    }
+
+    [dir="rtl"] .mr-auto {
+      margin-left: auto;
+      margin-right: 0;
+    }
+
+    [dir="rtl"] .text-left {
+      text-align: right;
+    }
+
+    [dir="rtl"] .text-right {
+      text-align: left;
+    }
   </style>
   @stack('seo')
 </head>
@@ -205,25 +227,41 @@
         </div>
         <div class="hidden md:flex items-center space-x-8">
           <a href="#features"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Features</a>
+            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">{{ __('app.landing.nav.features') }}</a>
           <a href="#solutions"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Solutions</a>
+            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">{{ __('app.landing.nav.solutions') }}</a>
           <a href="#pricing"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Pricing</a>
+            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">{{ __('app.landing.nav.pricing') }}</a>
           <a href="#faq"
-            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">FAQ</a>
+            class="nav-link text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">{{ __('app.landing.nav.faq') }}</a>
 
           <a href="{{ route('marketplace.index') }}"
             class="nav-link text-emerald-600 font-bold hover:text-emerald-700 transition-colors duration-300">
-            <i class="fas fa-shopping-bag mr-1"></i> Marketplace
+            <i class="fas fa-shopping-bag mr-1"></i> {{ __('app.landing.nav.marketplace') }}
           </a>
           <a href="{{ route('find-store') }}"
-            class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Login</a>
+            class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">{{ __('app.landing.nav.login') }}</a>
           <a href="{{ route('blog.index') }}"
-            class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">Blogs</a>
+            class="text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">{{ __('app.landing.nav.blogs') }}</a>
+
+          <!-- Language Switcher -->
+          <div class="relative group">
+            <button class="flex items-center space-x-2 text-dark-800 font-medium hover:text-primary-600 transition-colors duration-300">
+              <span class="uppercase">{{ app()->getLocale() }}</span>
+              <i class="fas fa-chevron-down text-xs group-hover:rotate-180 transition-transform"></i>
+            </button>
+            <div class="absolute right-0 top-full mt-2 w-32 bg-white border border-gray-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+              <a href="{{ route('locale.switch', 'en') }}" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50">
+                <span>🇺🇸</span> <span>English</span>
+              </a>
+              <a href="{{ route('locale.switch', 'ur') }}" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50">
+                <span>🇵🇰</span> <span>اردو</span>
+              </a>
+            </div>
+          </div>
+
           <a href="{{ route('tenant.register.post') }}"
-            class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium hover:from-primary-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Start
-            Free Trial</a>
+            class="bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium hover:from-primary-600 hover:to-indigo-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">{{ __('app.landing.nav.start_trial') }}</a>
         </div>
         <div class="md:hidden flex items-center">
           <button id="mobile-menu-button" class="text-dark-800 hover:text-primary-600 transition-colors duration-300">
@@ -238,22 +276,30 @@
       class="hidden md:hidden absolute w-full bg-white/95 backdrop-blur-md shadow-lg py-4 transition-all duration-500 ease-in-out">
       <div class="px-4 pt-2 pb-3 space-y-1">
         <a href="#features"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Features</a>
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">{{ __('app.landing.nav.features') }}</a>
         <a href="#solutions"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Solutions</a>
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">{{ __('app.landing.nav.solutions') }}</a>
         <a href="#pricing"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Pricing</a>
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">{{ __('app.landing.nav.pricing') }}</a>
         <a href="#faq"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">FAQ</a>
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">{{ __('app.landing.nav.faq') }}</a>
         <a href="{{ route('marketplace.index') }}"
           class="block px-3 py-3 text-emerald-600 font-bold hover:bg-emerald-50 rounded-lg transition-all duration-300">
-          <i class="fas fa-shopping-bag mr-1"></i> Marketplace
+          <i class="fas fa-shopping-bag mr-1"></i> {{ __('app.landing.nav.marketplace') }}
         </a>
         <a href="{{ route('find-store') }}"
-          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">Login</a>
+          class="block px-3 py-3 text-dark-800 font-medium hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-300">{{ __('app.landing.nav.login') }}</a>
+        
+        <div class="px-3 py-3 border-t border-gray-100 flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-500">{{ __('app.landing.nav.language') }}</span>
+          <div class="flex gap-2">
+            <a href="{{ route('locale.switch', 'en') }}" class="px-3 py-1 text-xs rounded-full {{ app()->getLocale() == 'en' ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-600' }}">English</a>
+            <a href="{{ route('locale.switch', 'ur') }}" class="px-3 py-1 text-xs rounded-full {{ app()->getLocale() == 'ur' ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-600' }}">اردو</a>
+          </div>
+        </div>
+
         <a href="{{ route('tenant.register.post') }}"
-          class="block mx-3 mt-4 bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-3 rounded-lg font-medium text-center shadow-md hover:shadow-lg transition-all duration-300">Start
-          Free Trial</a>
+          class="block mx-3 mt-4 bg-gradient-to-r from-primary-500 to-indigo-500 text-white px-5 py-3 rounded-lg font-medium text-center shadow-md hover:shadow-lg transition-all duration-300">{{ __('app.landing.nav.start_trial') }}</a>
       </div>
     </div>
   </nav>
@@ -268,8 +314,7 @@
           <div class="flex items-center mb-6">
             <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-30 h-14">
           </div>
-          <p class="text-gray-400 mb-6 max-w-md">AI-powered inventory management solution that helps businesses
-            streamline operations, reduce costs, and boost efficiency.</p>
+          <p class="text-gray-400 mb-6 max-w-md">{{ __('app.landing.footer.description') }}</p>
           <div class="flex space-x-4">
             <a href="#"
               class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center hover:bg-primary-500 transition-colors duration-300">
@@ -290,33 +335,33 @@
           </div>
         </div>
         <div>
-          <h3 class="font-semibold text-lg mb-6">Product</h3>
+          <h3 class="font-semibold text-lg mb-6">{{ __('app.landing.footer.product') }}</h3>
           <ul class="space-y-3">
             <li><a href="{{ route('marketplace.index') }}"
-                class="text-emerald-400 font-bold hover:text-white transition-colors duration-300">Marketplace</a>
+                class="text-emerald-400 font-bold hover:text-white transition-colors duration-300">{{ __('app.landing.nav.marketplace') }}</a>
             </li>
-            <li><a href="#features" class="text-gray-400 hover:text-white transition-colors duration-300">Features</a>
+            <li><a href="#features" class="text-gray-400 hover:text-white transition-colors duration-300">{{ __('app.landing.nav.features') }}</a>
             </li>
-            <li><a href="#solutions" class="text-gray-400 hover:text-white transition-colors duration-300">Solutions</a>
+            <li><a href="#solutions" class="text-gray-400 hover:text-white transition-colors duration-300">{{ __('app.landing.nav.solutions') }}</a>
             </li>
-            <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors duration-300">Pricing</a>
+            <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors duration-300">{{ __('app.landing.nav.pricing') }}</a>
             </li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">API Docs</a></li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Mobile App</a></li>
           </ul>
         </div>
         <div>
-          <h3 class="font-semibold text-lg mb-6">Company</h3>
+          <h3 class="font-semibold text-lg mb-6">{{ __('app.landing.footer.company') }}</h3>
           <ul class="space-y-3">
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">About Us</a></li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Careers</a></li>
-            <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Blog</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">{{ __('app.landing.nav.blogs') }}</a></li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Press</a></li>
             <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">Contact</a></li>
           </ul>
         </div>
         <div>
-          <h3 class="font-semibold text-lg mb-6">Support</h3>
+          <h3 class="font-semibold text-lg mb-6">{{ __('app.landing.footer.support') }}</h3>
           <ul class="space-y-3">
             <li><a href="#faq" class="text-gray-400 hover:text-white transition-colors duration-300">Help Center</a>
             </li>
@@ -330,7 +375,7 @@
         </div>
       </div>
       <div class="pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
-        <p>&copy; 2023 POS for Shops. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} POS for Shops. {{ __('app.landing.footer.all_rights') }}</p>
       </div>
     </div>
   </footer>

@@ -85,7 +85,7 @@ class User extends Authenticatable
     public function switchTeam($teamId)
     {
         // Verify user belongs to this team
-        if (!$this->teams()->where('store_id', $teamId)->exists()) {
+        if (! $this->teams()->where('store_id', $teamId)->exists()) {
             return false;
         }
 
@@ -142,6 +142,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Store::class, 'store_user', 'user_id', 'store_id')
             ->withTimestamps();
     }
+
     // Helper methods
     public function hasActiveSubscription(): bool
     {
@@ -153,14 +154,14 @@ class User extends Authenticatable
     public function canCreateMoreStores(): bool
     {
         $tenant = tenant();
-        if (!$tenant || !$tenant->subscribed('default')) {
+        if (! $tenant || ! $tenant->subscribed('default')) {
             return false;
         }
 
         $currentStoreCount = $this->stores()->count();
         $plan = Plan::where('slug', $tenant->subscription_plan)->first();
 
-        if (!$plan) {
+        if (! $plan) {
             return false;
         }
 
@@ -169,11 +170,15 @@ class User extends Authenticatable
         return $currentStoreCount < $allowedStores;
     }
 
+    public function isOwner(): bool
+    {
+        $tenant = tenant();
+
+        return $tenant && (int) $tenant->owner_id === (int) $this->id;
+    }
+
     public function isAdmin(): bool
     {
-        // Assuming you have a 'role' column or similar
-        // Adjust the logic based on your application's role/permission system
-        // return $this->role === 'admin' || $this->role === 'super_admin';
-        return true;
+        return $this->isSuperAdmin() || $this->isStoreAdmin() || $this->isOwner();
     }
 }

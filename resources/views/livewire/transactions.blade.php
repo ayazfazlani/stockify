@@ -104,6 +104,7 @@
                                             {{ $selectedTransaction->type === 'stock in' ? '+' : '-' }}{{ $selectedTransaction->quantity }}
                                         </p>
                                     </div>
+                                    @can('view financial metrics')
                                     <div class="sf-detail-item">
                                         <label class="sf-detail-label">Unit Price</label>
                                         <p class="sf-detail-value" style="font-family: 'JetBrains Mono', monospace;">
@@ -117,6 +118,7 @@
                                             ${{ number_format($selectedTransaction->total_price, 2) }}
                                         </p>
                                     </div>
+                                    @endcan
                                     <div class="sf-detail-item">
                                         <label class="sf-detail-label">Date & Time</label>
                                         <p class="sf-detail-value" style="font-family: 'JetBrains Mono', monospace;">

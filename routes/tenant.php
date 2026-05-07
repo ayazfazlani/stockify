@@ -3,18 +3,19 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\SubscriptionController;
-use App\Http\Middleware\CheckTenantAccess;
 use App\Http\Controllers\RobotsTxtController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Middleware\CheckTenantAccess;
+use App\Http\Middleware\VerifyCsrfToken;
+use App\Livewire\Adjust;
 use App\Livewire\Admin\Blog\Blog;
 use App\Livewire\Admin\Blog\Category;
 use App\Livewire\Admin\Blog\Show;
-use App\Http\Controllers\StripeWebhookController;
-use App\Http\Middleware\VerifyCsrfToken;
-use App\Livewire\Adjust;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
 use App\Livewire\Dashboard as AnalyticsDashboard;
@@ -22,6 +23,7 @@ use App\Livewire\ExpenseTracker;
 use App\Livewire\ItemList;
 use App\Livewire\MarketplaceSettings;
 use App\Livewire\PurchaseOrders;
+use App\Livewire\RoleManagement;
 use App\Livewire\StockInComponent;
 use App\Livewire\StockOutComponent;
 use App\Livewire\SubscriptionManagement;
@@ -73,7 +75,7 @@ Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|
     CheckTenantAccess::class,
 ])->group(function () {
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
     });
 
     // / ---------------- Authenticated & Guest Routes ----------------
@@ -107,6 +109,7 @@ Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|
 
         Route::middleware(['feature:custom-roles'])->group(function () {
             Route::get('/user', UserManagement::class)->name('user');
+            Route::get('/roles', RoleManagement::class)->name('roles');
         });
 
         // Route::stripeWebhooks('stripe/webhook');   // ← this is the Cashier default
@@ -130,12 +133,7 @@ Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|
         Route::middleware(['feature:marketplace'])->get('/marketplace-settings', MarketplaceSettings::class)->name('marketplace-settings');
 
         // Locale Update
-        Route::get('/locale/{locale}', function ($tenant, $locale) {
-            $t = tenant();
-            $t->update(['locale' => $locale]);
-
-            return back();
-        })->name('locale.update');
+        Route::get('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
     });
 
 });

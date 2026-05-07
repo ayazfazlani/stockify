@@ -2,12 +2,16 @@
 
 namespace App\Services;
 
+use App\Mail\PaymentSuccessfulMail;
+use App\Mail\SubscriptionActivatedMail;
+use App\Mail\SubscriptionCancelledMail;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Services\Payment\StripeGateway;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentService
 {
@@ -25,7 +29,7 @@ class PaymentService
         return DB::transaction(function () use ($tenant, $plan) {
             // Get or create Stripe customer
             $customerId = $tenant->stripe_id; // For Tenants, billable trait uses stripe_id
-            if (!$customerId) {
+            if (! $customerId) {
                 $customer = $this->gateway->createCustomer([
                     'email' => $tenant->owner->email ?? null,
                     'name' => $tenant->name,
@@ -80,7 +84,7 @@ class PaymentService
             'expand' => ['subscription', 'subscription.latest_invoice'],
         ]);
 
-        if (!$session->subscription) {
+        if (! $session->subscription) {
             return false;
         }
 
@@ -90,7 +94,7 @@ class PaymentService
         // Ensure tenant has stripe_id linked
         if (isset($metadata['tenant_id'])) {
             $tenant = Tenant::find($metadata['tenant_id']);
-            if ($tenant && (!$tenant->stripe_id || $tenant->stripe_id !== $session->customer)) {
+            if ($tenant && (! $tenant->stripe_id || $tenant->stripe_id !== $session->customer)) {
                 $tenant->update(['stripe_id' => $session->customer]);
             }
         }
@@ -112,7 +116,18 @@ class PaymentService
 
             // Record payment if invoice is paid
             if ($subscription->latest_invoice && $subscription->latest_invoice->paid) {
-                $this->recordPayment($tenantSubscription, $subscription->latest_invoice);
+                $payment = $this->recordPayment($tenantSubscription, $subscription->latest_invoice);
+
+                // Send Subscription Activated & Payment Successful Mails
+                try {
+                    $tenant = Tenant::find($metadata['tenant_id']);
+                    if ($tenant && $tenant->owner) {
+                        Mail::to($tenant->owner->email)->send(new SubscriptionActivatedMail($tenant->owner, $tenantSubscription));
+                        Mail::to($tenant->owner->email)->send(new PaymentSuccessfulMail($tenant->owner, $payment));
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send subscription initiation emails: '.$e->getMessage());
+                }
             }
 
             return true;
@@ -126,7 +141,7 @@ class PaymentService
      */
     public function cancelSubscription(Subscription $subscription): bool
     {
-        if (!$subscription->stripe_id) {
+        if (! $subscription->stripe_id) {
             $subscription->update([
                 'stripe_status' => 'canceled',
                 'ends_at' => now(),
@@ -145,6 +160,16 @@ class PaymentService
                 'ends_at' => date('Y-m-d H:i:s', $stripeSubscription->ended_at),
             ]);
 
+            // Send Subscription Cancelled Mail
+            try {
+                $tenant = $subscription->tenant;
+                if ($tenant && $tenant->owner) {
+                    Mail::to($tenant->owner->email)->send(new SubscriptionCancelledMail($tenant->owner, $subscription));
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send SubscriptionCancelledMail: '.$e->getMessage());
+            }
+
             return true;
         } catch (\Exception $e) {
             logger()->error('Failed to cancel subscription', [
@@ -161,7 +186,7 @@ class PaymentService
      */
     public function changePlan(Subscription $subscription, Plan $newPlan): bool
     {
-        if (!$subscription->stripe_id) {
+        if (! $subscription->stripe_id) {
             return false;
         }
 
@@ -173,7 +198,7 @@ class PaymentService
                         [
                             'id' => $subscription->stripe_id, // This might need the item ID, but let's assume it's direct for now
                             'price' => $newPlan->stripe_price_id,
-                        ]
+                        ],
                     ],
                     'proration_behavior' => 'create_prorations',
                     'metadata' => ['plan_id' => $newPlan->id],

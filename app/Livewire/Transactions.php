@@ -2,24 +2,30 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Transaction;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransactionsExport;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Transactions extends Component
 {
     public $transactions;
+
     public $selectedTransaction = null;
+
     public $filter = '';
+
     public $dateRange = [
         'start' => '',
-        'end' => ''
+        'end' => '',
     ];
 
     public function mount()
     {
+        if (! Auth::user()->can('view transactions')) {
+            abort(403);
+        }
         $this->transactions = collect(); // Initialize as collection to prevent foreach errors
         $this->fetchTransactions();
     }
@@ -33,26 +39,26 @@ class Transactions extends Component
             $query->where('store_id', $storeId);
 
             // Apply search filter
-            if (!empty($this->filter)) {
+            if (! empty($this->filter)) {
                 $query->where(function ($query) {
-                    $query->where('item_name', 'like', '%' . $this->filter . '%')
-                        ->orWhere('type', 'like', '%' . $this->filter . '%');
+                    $query->where('item_name', 'like', '%'.$this->filter.'%')
+                        ->orWhere('type', 'like', '%'.$this->filter.'%');
                 });
             }
 
             // Apply date range filter
-            if (!empty($this->dateRange['start']) && !empty($this->dateRange['end'])) {
+            if (! empty($this->dateRange['start']) && ! empty($this->dateRange['end'])) {
                 $query->whereBetween('created_at', [
-                    $this->dateRange['start'] . ' 00:00:00',
-                    $this->dateRange['end'] . ' 23:59:59'
+                    $this->dateRange['start'].' 00:00:00',
+                    $this->dateRange['end'].' 23:59:59',
                 ]);
             }
 
             $this->transactions = $query->orderBy('created_at', 'desc')->get();
-            $this->selectedTransaction = null; 
+            $this->selectedTransaction = null;
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Error fetching transactions: ' . $e->getMessage());
+            session()->flash('error', 'Error fetching transactions: '.$e->getMessage());
             $this->transactions = collect();
         }
     }
@@ -73,7 +79,7 @@ class Transactions extends Component
     {
         try {
             // Verify user belongs to this store
-            if (!Auth::user()->teams()->where('store_id', $storeId)->exists()) {
+            if (! Auth::user()->teams()->where('store_id', $storeId)->exists()) {
                 abort(403, 'Unauthorized store selection');
             }
 
@@ -81,7 +87,7 @@ class Transactions extends Component
             Auth::user()->update(['current_team_id' => $storeId]);
             $this->fetchTransactions();
         } catch (\Exception $e) {
-            session()->flash('error', 'Error switching store: ' . $e->getMessage());
+            session()->flash('error', 'Error switching store: '.$e->getMessage());
         }
     }
 
@@ -101,14 +107,15 @@ class Transactions extends Component
 
     public function exportToExcel()
     {
-        if (!$this->transactions || $this->transactions->isEmpty()) {
+        if (! $this->transactions || $this->transactions->isEmpty()) {
             session()->flash('error', 'No transactions available to export.');
+
             return;
         }
 
         return Excel::download(
             new TransactionsExport($this->transactions),
-            'transactions-' . now()->format('Y-m-d') . '.xlsx'
+            'transactions-'.now()->format('Y-m-d').'.xlsx'
         );
     }
 

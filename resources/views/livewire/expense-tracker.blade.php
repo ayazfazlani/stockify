@@ -20,6 +20,7 @@
             </div>
 
             <!-- Metric Cards -->
+            @can('view expenses')
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="sf-metric-card" style="border-left-color: #4361EE;">
                     <p class="sf-metric-label">Today's Expenses</p>
@@ -31,9 +32,11 @@
                     <div class="sf-metric-value">${{ number_format($monthTotal, 2) }}</div>
                 </div>
             </div>
+            @endcan
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Add Expense Form -->
+                @can('manage expenses')
                 <div class="lg:col-span-1">
                     <div class="sf-card">
                         <div class="p-5 border-b border-gray-100">
@@ -88,6 +91,7 @@
                         </div>
                     </div>
                 </div>
+                @endcan
 
                 <!-- Expense List -->
                 <div class="lg:col-span-2">
@@ -118,7 +122,7 @@
                                                 <div class="mt-1">
                                                     <span class="sf-badge sf-badge-light">{{ $expense->category }}</span>
                                                 </div>
-                                            </table>
+                                            </td>
                                             <td>
                                                 <div class="text-gray-700 text-sm">
                                                     {{ $expense->description ?: '-' }}
@@ -133,12 +137,16 @@
                                                 </div>
                                             </td>
                                             <td class="text-center">
+                                                @can('manage expenses')
                                                 <button wire:click="deleteExpense({{ $expense->id }})" 
                                                         wire:confirm="Are you sure you want to delete this expense?" 
                                                         class="sf-icon-btn sf-icon-btn-danger" 
                                                         title="Delete expense">
                                                     <i class='bx bx-trash'></i>
                                                 </button>
+                                                @else
+                                                <span class="text-gray-400">—</span>
+                                                @endcan
                                             </td>
                                         </tr>
                                     @empty

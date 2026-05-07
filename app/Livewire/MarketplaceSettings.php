@@ -55,14 +55,23 @@ class MarketplaceSettings extends Component
 
     // Edit Item
     public $showEditItemModal = false;
+
     public $editingItem = null;
+
     public $editItemName = '';
+
     public $editItemDescription = '';
+
     public $editItemPrice = 0;
+
     public $editItemImage;
 
     public function mount()
     {
+        if (! Auth::user()->can('manage marketplace')) {
+            abort(403);
+        }
+
         $tenant = tenant();
         $this->tenantSlug = $tenant ? $tenant->slug : Auth::user()->tenant_id;
         $storeId = Auth::user()->store_id;
@@ -79,7 +88,7 @@ class MarketplaceSettings extends Component
                 ->exists();
         }
 
-        if (!$store) {
+        if (! $store) {
             $fallbackStore = Store::where('tenant_id', Auth::user()->tenant_id)->first();
 
             if ($fallbackStore) {
@@ -87,6 +96,7 @@ class MarketplaceSettings extends Component
                 $store = $fallbackStore;
             } else {
                 session()->flash('error', 'You must create a store first before accessing Marketplace Settings.');
+
                 return redirect()->route('tenant.admin', ['tenant' => $this->tenantSlug]);
             }
         }
@@ -237,15 +247,16 @@ class MarketplaceSettings extends Component
 
         $hasMarketplaceFeature = $tenant && $tenant->hasFeature(PlanFeature::MARKETPLACE);
 
-        if ($this->is_public && !$hasMarketplaceFeature) {
+        if ($this->is_public && ! $hasMarketplaceFeature) {
             $this->is_public = false;
             session()->flash('error', 'Your current plan does not support marketplace visibility. Please upgrade to make your store public.');
+
             return;
         }
 
         $this->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|alpha_dash|max:100|unique:stores,slug,' . $this->store->id,
+            'slug' => 'required|string|alpha_dash|max:100|unique:stores,slug,'.$this->store->id,
             'description' => 'nullable|string|max:1000',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:100',
@@ -298,13 +309,14 @@ class MarketplaceSettings extends Component
         $tenant = $this->resolveTenant();
         $hasMarketplaceFeature = $tenant && $tenant->hasFeature(PlanFeature::MARKETPLACE);
 
-        if (!$hasMarketplaceFeature) {
+        if (! $hasMarketplaceFeature) {
             session()->flash('error', 'Your current plan does not support marketplace visibility.');
+
             return;
         }
 
         $item = Item::withoutGlobalScopes()->where('store_id', $this->store->id)->findOrFail($itemId);
-        $item->update(['is_public' => !$item->is_public]);
+        $item->update(['is_public' => ! $item->is_public]);
         session()->flash('status', 'Item visibility updated successfully.');
     }
 
@@ -320,7 +332,9 @@ class MarketplaceSettings extends Component
 
     public function updateItem()
     {
-        if (!$this->editingItem) return;
+        if (! $this->editingItem) {
+            return;
+        }
 
         $this->validate([
             'editItemName' => 'required|string|max:255',
@@ -359,6 +373,7 @@ class MarketplaceSettings extends Component
     {
         if ($this->confirmName !== $this->store->name) {
             $this->addError('confirmName', 'The name you typed does not match your store name.');
+
             return;
         }
 
@@ -376,7 +391,7 @@ class MarketplaceSettings extends Component
         }
 
         $tenantId = Auth::user()?->tenant_id;
-        if (!$tenantId) {
+        if (! $tenantId) {
             return null;
         }
 

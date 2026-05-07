@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Models\InventoryAudit;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
@@ -17,13 +16,19 @@ use Livewire\Component;
 class PurchaseOrders extends Component
 {
     public $purchaseOrders = [];
+
     public $items = [];
+
     public $suppliers = [];
 
     public bool $showCreateModal = false;
+
     public string $newSupplierName = '';
+
     public ?int $selectedPoId = null;
+
     public array $receiveQuantities = [];
+
     public array $poForm = [
         'supplier_id' => null,
         'expected_date' => null,
@@ -33,6 +38,9 @@ class PurchaseOrders extends Component
 
     public function mount(): void
     {
+        if (! Auth::user()->can('view purchase orders')) {
+            abort(403);
+        }
         $this->loadData();
     }
 
@@ -92,6 +100,10 @@ class PurchaseOrders extends Component
 
     public function createPurchaseOrder(): void
     {
+        if (! Auth::user()->can('manage purchase orders')) {
+            abort(403);
+        }
+
         $this->validate([
             'poForm.supplier_id' => 'required|exists:suppliers,id',
             'poForm.expected_date' => 'required|date',
@@ -138,6 +150,9 @@ class PurchaseOrders extends Component
 
     public function markOrdered(int $poId): void
     {
+        if (! Auth::user()->can('manage purchase orders')) {
+            abort(403);
+        }
         $po = PurchaseOrder::findOrFail($poId);
         $po->update(['status' => 'ordered', 'ordered_at' => now()]);
         session()->flash('message', 'Purchase order marked as ordered.');
@@ -146,6 +161,9 @@ class PurchaseOrders extends Component
 
     public function receiveLine(int $lineId): void
     {
+        if (! Auth::user()->can('manage stock')) {
+            abort(403);
+        }
         $line = PurchaseOrderItem::with(['item', 'purchaseOrder'])->findOrFail($lineId);
         $remainingQty = max(0, (int) $line->ordered_qty - (int) $line->received_qty);
 
@@ -177,7 +195,7 @@ class PurchaseOrders extends Component
             );
 
             $po = $line->purchaseOrder()->with('items')->first();
-            $isFullyReceived = $po->items->every(fn($poLine) => $poLine->received_qty >= $poLine->ordered_qty);
+            $isFullyReceived = $po->items->every(fn ($poLine) => $poLine->received_qty >= $poLine->ordered_qty);
             $po->update([
                 'status' => $isFullyReceived ? 'received' : 'partial',
                 'received_at' => $isFullyReceived ? now() : null,
@@ -196,7 +214,7 @@ class PurchaseOrders extends Component
         $pdf = Pdf::loadView('pdf.purchase-order', ['po' => $po]);
 
         return response()->streamDownload(
-            fn () => print($pdf->output()),
+            fn () => print ($pdf->output()),
             "purchase-order-{$po->id}.pdf"
         );
     }
@@ -207,6 +225,7 @@ class PurchaseOrders extends Component
 
         if (! $po->supplier?->email) {
             session()->flash('error', 'Supplier email is missing for this purchase order.');
+
             return;
         }
 

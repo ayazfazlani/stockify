@@ -73,7 +73,9 @@
                         <thead>
                             <tr>
                                 <th>Current Qty</th>
+                                @can('view financial metrics')
                                 <th>Inventory Assets</th>
+                                @endcan
                                 <th>Avg Quantity</th>
                                 <th>Turnover Ratio</th>
                                 <th>Stock Out Days</th>
@@ -87,7 +89,9 @@
                             @foreach (json_decode($filteredAnalyticsDataJson, true) as $data)
                                 <tr class="sf-table-row">
                                     <td class="sf-value-cell">{{ number_format($data['current_quantity']) }}</td>
+                                    @can('view financial metrics')
                                     <td class="sf-value-cell sf-currency">${{ number_format($data['inventory_assets'], 2) }}</td>
+                                    @endcan
                                     <td class="sf-value-cell">{{ number_format($data['average_quantity'], 1) }}</td>
                                     <td class="sf-value-cell">
                                         <span class="sf-badge {{ $data['turnover_ratio'] > 2 ? 'sf-badge-success' : 'sf-badge-warning' }}">
@@ -117,7 +121,9 @@
                             <!-- Total Row -->
                             <tr class="sf-table-row sf-total-row">
                                 <td class="sf-total-cell">{{ number_format($this->calculate('current_quantity')) }}</td>
+                                @can('view financial metrics')
                                 <td class="sf-total-cell sf-currency">${{ number_format($this->calculate('inventory_assets'), 2) }}</td>
+                                @endcan
                                 <td class="sf-total-cell">{{ number_format($this->calculate('average_quantity'), 1) }}</td>
                                 <td class="sf-total-cell">{{ number_format($this->calculate('turnover_ratio'), 2) }}</td>
                                 <td class="sf-total-cell">{{ number_format($this->calculate('stock_out_days_estimate'), 1) }} days</td>
@@ -144,6 +150,7 @@
                 </div>
             </div>
             
+            @can('view financial metrics')
             <div class="sf-summary-card">
                 <div class="sf-summary-icon sf-summary-icon-assets">
                     <i class='bx bx-dollar'></i>
@@ -153,6 +160,7 @@
                     <p class="sf-summary-value">${{ number_format($this->calculate('inventory_assets'), 2) }}</p>
                 </div>
             </div>
+            @endcan
             
             <div class="sf-summary-card">
                 <div class="sf-summary-icon sf-summary-icon-in">

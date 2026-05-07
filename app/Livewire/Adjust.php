@@ -2,35 +2,47 @@
 
 namespace App\Livewire;
 
-use App\Models\Item;
-use App\Models\Supplier;
-use App\Models\Summary;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use App\Models\Analytics;
+use App\Models\Item;
+use App\Models\Summary;
+use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Services\AnalyticsService;
 use App\Services\InventoryAuditService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Adjust extends Component
 {
     use WithFileUploads;
 
     public $items = [];
+
     public $selectedItems = [];
+
     public $isModalOpen = false;
+
     public $isEditing = false;
+
     public $currentItem = null;
+
     public $newItem = [];
+
     public $loading = false;
+
     public $search = '';
+
     public $dateRange = ['start' => '', 'end' => ''];
+
     public $suppliers = [];
 
     public function mount()
     {
+        if (! Auth::user()->can('view stock')) {
+            abort(403);
+        }
         $this->resetNewItem();
         $this->fetchItems();
         $this->loadSuppliers();
@@ -90,6 +102,7 @@ class Adjust extends Component
     {
         $this->fetchItems();
     }
+
     public function updatedDateRange()
     {
         $this->fetchItems();
@@ -139,13 +152,25 @@ class Adjust extends Component
             if ($oldImage) {
                 Storage::disk('public')->delete($oldImage);
             }
+
             return $image->store('item_images', 'public');
         }
+
         return $oldImage;
     }
 
     public function saveItem()
     {
+        if ($this->isEditing) {
+            if (! Auth::user()->can('edit items')) {
+                abort(403);
+            }
+        } else {
+            if (! Auth::user()->can('create items')) {
+                abort(403);
+            }
+        }
+
         $this->validate($this->getValidationRules());
         $teamId = Auth::user()->getCurrentStoreId();
 
@@ -159,7 +184,7 @@ class Adjust extends Component
 
             if ($quantityDifference != 0) {
                 $this->logTransaction($item, 'adjusted', $quantityDifference);
-                (new AnalyticsService())->updateAllAnalytics($item, $item->quantity, 'update');
+                (new AnalyticsService)->updateAllAnalytics($item, $item->quantity, 'update');
                 app(InventoryAuditService::class)->log(
                     $item,
                     'adjust',
@@ -175,7 +200,7 @@ class Adjust extends Component
 
             $item = Item::create($this->newItem);
             $this->logTransaction($item, 'created', $item->quantity);
-            (new AnalyticsService())->updateAllAnalytics($item, $item->quantity, 'created');
+            (new AnalyticsService)->updateAllAnalytics($item, $item->quantity, 'created');
             session()->flash('success', 'Item added successfully!');
         }
 
@@ -200,16 +225,22 @@ class Adjust extends Component
 
     public function deleteItem($itemId)
     {
+        if (! Auth::user()->can('delete items')) {
+            abort(403);
+        }
+
         try {
             $item = Item::findOrFail($itemId);
-            if ($item->image) Storage::disk('public')->delete($item->image);
+            if ($item->image) {
+                Storage::disk('public')->delete($item->image);
+            }
             $this->logTransaction($item, 'deleted', $item->quantity);
             Analytics::where('item_id', $itemId)->delete();
             Summary::where('item_id', $itemId)->delete();
             $item->delete();
             session()->flash('success', 'Item deleted successfully!');
         } catch (\Exception $e) {
-            session()->flash('error', 'Unable to delete the item: ' . $e->getMessage());
+            session()->flash('error', 'Unable to delete the item: '.$e->getMessage());
         }
         $this->fetchItems();
     }

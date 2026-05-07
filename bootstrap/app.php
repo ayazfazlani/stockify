@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\CheckFeatureAccess;
+use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\SuperAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,14 +15,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
+            SetLocale::class,
+        ]);
+
         $middleware->validateCsrfTokens(except: [
             'stripe/*',
             '*/stripe/webhook',
         ]);
 
         $middleware->alias([
-            'feature' => \App\Http\Middleware\CheckFeatureAccess::class,
-            'super-admin' => \App\Http\Middleware\SuperAdmin::class,
+            'feature' => CheckFeatureAccess::class,
+            'super-admin' => SuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -4,15 +4,17 @@ namespace App\Mail;
 
 use App\Models\Team;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Laravel\Cashier\Payment;
 
-class SubscriptionRenewalFailed extends Mailable
+class SubscriptionRenewalFailed extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $team;
+
     public $payment;
 
     public function __construct(Team $team, Payment $payment)

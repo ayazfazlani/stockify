@@ -5,14 +5,16 @@ namespace App\Mail;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class WelcomeTeamEmail extends Mailable
+class WelcomeTeamEmail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $team;
+
     public $user;
 
     public function __construct(Team $team, User $user)
@@ -24,11 +26,11 @@ class WelcomeTeamEmail extends Mailable
     public function build()
     {
         return $this->markdown('emails.welcome.team')
-                    ->subject('Welcome to ' . config('app.name') . '!')
-                    ->with([
-                        'setupUrl' => url('/onboarding'),
-                        'dashboardUrl' => url('/dashboard'),
-                        'docsUrl' => url('/docs'),
-                    ]);
+            ->subject('Welcome to '.config('app.name').'!')
+            ->with([
+                'setupUrl' => url('/onboarding'),
+                'dashboardUrl' => url('/dashboard'),
+                'docsUrl' => url('/docs'),
+            ]);
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TeamInvitationAcceptedMail;
 use App\Models\InvitationToken;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -23,7 +25,7 @@ class RegisterController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$invitation) {
+        if (! $invitation) {
             return redirect()->route('tenant.login')->with('error', 'Invalid or expired invitation link.');
         }
 
@@ -47,7 +49,7 @@ class RegisterController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$invitation || $invitation->email !== $request->email) {
+        if (! $invitation || $invitation->email !== $request->email) {
             return redirect()->route('tenant.login')->with('error', 'Invalid or expired invitation link.');
         }
 
@@ -58,6 +60,16 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
             'tenant_id' => $invitation->tenant_id,
         ]);
+
+        // Send notification to the store owner/inviter
+        try {
+            $tenant = Tenant::find($invitation->tenant_id);
+            if ($tenant && $tenant->owner) {
+                Mail::to($tenant->owner->email)->send(new TeamInvitationAcceptedMail($tenant->owner, $user, $tenant));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send TeamInvitationAcceptedMail: '.$e->getMessage());
+        }
 
         // Delete the token after successful registration
         $invitation->delete();

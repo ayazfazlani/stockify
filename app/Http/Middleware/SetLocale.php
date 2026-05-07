@@ -11,17 +11,26 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
+        // 1. Check Session
         $locale = Session::get('locale');
 
-        if (!$locale && auth()->check()) {
-            $locale = auth()->user()->locale ?? 'en';
+        // 2. Check Cookie
+        if (! $locale) {
+            $locale = $request->cookie('locale');
         }
 
-        if (!$locale && tenant()) {
-            $locale = tenant()->locale ?? 'en';
+        // 3. Check Authenticated User
+        if (! $locale && auth()->check()) {
+            $locale = auth()->user()->locale;
         }
 
-        $locale = in_array($locale, ['en', 'ur']) ? $locale : 'en';
+        // 4. Check Tenant
+        if (! $locale && function_exists('tenant') && tenant()) {
+            $locale = tenant()->locale;
+        }
+
+        // Default or Fallback
+        $locale = in_array($locale, ['en', 'ur']) ? $locale : config('app.locale', 'en');
 
         App::setLocale($locale);
 

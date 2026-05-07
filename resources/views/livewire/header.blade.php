@@ -33,6 +33,24 @@
                 </div>
             </div>
 
+            <!-- Language Switcher -->
+            <div class="relative">
+                <button id="languageButton" class="text-gray-500 hover:text-gray-700 focus:outline-none flex items-center space-x-1 border border-gray-200 rounded-lg px-2 py-1">
+                    <span class="text-sm font-medium uppercase">{{ app()->getLocale() }}</span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <div id="languageDropdown" class="hidden absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
+                    <a href="{{ route('tenant.locale.update', ['locale' => 'en', 'tenant' => tenant('slug')]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                        <span>🇺🇸</span>
+                        <span>English</span>
+                    </a>
+                    <a href="{{ route('tenant.locale.update', ['locale' => 'ur', 'tenant' => tenant('slug')]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                        <span>🇵🇰</span>
+                        <span>اردو</span>
+                    </a>
+                </div>
+            </div>
+
 
 
             <!-- User Profile -->
@@ -73,9 +91,9 @@
                         $logoutUrl = $user->isSuperAdmin() ? route('super-admin.logout') : url('/logout');
                     @endphp
                     <a wire:navigate href="{{ $adminUrl }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('app.header.admin_settings') }}</a>
                     <a wire:click.prevent="logout" href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Logout</a>
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">{{ __('app.header.logout') }}</a>
                 </div>
             </div>
         @endauth
@@ -98,13 +116,25 @@
         userDropdown.classList.toggle('hidden');
     });
 
+    const languageButton = document.getElementById('languageButton');
+    const languageDropdown = document.getElementById('languageDropdown');
+
+    if (languageButton) {
+        languageButton.addEventListener('click', () => {
+            languageDropdown.classList.toggle('hidden');
+        });
+    }
+
     // Close dropdowns if clicking outside
     window.addEventListener('click', (e) => {
-        if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
+        if (notificationButton && !notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
             notificationDropdown.classList.add('hidden');
         }
-        if (!userButton.contains(e.target) && !userDropdown.contains(e.target)) {
+        if (userButton && !userButton.contains(e.target) && !userDropdown.contains(e.target)) {
             userDropdown.classList.add('hidden');
+        }
+        if (languageButton && !languageButton.contains(e.target) && !languageDropdown.contains(e.target)) {
+            languageDropdown.classList.add('hidden');
         }
     });
 </script>

@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Enums\PlanFeature;
+use App\Mail\ItemCreatedMail;
+use App\Mail\StockInConfirmationMail;
 use App\Models\Item;
 use App\Models\ItemBarcode;
 use App\Models\ItemSerial;
@@ -12,6 +14,8 @@ use App\Services\AnalyticsService;
 use App\Services\InventoryAuditService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -58,6 +62,9 @@ class StockInComponent extends Component
 
     public function mount()
     {
+        if (! Auth::user()->can('view items')) {
+            abort(403);
+        }
         $this->loadItems();
         $this->loadTransactions();
     }
@@ -67,8 +74,8 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
         $this->items = Item::where('store_id', $teamId)
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('sku', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('sku', 'like', '%'.$this->search.'%');
             })
             ->get();
     }
@@ -78,10 +85,10 @@ class StockInComponent extends Component
         $teamId = Auth::user()->getCurrentStoreId();
 
         $this->transactions = Transaction::where('type', 'stock in')
-            ->when($teamId, fn($q) => $q->where('store_id', $teamId))
+            ->when($teamId, fn ($q) => $q->where('store_id', $teamId))
             ->when(
                 $this->dateRange['start'] && $this->dateRange['end'],
-                fn($q) => $q->whereBetween('date', [
+                fn ($q) => $q->whereBetween('date', [
                     $this->dateRange['start'],
                     $this->dateRange['end'],
                 ])
@@ -165,10 +172,14 @@ class StockInComponent extends Component
 
     public function addItem()
     {
+        if (! Auth::user()->can('create items')) {
+            abort(403);
+        }
+
         $teamId = Auth::user()->getCurrentStoreId();
         $tenant = $this->resolveTenant();
 
-        if (!$tenant || !$tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
+        if (! $tenant || ! $tenant->canAdd(PlanFeature::MAX_ITEMS, Item::where('store_id', $teamId)->count())) {
             session()->flash('error', 'You have reached the maximum number of items allowed for your plan. Please upgrade to add more.');
             $this->closeModal();
 
@@ -231,7 +242,7 @@ class StockInComponent extends Component
             }
 
             $codes = collect(explode(',', (string) $this->additionalCodes))
-                ->map(fn($value) => trim($value))
+                ->map(fn ($value) => trim($value))
                 ->filter()
                 ->unique()
                 ->values();
@@ -243,8 +254,8 @@ class StockInComponent extends Component
                     ->pluck('code')
                     ->all();
 
-                if (!empty($existingCodes)) {
-                    throw new \RuntimeException('These barcodes are already in use: ' . implode(', ', $existingCodes));
+                if (! empty($existingCodes)) {
+                    throw new \RuntimeException('These barcodes are already in use: '.implode(', ', $existingCodes));
                 }
 
                 foreach ($codes as $code) {
@@ -272,10 +283,18 @@ class StockInComponent extends Component
             (new AnalyticsService)->updateAllAnalytics($item, $item->quantity, 'stock_in');
 
             DB::commit();
+
+            // Send Item Created Mail
+            try {
+                Mail::to(Auth::user()->email)->send(new ItemCreatedMail(Auth::user(), $item));
+            } catch (\Exception $e) {
+                Log::error('Failed to send ItemCreatedMail: '.$e->getMessage());
+            }
+
             session()->flash('message', 'Item added successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error adding item: ' . $e->getMessage());
+            session()->flash('error', 'Error adding item: '.$e->getMessage());
         }
 
         $this->closeModal();
@@ -284,6 +303,10 @@ class StockInComponent extends Component
 
     public function handleStockIn()
     {
+        if (! Auth::user()->can('manage stock')) {
+            abort(403);
+        }
+
         DB::beginTransaction();
         $teamId = Auth::user()->getCurrentStoreId();
         try {
@@ -318,10 +341,23 @@ class StockInComponent extends Component
             }
 
             DB::commit();
+
+            // Send Stock In Confirmation Mail
+            try {
+                $transactionData = [
+                    'item_count' => count($this->selectedItems),
+                    'total_qty' => array_sum(array_column($this->selectedItems, 'quantity')),
+                    'date' => now()->format('M d, Y h:i A'),
+                ];
+                Mail::to(Auth::user()->email)->send(new StockInConfirmationMail(Auth::user(), $this->selectedItems, $transactionData));
+            } catch (\Exception $e) {
+                Log::error('Failed to send StockInConfirmationMail: '.$e->getMessage());
+            }
+
             session()->flash('message', 'Stock-in completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error during stock-in: ' . $e->getMessage());
+            session()->flash('error', 'Error during stock-in: '.$e->getMessage());
         }
 
         $this->reset('selectedItems');
@@ -332,7 +368,7 @@ class StockInComponent extends Component
     public function addSerial()
     {
         $this->currentSerial = trim($this->currentSerial);
-        if (!$this->currentSerial) {
+        if (! $this->currentSerial) {
             return;
         }
 
@@ -360,7 +396,7 @@ class StockInComponent extends Component
         }
 
         $tenantId = Auth::user()?->tenant_id;
-        if (!$tenantId) {
+        if (! $tenantId) {
             return null;
         }
 

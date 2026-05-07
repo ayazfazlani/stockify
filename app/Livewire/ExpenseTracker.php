@@ -2,9 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Mail\ExpenseLoggedMail;
 use App\Models\Expense;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,10 +17,13 @@ class ExpenseTracker extends Component
     use WithPagination;
 
     public $amount = '';
+
     public $category = '';
+
     public $description = '';
+
     public $expense_date = '';
-    
+
     // predefined categories for the UI
     public $categories = [
         'Snacks/Food',
@@ -27,11 +33,14 @@ class ExpenseTracker extends Component
         'Office Supplies',
         'Maintenance',
         'Transport/Fuel',
-        'Other'
+        'Other',
     ];
 
     public function mount()
     {
+        if (! Auth::user()->can('manage expenses')) {
+            abort(403);
+        }
         $this->expense_date = Carbon::today()->format('Y-m-d');
     }
 
@@ -44,12 +53,15 @@ class ExpenseTracker extends Component
 
     public function saveExpense()
     {
+        if (! Auth::user()->can('manage expenses')) {
+            abort(403);
+        }
         $this->validate();
 
         $storeId = Auth::user()->getCurrentStoreId();
         $tenantId = tenant('id');
 
-        Expense::create([
+        $expense = Expense::create([
             'tenant_id' => $tenantId,
             'store_id' => $storeId,
             'user_id' => Auth::id(),
@@ -59,14 +71,24 @@ class ExpenseTracker extends Component
             'expense_date' => $this->expense_date,
         ]);
 
+        // Send Expense Logged Mail
+        try {
+            Mail::to(Auth::user()->email)->send(new ExpenseLoggedMail(Auth::user(), $expense));
+        } catch (\Exception $e) {
+            Log::error('Failed to send ExpenseLoggedMail: '.$e->getMessage());
+        }
+
         $this->reset(['amount', 'description']);
         // Keep category and date as they might enter multiple for the same day/category
-        
+
         session()->flash('message', 'Expense recorded successfully.');
     }
 
     public function deleteExpense($id)
     {
+        if (! Auth::user()->can('manage expenses')) {
+            abort(403);
+        }
         $expense = Expense::find($id);
         if ($expense && $expense->store_id === Auth::user()->getCurrentStoreId()) {
             $expense->delete();

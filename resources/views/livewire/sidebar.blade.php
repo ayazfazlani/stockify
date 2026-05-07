@@ -122,35 +122,41 @@
                 @endcan
 
                 @feature('analytics')
-                <li class="nav-link">
-                    <a wire:navigate
-                        href="{{ $tenantId ? route('tenant.analytics', ['tenant' => $tenantId]) : route('analytics') }}"
-                        class="{{ request()->routeIs($routePrefix . 'analytics') ? 'active' : '' }}">
-                        <i class='bx bx-bar-chart-square icon'></i>
-                        <span class="text nav-text">Analytics</span>
-                    </a>
-                </li>
+                @can('view analytics')
+                    <li class="nav-link">
+                        <a wire:navigate
+                            href="{{ $tenantId ? route('tenant.analytics', ['tenant' => $tenantId]) : route('analytics') }}"
+                            class="{{ request()->routeIs($routePrefix . 'analytics') ? 'active' : '' }}">
+                            <i class='bx bx-bar-chart-square icon'></i>
+                            <span class="text nav-text">Analytics</span>
+                        </a>
+                    </li>
+                @endcan
                 @endfeature
 
                 @feature('advanced-reports')
-                <li class="nav-link">
-                    <a wire:navigate
-                        href="{{ $tenantId ? route('tenant.summary', ['tenant' => $tenantId]) : route('summary') }}"
-                        class="{{ request()->routeIs($routePrefix . 'summary') ? 'active' : '' }}">
-                        <i class='bx bx-file icon'></i>
-                        <span class="text nav-text">Summary</span>
-                    </a>
-                </li>
+                @can('view analytics')
+                    <li class="nav-link">
+                        <a wire:navigate
+                            href="{{ $tenantId ? route('tenant.summary', ['tenant' => $tenantId]) : route('summary') }}"
+                            class="{{ request()->routeIs($routePrefix . 'summary') ? 'active' : '' }}">
+                            <i class='bx bx-file icon'></i>
+                            <span class="text nav-text">Summary</span>
+                        </a>
+                    </li>
+                @endcan
                 @endfeature
 
-                <li class="nav-link">
-                    <a wire:navigate
-                        href="{{ $tenantId ? route('tenant.dashboard', ['tenant' => $tenantId]) : route('dashboard') }}"
-                        class="{{ request()->routeIs($routePrefix . 'dashboard') ? 'active' : '' }}">
-                        <i class='bx bx-grid-alt icon'></i>
-                        <span class="text nav-text">Dashboard</span>
-                    </a>
-                </li>
+                @can('view analytics')
+                    <li class="nav-link">
+                        <a wire:navigate
+                            href="{{ $tenantId ? route('tenant.dashboard', ['tenant' => $tenantId]) : route('dashboard') }}"
+                            class="{{ request()->routeIs($routePrefix . 'dashboard') ? 'active' : '' }}">
+                            <i class='bx bx-grid-alt icon'></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                @endcan
 
                 @can('manage team members')
                     <li class="nav-link">
@@ -158,19 +164,29 @@
                             href="{{ $tenantId ? route('tenant.user', ['tenant' => $tenantId]) : route('user') }}"
                             class="{{ request()->routeIs($routePrefix . 'user') ? 'active' : '' }}">
                             <i class='bx bx-user-circle icon'></i>
-                            <span class="text nav-text">Users & Roles</span>
+                            <span class="text nav-text">Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a wire:navigate
+                            href="{{ $tenantId ? route('tenant.roles', ['tenant' => $tenantId]) : route('roles') }}"
+                            class="{{ request()->routeIs($routePrefix . 'roles') ? 'active' : '' }}">
+                            <i class='bx bx-shield-quarter icon'></i>
+                            <span class="text nav-text">Roles</span>
                         </a>
                     </li>
                 @endcan
 
-                <li class="nav-link">
-                    <a wire:navigate
-                        href="{{ $tenantId ? route('tenant.marketplace-settings', ['tenant' => $tenantId]) : '#' }}"
-                        class="{{ request()->routeIs('tenant.marketplace-settings') ? 'active' : '' }}">
-                        <i class='bx bx-store-alt icon'></i>
-                        <span class="text nav-text">Marketplace</span>
-                    </a>
-                </li>
+                @can('manage marketplace')
+                    <li class="nav-link">
+                        <a wire:navigate
+                            href="{{ $tenantId ? route('tenant.marketplace-settings', ['tenant' => $tenantId]) : '#' }}"
+                            class="{{ request()->routeIs('tenant.marketplace-settings') ? 'active' : '' }}">
+                            <i class='bx bx-store-alt icon'></i>
+                            <span class="text nav-text">Marketplace</span>
+                        </a>
+                    </li>
+                @endcan
 
             </div>
         </div>

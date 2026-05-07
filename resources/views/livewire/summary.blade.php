@@ -68,6 +68,7 @@
                 </div>
             </div>
 
+            @can('view financial metrics')
             <div class="sf-summary-card sf-summary-card-purple">
                 <div class="sf-summary-icon">
                     <i class='bx bx-dollar'></i>
@@ -77,6 +78,7 @@
                     <p class="sf-summary-value">${{ number_format($reports->sum('inventory_assets'), 2) }}</p>
                 </div>
             </div>
+            @endcan
         </div>
 
         <!-- Reports Table -->
@@ -96,8 +98,10 @@
                             <th>Item Name</th>
                             <th class="text-right">Stock In</th>
                             <th class="text-right">Stock Out</th>
-                            <th class="text-right">Adjustments</th>
                             <th class="text-right">Balance</th>
+                            @can('view financial metrics')
+                            <th class="text-right">Value</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody>
@@ -106,7 +110,7 @@
                                 <td>
                                     <div class="font-medium text-gray-900">{{ $report->item_name }}</div>
                                     <div class="sf-meta-text">SKU: {{ $report->sku ?? 'N/A' }}</div>
-                            <tr>
+                                </td>
                                 <td class="text-right">
                                     <span class="sf-value-positive">
                                         <i class='bx bx-up-arrow-alt'></i> {{ number_format($report->total_stock_in) }}
@@ -122,11 +126,13 @@
                                         {{ number_format($report->current_quantity) }}
                                     </span>
                                 </td>
+                                @can('view financial metrics')
                                 <td class="text-right">
                                     <span class="sf-currency-value">
                                         ${{ number_format($report->inventory_assets, 2) }}
                                     </span>
                                 </td>
+                                @endcan
                             </tr>
                         @empty
                             <tr class="sf-empty-row">
@@ -148,8 +154,10 @@
                             <td class="text-right font-bold sf-negative">
                                 {{ number_format($reports->sum('total_stock_out')) }}</td>
                             <td class="text-right font-bold">{{ number_format($reports->sum('current_quantity')) }}</td>
+                            @can('view financial metrics')
                             <td class="text-right font-bold sf-currency-value">
                                 ${{ number_format($reports->sum('inventory_assets'), 2) }}</td>
+                            @endcan
                         </tr>
                     </tfoot>
                 </table>

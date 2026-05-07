@@ -2,13 +2,11 @@
 
 namespace App\Livewire;
 
-use App\Models\Analytics;
+use App\Mail\LowStockAlertMail;
 use App\Models\InventoryAudit;
 use App\Models\Item;
 use App\Models\Store;
-use App\Models\Supplier;
 use App\Models\User;
-use App\Mail\LowStockAlertMail;
 use App\Services\Notifications\WhatsAppNotifier;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,24 +20,37 @@ class Dashboard extends Component
 
     // Public properties
     public $summary = [];
+
     public $totalInventoryData = [];
+
     public $lowStockItems = [];
+
     public array $marginLeaders = [];
+
     public $recentAudits = [];
+
     public $topBrandsData = [];
+
     public string $summaryJson = '{}';
+
     public string $topBrandsJson = '[]';
+
     public string $stockFlowJson = '{}';
 
     // Store and team filtering
     public $selectedStoreId = null;
+
     public $selectedUserId = null;
+
     public $dateRange = 'current_month';
+
     public $startDate = null;
+
     public $endDate = null;
 
     // Available options for filters
     public $availableStores = [];
+
     public $availableUsers = [];
 
     // UI State
@@ -49,12 +60,17 @@ class Dashboard extends Component
     public $debugInfo = [];
 
     protected $currentTenantId = null;
+
     protected $currentStoreId = null;
 
     protected $listeners = ['refreshDashboard' => 'refreshData', 'storeChanged' => 'handleStoreChange'];
 
     public function mount()
     {
+        if (! Auth::user()->can('view analytics')) {
+            abort(403);
+        }
+
         $this->initializeTenant();
         $this->loadAvailableFilters();
         $this->setDefaultDateRange();
@@ -67,7 +83,7 @@ class Dashboard extends Component
             $this->currentTenantId = Auth::user()->tenant_id;
             $this->currentStoreId = Auth::user()->getCurrentStoreId();
 
-            if (!$this->selectedStoreId) {
+            if (! $this->selectedStoreId) {
                 $this->selectedStoreId = $this->currentStoreId;
             }
 
@@ -76,14 +92,14 @@ class Dashboard extends Component
                 'current_store_id' => $this->currentStoreId,
                 'selected_store_id' => $this->selectedStoreId,
                 'user_id' => Auth::id(),
-                'user_stores' => Auth::user()->stores()->pluck('stores.id')->toArray()
+                'user_stores' => Auth::user()->stores()->pluck('stores.id')->toArray(),
             ]);
         }
     }
 
     protected function loadAvailableFilters()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return;
         }
 
@@ -154,8 +170,9 @@ class Dashboard extends Component
      */
     public function fetchSummary()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->summary = $this->getEmptySummary();
+
             return;
         }
 
@@ -164,18 +181,18 @@ class Dashboard extends Component
             $storeId = $this->selectedStoreId;
 
             // If no store selected, get from user's current store
-            if (!$storeId) {
+            if (! $storeId) {
                 $storeId = Auth::user()->getCurrentStoreId();
             }
 
             // If still no store, get first store from user's stores
-            if (!$storeId) {
+            if (! $storeId) {
                 $firstStore = Auth::user()->stores()->first();
                 $storeId = $firstStore ? $firstStore->id : null;
             }
 
             // If still no store, get any store from tenant
-            if (!$storeId && $this->currentTenantId) {
+            if (! $storeId && $this->currentTenantId) {
                 $anyStore = Store::where('tenant_id', $this->currentTenantId)->first();
                 $storeId = $anyStore ? $anyStore->id : null;
             }
@@ -185,9 +202,10 @@ class Dashboard extends Component
             $this->debugInfo['selected_store_id'] = $this->selectedStoreId;
             $this->debugInfo['current_store_id_method'] = Auth::user()->getCurrentStoreId();
 
-            if (!$storeId) {
+            if (! $storeId) {
                 \Log::warning('No store ID found for dashboard summary');
                 $this->summary = $this->getEmptySummary();
+
                 return;
             }
 
@@ -206,18 +224,18 @@ class Dashboard extends Component
 
             // Get stock in/out from inventory_audits
             $stockInQuery = InventoryAudit::where('store_id', $storeId)
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->where('action', 'stock_in')->orWhere('action', 'in');
                 });
 
             $stockOutQuery = InventoryAudit::where('store_id', $storeId)
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->where('action', 'stock_out')->orWhere('action', 'out');
                 });
 
             if ($this->startDate && $this->endDate) {
-                $stockInQuery->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
-                $stockOutQuery->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
+                $stockInQuery->whereBetween('created_at', [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59']);
+                $stockOutQuery->whereBetween('created_at', [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59']);
             }
 
             if ($this->selectedUserId && $this->selectedUserId !== 'all') {
@@ -235,7 +253,7 @@ class Dashboard extends Component
                 'stock_in' => $stockIn,
                 'stock_out' => $stockOut,
                 'inventory_equity' => $inventoryEquity,
-                'potential_revenue' => $potentialRevenue
+                'potential_revenue' => $potentialRevenue,
             ]);
 
             $this->summary = [
@@ -248,12 +266,12 @@ class Dashboard extends Component
             ];
 
             // Update the selected store ID in the UI for display
-            if ($storeId && !$this->selectedStoreId) {
+            if ($storeId && ! $this->selectedStoreId) {
                 $this->selectedStoreId = $storeId;
             }
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching summary: ' . $e->getMessage());
+            \Log::error('Error fetching summary: '.$e->getMessage());
             $this->summary = $this->getEmptySummary();
         }
     }
@@ -275,18 +293,20 @@ class Dashboard extends Component
      */
     public function fetchTotalInventoryData()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->totalInventoryData = [];
             $this->topBrandsData = [];
+
             return;
         }
 
         try {
             $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            if (!$storeId) {
+            if (! $storeId) {
                 $this->totalInventoryData = [];
                 $this->topBrandsData = [];
+
                 return;
             }
 
@@ -319,7 +339,7 @@ class Dashboard extends Component
             })->values()->all();
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching inventory data: ' . $e->getMessage());
+            \Log::error('Error fetching inventory data: '.$e->getMessage());
             $this->totalInventoryData = [];
             $this->topBrandsData = [];
         }
@@ -330,16 +350,18 @@ class Dashboard extends Component
      */
     public function fetchLowStockItems()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->lowStockItems = collect();
+
             return;
         }
 
         try {
             $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            if (!$storeId) {
+            if (! $storeId) {
                 $this->lowStockItems = collect();
+
                 return;
             }
 
@@ -351,7 +373,7 @@ class Dashboard extends Component
                 ->get();
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching low stock items: ' . $e->getMessage());
+            \Log::error('Error fetching low stock items: '.$e->getMessage());
             $this->lowStockItems = collect();
         }
     }
@@ -361,16 +383,18 @@ class Dashboard extends Component
      */
     public function fetchMarginLeaders(): void
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->marginLeaders = [];
+
             return;
         }
 
         try {
             $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            if (!$storeId) {
+            if (! $storeId) {
                 $this->marginLeaders = [];
+
                 return;
             }
 
@@ -399,7 +423,7 @@ class Dashboard extends Component
             })->all();
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching margin leaders: ' . $e->getMessage());
+            \Log::error('Error fetching margin leaders: '.$e->getMessage());
             $this->marginLeaders = [];
         }
     }
@@ -409,16 +433,18 @@ class Dashboard extends Component
      */
     public function fetchRecentAudits(): void
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $this->recentAudits = collect();
+
             return;
         }
 
         try {
             $storeId = $this->selectedStoreId ?? Auth::user()->getCurrentStoreId();
 
-            if (!$storeId) {
+            if (! $storeId) {
                 $this->recentAudits = collect();
+
                 return;
             }
 
@@ -432,13 +458,13 @@ class Dashboard extends Component
             }
 
             if ($this->startDate && $this->endDate) {
-                $query->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59']);
+                $query->whereBetween('created_at', [$this->startDate.' 00:00:00', $this->endDate.' 23:59:59']);
             }
 
             $this->recentAudits = $query->get();
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching recent audits: ' . $e->getMessage());
+            \Log::error('Error fetching recent audits: '.$e->getMessage());
             $this->recentAudits = collect();
         }
     }
@@ -449,6 +475,7 @@ class Dashboard extends Component
 
         if ($this->lowStockItems->isEmpty()) {
             session()->flash('error', 'No low stock items to alert.');
+
             return;
         }
 
@@ -471,7 +498,7 @@ class Dashboard extends Component
                 try {
                     Mail::to($email)->send(new LowStockAlertMail($alerts));
                 } catch (\Exception $e) {
-                    \Log::error('Failed to send low stock email: ' . $e->getMessage());
+                    \Log::error('Failed to send low stock email: '.$e->getMessage());
                 }
             }
         }
@@ -487,7 +514,7 @@ class Dashboard extends Component
                 })->implode("\n\n");
                 $whatsAppNotifier->send($phone, $message);
             } catch (\Exception $e) {
-                \Log::error('Failed to send WhatsApp alert: ' . $e->getMessage());
+                \Log::error('Failed to send WhatsApp alert: '.$e->getMessage());
             }
         }
 
@@ -539,7 +566,7 @@ class Dashboard extends Component
 
     public function exportData()
     {
-        $filename = 'dashboard_export_' . now()->format('Y-m-d_His') . '.csv';
+        $filename = 'dashboard_export_'.now()->format('Y-m-d_His').'.csv';
         $handle = fopen('php://temp', 'w+');
 
         fputcsv($handle, ['Metric', 'Value', 'Date Range', 'Store ID', 'User ID']);
@@ -575,11 +602,12 @@ class Dashboard extends Component
 
     public function getUserRoleInfo()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return ['role' => 'guest', 'can_view_all' => false];
         }
 
         $user = Auth::user();
+
         return [
             'role' => $user->getRoleNames()->first() ?? 'user',
             'can_view_all' => $user->hasRole('super admin') || $user->hasRole('tenant_admin'),

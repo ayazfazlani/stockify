@@ -3,16 +3,19 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InviteUserMail extends Mailable
+class InviteUserMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $token;
+
     public $tenant;
 
     /**
@@ -40,17 +43,17 @@ class InviteUserMail extends Mailable
     public function content(): Content
     {
         $path = $this->tenant ? "/{$this->tenant}/register" : '/register';
-        
+
         return new Content(
             view: 'emails.invite-user', // Make sure this view exists
-            with: ['link' => url($path . '?token=' . $this->token)],
+            with: ['link' => url($path.'?token='.$this->token)],
         );
     }
 
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

@@ -9,9 +9,11 @@
                 </h1>
                 <p class="sf-page-subtitle mt-1">Manage supplier purchase orders, track deliveries, and receive inventory</p>
             </div>
+            @can('manage purchase orders')
             <button wire:click="openCreateModal" class="sf-btn sf-btn-blue">
                 <i class='bx bx-plus'></i> Draft PO
             </button>
+            @endcan
         </div>
 
         @if(session()->has('message'))
@@ -43,9 +45,11 @@
                             </div>
                             <div class="flex gap-2">
                                 @if($po->status === 'draft')
+                                    @can('manage purchase orders')
                                     <button wire:click="markOrdered({{ $po->id }})" class="sf-btn sf-btn-sm sf-btn-warning">
                                         <i class='bx bx-check'></i> Mark Ordered
                                     </button>
+                                    @endcan
                                 @endif
                                 <button wire:click="printPurchaseOrder({{ $po->id }})" class="sf-btn sf-btn-sm sf-btn-dark">
                                     <i class='bx bx-printer'></i> PDF
@@ -66,8 +70,10 @@
                                         <th>Item</th>
                                         <th class="text-right">Ordered</th>
                                         <th class="text-right">Received</th>
+                                        @can('view item cost')
                                         <th class="text-right">Unit Cost</th>
                                         <th class="text-right">Subtotal</th>
+                                        @endcan
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -84,14 +90,17 @@
                                             <td class="text-right">
                                                 <span class="sf-value-neutral">{{ number_format($line->received_qty) }}</span>
                                             </td>
+                                            @can('view item cost')
                                             <td class="text-right sf-currency-value">
                                                 ${{ number_format($line->unit_cost, 2) }}
                                             </td>
                                             <td class="text-right sf-currency-value">
                                                 ${{ number_format($line->ordered_qty * $line->unit_cost, 2) }}
                                             </td>
+                                            @endcan
                                             <td>
                                                 @if($line->received_qty < $line->ordered_qty)
+                                                    @can('manage stock')
                                                     <div class="sf-receive-group">
                                                         <input type="number" 
                                                                min="1" 
@@ -104,6 +113,9 @@
                                                             <i class='bx bx-package'></i> Receive
                                                         </button>
                                                     </div>
+                                                    @else
+                                                        <span class="sf-badge sf-badge-gray">Pending</span>
+                                                    @endcan
                                                 @else
                                                     <span class="sf-badge sf-badge-success">
                                                         <i class='bx bx-check'></i> Complete
@@ -116,9 +128,13 @@
                                 <tfoot class="sf-table-footer">
                                     <tr>
                                         <td colspan="4" class="text-right font-bold">Total PO Value:</td>
+                                        @can('view item cost')
                                         <td class="text-right font-bold sf-currency-value">
                                             ${{ number_format($po->items->sum(fn($line) => $line->ordered_qty * $line->unit_cost), 2) }}
                                         </td>
+                                        @else
+                                        <td class="text-right">***</td>
+                                        @endcan
                                         <td></td>
                                     </tr>
                                 </tfoot>

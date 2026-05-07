@@ -2,26 +2,35 @@
 
 namespace App\Livewire;
 
-use App\Models\Item;
-use Livewire\Component;
-use App\Models\Analytics;
 use App\Exports\AnalyticsExport;
+use App\Models\Analytics;
+use App\Models\Item;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
 
 class Analytic extends Component
 {
     public $itemsDataJsn;
+
     public $filteredAnalyticsDataJsn;
+
     public $filterName = '';
+
     public $dateFrom = '';
+
     public $dateTo = '';
+
     public $store_id;
 
     public function mount()
     {
+        if (! Auth::user()->can('view analytics')) {
+            abort(403);
+        }
+
         // Initialize store_id during mount
-        $this->store_id =  Auth::user()->getCurrentStoreId();
+        $this->store_id = Auth::user()->getCurrentStoreId();
         $this->fetchData();
     }
 
@@ -54,16 +63,16 @@ class Analytic extends Component
         $query->where('store_id', $this->store_id);
 
         // Apply additional filters for analytics
-        if (!empty($this->filterName)) {
-            $query->where('item_name', 'like', '%' . $this->filterName . '%');
+        if (! empty($this->filterName)) {
+            $query->where('item_name', 'like', '%'.$this->filterName.'%');
         }
 
-        if (!empty($this->dateFrom)) {
-            $query->where('created_at', '>=', $this->dateFrom . ' 00:00:00');
+        if (! empty($this->dateFrom)) {
+            $query->where('created_at', '>=', $this->dateFrom.' 00:00:00');
         }
 
-        if (!empty($this->dateTo)) {
-            $query->where('created_at', '<=', $this->dateTo . ' 23:59:59');
+        if (! empty($this->dateTo)) {
+            $query->where('created_at', '<=', $this->dateTo.' 23:59:59');
         }
 
         // Fetch analytics data and convert to JSON
@@ -74,6 +83,7 @@ class Analytic extends Component
     {
         // Convert JSON data to a collection for export
         $analyticsData = collect(json_decode($this->filteredAnalyticsDataJsn, true));
+
         return Excel::download(new AnalyticsExport($analyticsData), 'analytics.xlsx');
     }
 
@@ -81,9 +91,12 @@ class Analytic extends Component
     {
         // Decode analytics data and calculate total
         $data = json_decode($this->filteredAnalyticsDataJsn, true);
-        if (empty($data)) return 0;
-        
+        if (empty($data)) {
+            return 0;
+        }
+
         $total = array_sum(array_column($data, $column));
+
         return $total;
     }
 

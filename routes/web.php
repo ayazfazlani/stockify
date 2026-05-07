@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\CmsController;
 // use App\Http\Controllers\RobotsTxtController;
 // use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\LocaleController;
 use App\Livewire\Admin\Analytics;
 use App\Livewire\Admin\Billing;
 use App\Livewire\Admin\Blog\Blog;
@@ -61,7 +62,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
                 // Find or create super admin user
                 $user = User::where('email', $googleUser->getEmail())->first();
 
-                if (!$user) {
+                if (! $user) {
                     $user = User::create([
                         'name' => $googleUser->getName(),
                         'email' => $googleUser->getEmail(),
@@ -83,7 +84,7 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
                 return redirect()->route('super-admin.dashboard');
 
             } catch (Exception $e) {
-                Log::error('Google OAuth Error: ' . $e->getMessage());
+                Log::error('Google OAuth Error: '.$e->getMessage());
 
                 return redirect()->route('super-admin.login')
                     ->with('error', 'Google authentication failed. Please try again.');
@@ -171,14 +172,13 @@ Route::get('tenant-register', Register::class)->name('tenant.register.post');
 
 // redirect to the subdomain or domain based rote
 
-
-
-
-
 // Blog
 Route::get('/blog', Blog::class)->name('blog.index');
 Route::get('/blog/category/{slug}', Category::class)->name('blog.category');
 Route::get('/blog/{slug}', Show::class)->name('blog.show');
+
+// Locale Switch
+Route::get('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.switch');
 
 // CMS Pages (catch-all — MUST be last)
 Route::get('/{slug}', [CmsController::class, 'cmsPage'])->name('cms.page')->where('slug', '^(?!super-admin|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe).*$');

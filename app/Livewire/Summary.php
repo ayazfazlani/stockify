@@ -3,22 +3,27 @@
 namespace App\Livewire;
 
 use App\Enums\PlanFeature;
-use Livewire\Component;
-use App\Models\Analytics;
 use App\Exports\ReportsExport;
-use Illuminate\Support\Facades\DB;
+use App\Models\Analytics;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
 
 class Summary extends Component
 {
     public $dateRange = ''; // Date range in 'YYYY-MM-DD to YYYY-MM-DD'
+
     public $search = ''; // Search term for filtering
+
     public $reports = []; // Filtered reports
 
     // Lifecycle hook: Fetch all reports on component mount
     public function mount()
     {
+        if (! Auth::user()->can('view analytics')) {
+            abort(403);
+        }
+
         $this->fetchReports();
     }
 
@@ -39,22 +44,24 @@ class Summary extends Component
             } else {
                 $this->reports = collect();
                 session()->flash('error', 'No store selected. Please select a valid store.');
+
                 return;
             }
         } else {
             // Unauthenticated users: No reports available
             $this->reports = collect();
             session()->flash('error', 'Access denied. Please log in.');
+
             return;
         }
 
         // Apply search filter
-        if (!empty($this->search)) {
-            $query->where('item_name', 'like', '%' . $this->search . '%');
+        if (! empty($this->search)) {
+            $query->where('item_name', 'like', '%'.$this->search.'%');
         }
 
         // Apply date range filter
-        if (!empty($this->dateRange)) {
+        if (! empty($this->dateRange)) {
             $dates = explode(' to ', $this->dateRange);
             if (count($dates) === 2) {
                 $query->whereBetween('created_at', [$dates[0], $dates[1]]);
@@ -89,10 +96,11 @@ class Summary extends Component
 
         if ($this->reports->isEmpty()) {
             session()->flash('error', 'No reports available to export.');
+
             return;
         }
 
-        return Excel::download(new ReportsExport($this->reports), 'reports-' . now()->format('Y-m-d') . '.xlsx');
+        return Excel::download(new ReportsExport($this->reports), 'reports-'.now()->format('Y-m-d').'.xlsx');
     }
 
     /**

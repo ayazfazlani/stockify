@@ -17,21 +17,21 @@
 <div>
   @push('seo')
     <script type="application/ld+json">
-                                    {
-                                      "@context": "https://schema.org",
-                                      "@type": "SoftwareApplication",
-                                      "name": "POS for Shops",
-                                      "applicationCategory": "BusinessApplication",
-                                      "operatingSystem": "All",
-                                      "offers": {
-                                        "@type": "Offer",
-                                        "price": "0",
-                                        "priceCurrency": "USD"
-                                      },
-                                      "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
-                                      "url": "{{ url('/') }}"
-                                    }
-                                    </script>
+                                      {
+                                        "@context": "https://schema.org",
+                                        "@type": "SoftwareApplication",
+                                        "name": "POS for Shops",
+                                        "applicationCategory": "BusinessApplication",
+                                        "operatingSystem": "All",
+                                        "offers": {
+                                          "@type": "Offer",
+                                          "price": "0",
+                                          "priceCurrency": "USD"
+                                        },
+                                        "description": "AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.",
+                                        "url": "{{ url('/') }}"
+                                      }
+                                      </script>
   @endpush
 
   <!-- ========================================== -->
@@ -57,18 +57,18 @@
         </div>
 
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tighter text-slate-900 mb-6">
-          Inventory Management<br>
-          <span class="text-indigo-600">Made Simple</span>
+          {{ __('app.landing.hero.title') }}<br>
+          <span class="text-indigo-600">{{ __('app.landing.hero.subtitle') }}</span>
         </h1>
 
         <p class="text-lg md:text-xl text-slate-500 leading-relaxed mb-10 max-w-xl mx-auto">
-          Ditch the spreadsheets. Track, manage, and optimize your inventory in one beautiful, easy-to-use platform.
+          {{ __('app.landing.hero.description') }}
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <a href="{{ route('tenant.register.post') }}"
             class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-lg shadow-indigo-200/50 hover:bg-indigo-700 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
-            Start Your Free Trial
+            {{ __('app.landing.hero.start_trial') }}
           </a>
 
           <a href="{{ route('marketplace.index') }}"
@@ -76,7 +76,7 @@
             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
-            Browse Marketplace
+            {{ __('app.landing.hero.browse_marketplace') }}
           </a>
 
           <a href="#features"
@@ -87,15 +87,15 @@
                 d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Watch 2-min Demo
+            {{ __('app.landing.hero.watch_demo') }}
           </a>
         </div>
 
         <p class="text-sm text-slate-400">
           @if(($plans[0]->trial_days ?? 0) > 0)
-            Free {{ $plans[0]->trial_days }} day trial •
+            {{ __('app.landing.hero.free_trial', ['days' => $plans[0]->trial_days]) }} •
           @endif
-          No credit card required • Cancel anytime
+          {{ __('app.landing.hero.no_credit_card') }} • {{ __('app.landing.hero.cancel_anytime') }}
         </p>
       </div>
     </div>
@@ -110,10 +110,10 @@
       <!-- Header -->
       <div class="text-center mb-10 md:mb-16">
         <h2 class="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight">
-          See It In Action
+          {{ __('app.landing.showcase.title') }}
         </h2>
         <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-          Clean, fast, and intuitive inventory management on both desktop and mobile.
+          {{ __('app.landing.showcase.subtitle') }}
         </p>
       </div>
 
@@ -216,15 +216,15 @@
         class="flex flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-2 md:gap-y-3 mt-12 md:mt-24 text-xs md:text-sm text-gray-500">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Real-time Sync
+          {{ __('app.landing.showcase.real_time') }}
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Easy Stock Adjustment
+          {{ __('app.landing.showcase.easy_adjustment') }}
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Fully Mobile Optimized
+          {{ __('app.landing.showcase.mobile_optimized') }}
         </div>
       </div>
 
@@ -255,11 +255,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16 max-w-2xl mx-auto" data-aos="fade-up">
         <h2 class="text-3xl md:text-[2.5rem] font-bold tracking-tight text-slate-900 mb-4 leading-tight">
-          Features at a glance
+          {{ __('app.landing.features.title') }}
         </h2>
         <p class="text-lg text-slate-500 leading-relaxed">
-          Track inventory, use analytics, and manage multiple locations with tools built to be simple from the start.
-          Here's everything you need to stay organized.
+          {{ __('app.landing.features.subtitle') }}
         </p>
       </div>
 
@@ -275,11 +274,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Real-Time Tracking</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">Monitor inventory levels, movements, and status in
-            real-time across all your locations with clean visualizations.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.features.real_time.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">{{ __('app.landing.features.real_time.desc') }}</p>
           <a href="#" class="inline-flex items-center text-indigo-600 text-sm font-medium group/link">
-            Learn more
+            {{ __('app.landing.features.learn_more') }}
             <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -297,11 +295,11 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">AI-Powered Insights</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">Get smart recommendations for reordering, pricing,
-            and inventory optimization based on predictive analytics.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.features.ai_insights.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">{{ __('app.landing.features.ai_insights.desc') }}
+          </p>
           <a href="#" class="inline-flex items-center text-indigo-600 text-sm font-medium group/link">
-            Learn more
+            {{ __('app.landing.features.learn_more') }}
             <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -321,11 +319,11 @@
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Automated Reordering</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">Set up automatic purchase orders when stock reaches
-            predetermined levels, saving time and preventing stockouts.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.features.auto_reorder.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">{{ __('app.landing.features.auto_reorder.desc') }}
+          </p>
           <a href="#" class="inline-flex items-center text-indigo-600 text-sm font-medium group/link">
-            Learn more
+            {{ __('app.landing.features.learn_more') }}
             <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -345,11 +343,10 @@
                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Advanced Analytics</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">Deep dive into your inventory data with
-            customizable reports, dashboards, and forecasting tools.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.features.analytics.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">{{ __('app.landing.features.analytics.desc') }}</p>
           <a href="#" class="inline-flex items-center text-indigo-600 text-sm font-medium group/link">
-            Learn more
+            {{ __('app.landing.features.learn_more') }}
             <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -369,11 +366,10 @@
                 d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Mobile Management</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">Manage your inventory on the go with our intuitive
-            mobile app for iOS and Android with offline capabilities.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.features.mobile.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">{{ __('app.landing.features.mobile.desc') }}</p>
           <a href="#" class="inline-flex items-center text-indigo-600 text-sm font-medium group/link">
-            Learn more
+            {{ __('app.landing.features.learn_more') }}
             <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -392,11 +388,11 @@
                 d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Seamless Integrations</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">Connect with your favorite e-commerce, accounting,
-            and shipping platforms with our extensive API.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.features.integrations.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-4">{{ __('app.landing.features.integrations.desc') }}
+          </p>
           <a href="#" class="inline-flex items-center text-indigo-600 text-sm font-medium group/link">
-            Learn more
+            {{ __('app.landing.features.learn_more') }}
             <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -414,10 +410,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16 max-w-2xl mx-auto" data-aos="fade-up">
         <h2 class="text-3xl md:text-[2.5rem] font-bold tracking-tight text-slate-900 mb-4 leading-tight">
-          Tailored Solutions for Your Business
+          {{ __('app.landing.solutions.title') }}
         </h2>
         <p class="text-lg text-slate-500 leading-relaxed">
-          Stockify adapts to your industry-specific needs with specialized features and workflows.
+          {{ __('app.landing.solutions.subtitle') }}
         </p>
       </div>
 
@@ -432,30 +428,30 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">E-commerce & Retail</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-5">Manage multi-channel inventory, sync with online
-            stores, and automate order fulfillment.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.solutions.ecommerce.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-5">{{ __('app.landing.solutions.ecommerce.desc') }}
+          </p>
           <ul class="space-y-3">
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Multi-channel sync
+              {{ __('app.landing.solutions.ecommerce.f1') }}
             </li>
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Automated order processing
+              {{ __('app.landing.solutions.ecommerce.f2') }}
             </li>
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Returns management
+              {{ __('app.landing.solutions.ecommerce.f3') }}
             </li>
           </ul>
         </div>
@@ -470,30 +466,31 @@
                 d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Manufacturing</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-5">Track raw materials, work-in-progress, and finished
-            goods across your production lifecycle.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.solutions.manufacturing.title') }}
+          </h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-5">
+            {{ __('app.landing.solutions.manufacturing.desc') }}</p>
           <ul class="space-y-3">
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Bill of materials tracking
+              {{ __('app.landing.solutions.manufacturing.f1') }}
             </li>
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Production planning
+              {{ __('app.landing.solutions.manufacturing.f2') }}
             </li>
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Quality control integration
+              {{ __('app.landing.solutions.manufacturing.f3') }}
             </li>
           </ul>
         </div>
@@ -510,30 +507,30 @@
                 d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-slate-900 mb-2">Logistics & Warehousing</h3>
-          <p class="text-slate-500 text-[15px] leading-relaxed mb-5">Optimize storage, picking, packing, and shipping
-            operations with intelligent warehouse management.</p>
+          <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ __('app.landing.solutions.logistics.title') }}</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed mb-5">{{ __('app.landing.solutions.logistics.desc') }}
+          </p>
           <ul class="space-y-3">
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Warehouse layout optimization
+              {{ __('app.landing.solutions.logistics.f1') }}
             </li>
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Barcode scanning
+              {{ __('app.landing.solutions.logistics.f2') }}
             </li>
             <li class="flex items-center text-sm text-slate-600">
               <svg class="w-4 h-4 text-emerald-500 mr-2.5 shrink-0" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              Shipping carrier integration
+              {{ __('app.landing.solutions.logistics.f3') }}
             </li>
           </ul>
         </div>
@@ -548,20 +545,19 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16 max-w-2xl mx-auto" data-aos="fade-up">
         <h2 class="text-3xl md:text-[2.5rem] font-bold tracking-tight text-slate-900 mb-4 leading-tight">
-          Simple, Transparent Pricing
+          {{ __('app.landing.pricing.title') }}
         </h2>
         <p class="text-lg text-slate-500 leading-relaxed">
-          Choose the plan that works best for your business. All plans include a {{ $plans[0]->trial_days ?? 14 }}-day
-          free trial.
+          {{ __('app.landing.pricing.subtitle', ['days' => $plans[0]->trial_days ?? 14]) }}
         </p>
 
         <!-- Billing Toggle -->
         <div class="inline-flex items-center bg-slate-100 rounded-xl p-1.5 mt-8">
           <button id="billing-monthly"
-            class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm transition-all">Monthly</button>
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm transition-all">{{ __('app.landing.pricing.monthly') }}</button>
           <button id="billing-annual"
-            class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-700 transition-all">Annual
-            <span class="text-emerald-600">Save 20%</span></button>
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-500 hover:text-slate-700 transition-all">{{ __('app.landing.pricing.annual') }}
+            <span class="text-emerald-600">{{ __('app.landing.pricing.save_20') }}</span></button>
         </div>
       </div>
 
@@ -574,7 +570,7 @@
               <div class="absolute -top-px left-1/2 -translate-x-1/2">
                 <span
                   class="inline-flex items-center bg-indigo-600 text-white px-4 py-1.5 rounded-b-lg text-xs font-semibold tracking-wide">
-                  MOST POPULAR
+                  {{ __('app.landing.pricing.most_popular') }}
                 </span>
               </div>
             @endif
@@ -605,7 +601,8 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     <span class="text-sm text-slate-600">
-                      <strong class="text-slate-800">{{ $pf->value == -1 ? 'Unlimited' : $pf->value }}</strong>
+                      <strong
+                        class="text-slate-800">{{ $pf->value == -1 ? __('app.landing.pricing.unlimited') : $pf->value }}</strong>
                       {{ $enum->label() }}
                     </span>
                   </li>
@@ -641,7 +638,7 @@
 
             <a href="{{ route('tenant.register.post', ['plan' => $plan->slug]) }}"
               class="w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 {{ $plan->is_featured ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-xl' : 'bg-slate-900 text-white hover:bg-slate-800' }}">
-              {{ $plan->trial_days > 0 ? 'Start Free Trial' : 'Get Started' }}
+              {{ $plan->trial_days > 0 ? __('app.landing.pricing.trial_btn') : __('app.landing.pricing.get_started') }}
             </a>
           </div>
         @endforeach
@@ -883,7 +880,7 @@
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8" data-aos="fade-up" data-aos-delay="200">
         <a href="#pricing"
           class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-indigo-600 text-white font-semibold text-[15px] shadow-lg shadow-indigo-900/50 hover:bg-indigo-500 hover:-translate-y-0.5 transition-all duration-200">
-          Start Your Free Trial
+          {{ __('app.landing.nav.start_trial') }}
         </a>
         <a href="#"
           class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-slate-800 text-white font-semibold text-[15px] border border-slate-700 hover:bg-slate-700 hover:-translate-y-0.5 transition-all duration-200">

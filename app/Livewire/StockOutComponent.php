@@ -2,42 +2,57 @@
 
 namespace App\Livewire;
 
+use App\Mail\StockOutConfirmationMail;
 use App\Models\Item;
+use App\Models\ItemSerial;
 use App\Models\Sale;
-use Livewire\Component;
 use App\Models\Transaction;
 use App\Services\AnalyticsService;
 use App\Services\InventoryAuditService;
 use App\Services\Notifications\WhatsAppNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class StockOutComponent extends Component
 {
     public $items = [];
+
     public $salesHistory = [];
+
     public $selectedItems = [];
+
     public $search = '';
+
     public $dateRange = [
         'start' => '',
-        'end' => ''
+        'end' => '',
     ];
 
     public $showReceipt = false;
+
     public $currentSale = null;
+
     public string $shareEmail = '';
+
     public string $sharePhone = '';
+
     public string $customerName = '';
+
     public string $customerPhone = '';
 
     protected $listeners = ['refreshComponent' => '$refresh'];
 
     public function mount()
     {
+        if (! Auth::user()->can('view items')) {
+            abort(403);
+        }
         $this->loadItems();
         $this->loadSalesHistory();
     }
@@ -48,8 +63,8 @@ class StockOutComponent extends Component
 
         $this->items = Item::where('store_id', $teamId)
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('sku', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('sku', 'like', '%'.$this->search.'%');
             })
             ->get();
     }
@@ -60,12 +75,12 @@ class StockOutComponent extends Component
 
         $this->salesHistory = Sale::query()
             ->withCount('transactions')
-            ->when($teamId, fn($q) => $q->where('store_id', $teamId))
+            ->when($teamId, fn ($q) => $q->where('store_id', $teamId))
             ->when(
                 $this->dateRange['start'] && $this->dateRange['end'],
-                fn($q) => $q->whereBetween('created_at', [
-                    $this->dateRange['start'] . ' 00:00:00',
-                    $this->dateRange['end'] . ' 23:59:59'
+                fn ($q) => $q->whereBetween('created_at', [
+                    $this->dateRange['start'].' 00:00:00',
+                    $this->dateRange['end'].' 23:59:59',
                 ])
             )
             ->latest()
@@ -86,18 +101,19 @@ class StockOutComponent extends Component
     public function handleScannedData($code, $scannerId = null)
     {
         $teamId = Auth::user()->getCurrentStoreId();
-        
+
         // 1. Check if it's a SKU
         $item = Item::resolveByCode($code, $teamId);
 
         if ($item) {
             $this->toggleItemSelection($item->id);
             session()->flash('success', "Item auto-selected: {$item->name}");
+
             return;
         }
 
         // 2. Check if it's a Serial Number
-        $serial = \App\Models\ItemSerial::where('serial_number', $code)
+        $serial = ItemSerial::where('serial_number', $code)
             ->where('store_id', $teamId)
             ->where('status', 'available')
             ->first();
@@ -105,6 +121,7 @@ class StockOutComponent extends Component
         if ($serial) {
             $this->addSerializedItem($serial);
             session()->flash('success', "Serial detected: {$serial->serial_number} ({$serial->item->name})");
+
             return;
         }
 
@@ -123,7 +140,7 @@ class StockOutComponent extends Component
             $item['selected_serials'] = [$serial->serial_number];
             $this->selectedItems[] = $item;
         } else {
-            if (!in_array($serial->serial_number, $this->selectedItems[$key]['selected_serials'])) {
+            if (! in_array($serial->serial_number, $this->selectedItems[$key]['selected_serials'])) {
                 $this->selectedItems[$key]['selected_serials'][] = $serial->serial_number;
                 $this->selectedItems[$key]['quantity'] = count($this->selectedItems[$key]['selected_serials']);
             }
@@ -162,13 +179,14 @@ class StockOutComponent extends Component
 
         if (! $sale) {
             session()->flash('error', 'Sale record not found.');
+
             return null;
         }
 
         $pdf = Pdf::loadView('pdf.sale-receipt', ['sale' => $sale]);
 
         return response()->streamDownload(
-            fn () => print($pdf->output()),
+            fn () => print ($pdf->output()),
             "receipt-{$sale->id}.pdf"
         );
     }
@@ -182,15 +200,16 @@ class StockOutComponent extends Component
         $sale = $this->getSaleWithRelations($saleId);
         if (! $sale) {
             session()->flash('error', 'Sale record not found.');
+
             return;
         }
 
         $pdf = Pdf::loadView('pdf.sale-receipt', ['sale' => $sale])->output();
 
-        Mail::raw("Please find your sales receipt #".str_pad($sale->id, 6, '0', STR_PAD_LEFT)." attached.", function ($message) use ($sale, $pdf) {
+        Mail::raw('Please find your sales receipt #'.str_pad($sale->id, 6, '0', STR_PAD_LEFT).' attached.', function ($message) use ($sale, $pdf) {
             $message
                 ->to($this->shareEmail)
-                ->subject("Receipt #".str_pad($sale->id, 6, '0', STR_PAD_LEFT))
+                ->subject('Receipt #'.str_pad($sale->id, 6, '0', STR_PAD_LEFT))
                 ->attachData($pdf, 'receipt-'.$sale->id.'.pdf', [
                     'mime' => 'application/pdf',
                 ]);
@@ -209,6 +228,7 @@ class StockOutComponent extends Component
         $sale = $this->getSaleWithRelations($saleId);
         if (! $sale) {
             session()->flash('error', 'Sale record not found.');
+
             return;
         }
 
@@ -228,6 +248,10 @@ class StockOutComponent extends Component
 
     public function handleStockOut()
     {
+        if (! Auth::user()->can('manage stock')) {
+            abort(403);
+        }
+
         $this->validate([
             'selectedItems.*.quantity' => [
                 'required',
@@ -238,15 +262,16 @@ class StockOutComponent extends Component
                     $itemId = $this->selectedItems[$index]['id'];
                     $item = Item::find($itemId);
 
-                    if (!$item) {
-                        $fail("Item not found");
+                    if (! $item) {
+                        $fail('Item not found');
+
                         return;
                     }
 
                     if ($value > $item->quantity) {
                         $fail("Quantity for {$item->name} exceeds available stock ({$item->quantity})");
                     }
-                }
+                },
             ],
             'selectedItems.*.sale_price' => 'required|numeric|min:0',
             'customerName' => 'nullable|string|max:100',
@@ -263,7 +288,7 @@ class StockOutComponent extends Component
                 $totalAmount += $item['sale_price'] * $item['quantity'];
             }
 
-            $sale = \App\Models\Sale::create([
+            $sale = Sale::create([
                 'store_id' => $teamId,
                 'user_id' => Auth::id(),
                 'total_amount' => $totalAmount,
@@ -286,7 +311,7 @@ class StockOutComponent extends Component
 
                     // If serialized, mark serials as sold
                     if (isset($item['selected_serials'])) {
-                        \App\Models\ItemSerial::whereIn('serial_number', $item['selected_serials'])
+                        ItemSerial::whereIn('serial_number', $item['selected_serials'])
                             ->where('item_id', $itemModel->id)
                             ->update(['status' => 'sold']);
                     }
@@ -304,7 +329,7 @@ class StockOutComponent extends Component
                         'created_at' => now(),
                     ]);
 
-                    (new AnalyticsService())->updateAllAnalytics($itemModel, $item['quantity'], 'stock_out');
+                    (new AnalyticsService)->updateAllAnalytics($itemModel, $item['quantity'], 'stock_out');
                     app(InventoryAuditService::class)->log(
                         $itemModel,
                         'stock_out',
@@ -315,17 +340,29 @@ class StockOutComponent extends Component
                 }
             }
 
-            DB::commit();
-            
             // Set data for receipt and show it
             $this->currentSale = $this->getSaleWithRelations($sale->id);
             $this->prefillRememberedContact();
             $this->showReceipt = true;
-            
+            DB::commit();
+
+            // Send Stock Out Confirmation Mail
+            try {
+                $transactionData = [
+                    'item_count' => count($this->selectedItems),
+                    'total_qty' => array_sum(array_column($this->selectedItems, 'quantity')),
+                    'total_amount' => array_sum(array_map(fn ($item) => $item['quantity'] * $item['sale_price'], $this->selectedItems)),
+                    'date' => now()->format('M d, Y h:i A'),
+                ];
+                Mail::to(Auth::user()->email)->send(new StockOutConfirmationMail(Auth::user(), $this->selectedItems, $transactionData));
+            } catch (\Exception $e) {
+                Log::error('Failed to send StockOutConfirmationMail: '.$e->getMessage());
+            }
+
             session()->flash('message', 'Stock-out completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error: ' . $e->getMessage());
+            session()->flash('error', 'Error: '.$e->getMessage());
         }
 
         $this->reset('selectedItems');
