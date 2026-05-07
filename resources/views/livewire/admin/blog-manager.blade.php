@@ -330,6 +330,69 @@
             accent-color: hsl(var(--primary));
         }
 
+        /* Rich Text Editor Toolbar Styles */
+        .rich-editor-toolbar {
+            border: 1px solid hsl(var(--border));
+            border-bottom: none;
+            border-radius: var(--radius) var(--radius) 0 0;
+            background: hsl(var(--card));
+            padding: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .editor-toolbar-btn {
+            background: transparent;
+            border: 1px solid hsl(var(--border));
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: hsl(var(--foreground));
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .editor-toolbar-btn i {
+            font-size: 0.8rem;
+        }
+
+        .editor-toolbar-btn:hover {
+            background-color: hsl(var(--accent));
+            border-color: hsl(var(--primary));
+        }
+
+        .rich-editor-content {
+            border: 1px solid hsl(var(--border));
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            min-height: 300px;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .rich-editor-content:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+        }
+
+        /* Dark mode adjustments */
+        @media (prefers-color-scheme: dark) {
+            .rich-editor-content {
+                background: #1e1e2e;
+            }
+        }
+
         @keyframes cmsFadeIn {
             from {
                 opacity: 0;
@@ -544,13 +607,93 @@
                             style="color: hsl(var(--destructive)); font-size: 0.75rem;">{{ $message }}</span> @enderror
                         </div>
 
+                        {{-- Rich Text Editor Section --}}
                         <div class="form-group">
-                            <label class="form-label">Post Content</label>
-                            <textarea class="form-input" wire:model="body" rows="15"
-                                placeholder="Write your blog post content (HTML supported)"
-                                style="min-height: 300px; font-family: monospace; font-size: 0.8rem;"></textarea>
+                            <label class="form-label">Post Content (Rich Text Editor)</label>
+
+                            {{-- Toolbar --}}
+                            <div class="rich-editor-toolbar">
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('bold')" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('italic')"
+                                    title="Italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('underline')"
+                                    title="Underline">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('strikeThrough')"
+                                    title="Strikethrough">
+                                    <i class="fas fa-strikethrough"></i>
+                                </button>
+                                <span style="width: 1px; background: hsl(var(--border)); margin: 0 0.25rem;"></span>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('insertUnorderedList')"
+                                    title="Bullet List">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('insertOrderedList')"
+                                    title="Numbered List">
+                                    <i class="fas fa-list-ol"></i>
+                                </button>
+                                <span style="width: 1px; background: hsl(var(--border)); margin: 0 0.25rem;"></span>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('justifyLeft')"
+                                    title="Align Left">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('justifyCenter')"
+                                    title="Align Center">
+                                    <i class="fas fa-align-center"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('justifyRight')"
+                                    title="Align Right">
+                                    <i class="fas fa-align-right"></i>
+                                </button>
+                                <span style="width: 1px; background: hsl(var(--border)); margin: 0 0.25rem;"></span>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('createLink')"
+                                    title="Insert Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('unlink')"
+                                    title="Remove Link">
+                                    <i class="fas fa-unlink"></i>
+                                </button>
+                                <span style="width: 1px; background: hsl(var(--border)); margin: 0 0.25rem;"></span>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('insertImage')"
+                                    title="Insert Image (URL)">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn"
+                                    onclick="formatText('insertHorizontalRule')" title="Horizontal Rule">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span style="width: 1px; background: hsl(var(--border)); margin: 0 0.25rem;"></span>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('undo')" title="Undo">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                <button type="button" class="editor-toolbar-btn" onclick="formatText('redo')" title="Redo">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+
+                            {{-- Editable Content Area --}}
+                            <div id="richEditor" class="rich-editor-content" contenteditable="true" wire:ignore x-data
+                                x-init="
+                                        $watch('body', value => {
+                                            if (document.getElementById('richEditor').innerHTML !== value) {
+                                                document.getElementById('richEditor').innerHTML = value || '<p>Start writing your blog post here...</p>';
+                                            }
+                                        });
+                                        const editor = document.getElementById('richEditor');
+                                        editor.addEventListener('input', function() {
+                                            @this.set('body', this.innerHTML);
+                                        });
+                                        editor.innerHTML = @entangle('body') || '<p>Start writing your blog post here...</p>';
+                                     "></div>
                             @error('body') <span
-                            style="color: hsl(var(--destructive)); font-size: 0.75rem;">{{ $message }}</span> @enderror
+                                style="color: hsl(var(--destructive)); font-size: 0.75rem;">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div class="form-row-3">
@@ -666,5 +809,40 @@
             console.log('hello')
         }
 
+        // Rich Text Editor formatting functions
+        function formatText(command, value = null) {
+            document.getElementById('richEditor').focus();
+
+            switch (command) {
+                case 'createLink':
+                    let url = prompt('Enter URL:', 'https://');
+                    if (url) {
+                        document.execCommand('createLink', false, url);
+                    }
+                    break;
+                case 'insertImage':
+                    let imageUrl = prompt('Enter image URL:', 'https://');
+                    if (imageUrl) {
+                        document.execCommand('insertImage', false, imageUrl);
+                    }
+                    break;
+                default:
+                    document.execCommand(command, false, value);
+            }
+
+            // Trigger Livewire update after formatting
+            let editorContent = document.getElementById('richEditor').innerHTML;
+            if (window.Livewire) {
+                @this.set('body', editorContent);
+            }
+        }
+
+        // Ensure editor content is synced on form submission
+        document.addEventListener('livewire:submit', function () {
+            let editorContent = document.getElementById('richEditor')?.innerHTML;
+            if (editorContent && window.Livewire) {
+                @this.set('body', editorContent);
+            }
+        });
     </script>
 </div>
