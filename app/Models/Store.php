@@ -123,8 +123,16 @@ class Store extends Model
     protected static function booted()
     {
         static::saving(function (Store $store) {
-            if (static::hasSlugColumn() && empty($store->slug)) {
-                $store->slug = Str::slug($store->name ?: 'store').'-'.Str::random(4);
+            if (static::hasSlugColumn() && ($store->isDirty('name') || empty($store->slug))) {
+                $slug = Str::slug($store->name ?: 'store');
+                $originalSlug = $slug;
+                $count = 1;
+
+                while (static::where('slug', $slug)->where('id', '!=', $store->id)->exists()) {
+                    $slug = $originalSlug.'-'.$count;
+                    $count++;
+                }
+                $store->slug = $slug;
             }
         });
 

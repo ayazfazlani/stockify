@@ -468,7 +468,7 @@ return [
             'trial_btn' => 'Start Free Trial',
         ],
         'footer' => [
-            'description' => 'AI-powered inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.',
+            'description' => 'Simple inventory management solution that helps businesses streamline operations, reduce costs, and boost efficiency.',
             'product' => 'Product',
             'company' => 'Company',
             'support' => 'Support',

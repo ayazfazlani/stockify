@@ -123,62 +123,73 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
     });
 });
 
+// Redirect root to default locale
+Route::get('/', function () {
+    return redirect('/'.(session('locale') ?? config('app.locale', 'en')));
+});
+
+// ---------------- Localized Public Routes ----------------
+Route::prefix('{locale}')->where(['locale' => 'en|ur'])->group(function () {
+
+    Route::get('/', Home::class)->name('home');
+
+    // Marketplace Routes
+    Route::get('/marketplace', App\Livewire\Marketplace\Home::class)->name('marketplace.index');
+    Route::get('/marketplace/stores', Stores::class)->name('marketplace.stores');
+    Route::get('/marketplace/search', Search::class)->name('marketplace.search');
+    Route::get('/marketplace/category/{category}', Search::class)->name('marketplace.category');
+    Route::get('/marketplace/product/{item}', ProductDetails::class)->name('marketplace.product');
+    Route::get('/marketplace/checkout', Checkout::class)->name('marketplace.checkout');
+    Route::get('/marketplace/my-orders', MyOrders::class)->name('marketplace.my-orders');
+    Route::get('/marketplace/store/{store}', StoreProfile::class)->name('marketplace.store');
+
+    Route::get('/invite', InviteUser::class)->name('invite');
+    Route::get('/login', Login::class)->name('login');
+    Route::get('/register', App\Livewire\Auth\Register::class)->name('register');
+
+    Route::get('/forgot-password', ForgotPassword::class)
+        ->name('password.request')
+        ->middleware('guest');
+
+    Route::get('/reset-password/{token}', ResetPassword::class)
+        ->name('password.reset')
+        ->middleware('guest');
+
+    Route::get('/find-store', FindStore::class)
+        ->name('find-store')
+        ->middleware('guest');
+
+    Route::get('tenant-register', Register::class)->name('tenant.register.post');
+
+    // Blog
+    Route::get('/blog', Blog::class)->name('blog.index');
+    Route::get('/blog/category/{slug}', Category::class)->name('blog.category');
+    Route::get('/blog/{slug}', Show::class)->name('blog.show');
+
+    // CMS Pages (catch-all — MUST be last in the group)
+    Route::get('/{slug}', [CmsController::class, 'cmsPage'])->name('cms.page')->where('slug', '^(?!super-admin|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe).*$');
+});
+
+// ---------------- Other Routes ----------------
 Route::get('/checkout/success', function () {
-    // You can retrieve session here if needed
-    // $session = \Stripe\Checkout\Session::retrieve(request('session_id'));
     return view('subscription.success');
 })->name('checkout.success');
 
 Route::get('/checkout/cancel', function () {
     return view('subscription.cancel');
 })->name('checkout.cancel');
-// ---------------- Public Routes ----------------
-Route::get('/', Home::class)->name('home');
-
-// ---------------- Marketplace Routes ----------------
-Route::get('/marketplace', App\Livewire\Marketplace\Home::class)->name('marketplace.index');
-Route::get('/marketplace/stores', Stores::class)->name('marketplace.stores');
-Route::get('/marketplace/search', Search::class)->name('marketplace.search');
-Route::get('/marketplace/category/{category}', Search::class)->name('marketplace.category');
-Route::get('/marketplace/product/{item}', ProductDetails::class)->name('marketplace.product');
-Route::get('/marketplace/checkout', Checkout::class)->name('marketplace.checkout');
-Route::get('/marketplace/my-orders', MyOrders::class)->name('marketplace.my-orders');
-Route::get('/marketplace/store/{store}', StoreProfile::class)->name('marketplace.store');
-
-Route::get('/invite', InviteUser::class)->name('invite');
-Route::get('/login', Login::class)->name('login');
-Route::get('/register', App\Livewire\Auth\Register::class)->name('register');
-
-Route::get('/forgot-password', ForgotPassword::class)
-    ->name('password.request')
-    ->middleware('guest');
-
-Route::get('/reset-password/{token}', ResetPassword::class)
-    ->name('password.reset')
-    ->middleware('guest');
-
-Route::get('/find-store', FindStore::class)
-    ->name('find-store')
-    ->middleware('guest');
 
 // Regular user Google OAuth routes
 Route::get('/auth/google/redirect', function () {
     return Socialite::driver('google')->redirect();
 })->name('super-admin.google.redirect');
 
-Route::get('tenant-register', Register::class)->name('tenant.register.post');
-
-Route::get('tenant-register', Register::class)->name('tenant.register.post');
-
-// redirect to the subdomain or domain based rote
-
-// Blog
-Route::get('/blog', Blog::class)->name('blog.index');
-Route::get('/blog/category/{slug}', Category::class)->name('blog.category');
-Route::get('/blog/{slug}', Show::class)->name('blog.show');
-
 // Locale Switch
-Route::get('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.switch');
+Route::get('/locale/{lang}', [LocaleController::class, 'update'])->name('locale.switch');
 
-// CMS Pages (catch-all — MUST be last)
-Route::get('/{slug}', [CmsController::class, 'cmsPage'])->name('cms.page')->where('slug', '^(?!super-admin|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe).*$');
+// Strict redirection for non-prefixed public URLs (Legacy paths)
+Route::get('/{any}', function ($any) {
+    $locale = App::getLocale();
+
+    return redirect('/'.$locale.'/'.$any);
+})->where('any', '^(marketplace|blog|login|register|invite|find-store|tenant-register|forgot-password|reset-password)(\/.*)?$');

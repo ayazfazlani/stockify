@@ -14,8 +14,6 @@ use App\Http\Middleware\CheckTenantAccess;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Livewire\Adjust;
 use App\Livewire\Admin\Blog\Blog;
-use App\Livewire\Admin\Blog\Category;
-use App\Livewire\Admin\Blog\Show;
 use App\Livewire\Analytic;
 use App\Livewire\Auth\Login;
 use App\Livewire\Dashboard as AnalyticsDashboard;
@@ -61,15 +59,9 @@ Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsTxtController::class, 'index'])->name('robots');
 
-// Blog
-Route::get('/blog', Blog::class)->name('blog.index');
-Route::get('/blog/category/{slug}', Category::class)->name('blog.category');
-Route::get('/blog/{slug}', Show::class)->name('blog.show');
+// Blog routes are handled in web.php to avoid duplication and conflicts
 
-// CMS Pages (catch-all — MUST be last)
-// Route::get('/{slug}', [CmsController::class, 'cmsPage'])->name('cms.page')->where('slug', '^(?!super-admin|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe).*$');
-
-Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!super-admin|marketplace|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe|api|pwa|up|build\\b)[^/]+$'])->middleware([
+Route::prefix('{tenant}')->name('tenant.')->where(['tenant' => '^(?!en|ur|super-admin|marketplace|login|register|invite|find-store|tenant-register|forgot-password|reset-password|checkout|auth|stripe|api|pwa|up|build\\b)[^/]+$'])->middleware([
     'web',
     InitializeTenancyByPath::class,
     CheckTenantAccess::class,

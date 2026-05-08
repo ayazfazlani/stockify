@@ -10,6 +10,7 @@ use App\Observers\TransactionObserver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Invoice;
@@ -60,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
         // Register observers for metrics tracking
         Transaction::observe(TransactionObserver::class);
         Item::observe(ItemMetricsObserver::class);
+
+        // Set default URL parameters for SEO localization
+        URL::defaults(['locale' => app()->getLocale()]);
 
         // Set application locale based on tenant preference
         // This is now handled by SetLocale middleware which also handles session/cookie

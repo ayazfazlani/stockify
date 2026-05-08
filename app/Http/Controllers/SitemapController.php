@@ -27,107 +27,112 @@ class SitemapController extends Controller
     protected function generateSitemap(): string
     {
         $baseUrl = rtrim(config('app.url'), '/');
+        $locales = ['en', 'ur'];
         $urls = [];
 
-        // ── 1. Static / Site Pages ──────────────────────────────────
-        $urls[] = $this->url($baseUrl, now(), 'daily', '1.0');
+        foreach ($locales as $locale) {
+            $localeBaseUrl = $baseUrl.'/'.$locale;
 
-        // Marketplace hub pages
-        $urls[] = $this->url($baseUrl.'/marketplace', now(), 'daily', '0.9');
-        $urls[] = $this->url($baseUrl.'/marketplace/stores', now(), 'daily', '0.8');
-        $urls[] = $this->url($baseUrl.'/marketplace/search', now(), 'weekly', '0.6');
+            // ── 1. Static / Site Pages ──────────────────────────────────
+            $urls[] = $this->url($localeBaseUrl, now(), 'daily', '1.0');
 
-        // Blog index
-        $urls[] = $this->url($baseUrl.'/blog', now(), 'daily', '0.8');
+            // Marketplace hub pages
+            $urls[] = $this->url($localeBaseUrl.'/marketplace', now(), 'daily', '0.9');
+            $urls[] = $this->url($localeBaseUrl.'/marketplace/stores', now(), 'daily', '0.8');
+            $urls[] = $this->url($localeBaseUrl.'/marketplace/search', now(), 'weekly', '0.6');
 
-        // ── 2. CMS Pages ────────────────────────────────────────────
-        CmsPage::published()
-            ->select('slug', 'updated_at')
-            ->orderBy('updated_at', 'desc')
-            ->chunk(500, function ($pages) use (&$urls, $baseUrl) {
-                foreach ($pages as $page) {
+            // Blog index
+            $urls[] = $this->url($localeBaseUrl.'/blog', now(), 'daily', '0.8');
+
+            // ── 2. CMS Pages ────────────────────────────────────────────
+            CmsPage::published()
+                ->select('slug', 'updated_at')
+                ->orderBy('updated_at', 'desc')
+                ->chunk(500, function ($pages) use (&$urls, $localeBaseUrl) {
+                    foreach ($pages as $page) {
+                        $urls[] = $this->url(
+                            $localeBaseUrl.'/'.$page->slug,
+                            $page->updated_at,
+                            'weekly',
+                            '0.7'
+                        );
+                    }
+                });
+
+            // ── 3. Blog Posts ───────────────────────────────────────────
+            BlogPost::published()
+                ->select('slug', 'updated_at')
+                ->orderBy('updated_at', 'desc')
+                ->chunk(500, function ($posts) use (&$urls, $localeBaseUrl) {
+                    foreach ($posts as $post) {
+                        $urls[] = $this->url(
+                            $localeBaseUrl.'/blog/'.$post->slug,
+                            $post->updated_at,
+                            'weekly',
+                            '0.6'
+                        );
+                    }
+                });
+
+            // ── 4. Blog Categories ──────────────────────────────────────
+            BlogCategory::has('posts')
+                ->select('slug', 'updated_at')
+                ->get()
+                ->each(function ($category) use (&$urls, $localeBaseUrl) {
                     $urls[] = $this->url(
-                        $baseUrl.'/'.$page->slug,
-                        $page->updated_at,
+                        $localeBaseUrl.'/blog/category/'.$category->slug,
+                        $category->updated_at,
                         'weekly',
-                        '0.7'
+                        '0.5'
                     );
-                }
-            });
+                });
 
-        // ── 3. Blog Posts ───────────────────────────────────────────
-        BlogPost::published()
-            ->select('slug', 'updated_at')
-            ->orderBy('updated_at', 'desc')
-            ->chunk(500, function ($posts) use (&$urls, $baseUrl) {
-                foreach ($posts as $post) {
+            // ── 5. Marketplace Stores (public) ──────────────────────────
+            Store::where('is_public', true)
+                ->select('slug', 'updated_at')
+                ->orderBy('updated_at', 'desc')
+                ->chunk(500, function ($stores) use (&$urls, $localeBaseUrl) {
+                    foreach ($stores as $store) {
+                        $urls[] = $this->url(
+                            $localeBaseUrl.'/marketplace/store/'.$store->slug,
+                            $store->updated_at,
+                            'weekly',
+                            '0.7'
+                        );
+                    }
+                });
+
+            // ── 6. Marketplace Products (public items from public stores)
+            Item::public()
+                ->select('items.slug', 'items.updated_at')
+                ->orderBy('items.updated_at', 'desc')
+                ->chunk(500, function ($items) use (&$urls, $localeBaseUrl) {
+                    foreach ($items as $item) {
+                        $urls[] = $this->url(
+                            $localeBaseUrl.'/marketplace/product/'.$item->slug,
+                            $item->updated_at ?? $item->created_at ?? now(),
+                            'weekly',
+                            '0.6'
+                        );
+                    }
+                });
+
+            // ── 7. Marketplace Categories (with public items) ───────────
+            Category::where('is_active', true)
+                ->whereHas('items', function ($q) {
+                    $q->public();
+                })
+                ->select('slug', 'updated_at')
+                ->get()
+                ->each(function ($category) use (&$urls, $localeBaseUrl) {
                     $urls[] = $this->url(
-                        $baseUrl.'/blog/'.$post->slug,
-                        $post->updated_at,
+                        $localeBaseUrl.'/marketplace/category/'.$category->slug,
+                        $category->updated_at,
                         'weekly',
-                        '0.6'
+                        '0.5'
                     );
-                }
-            });
-
-        // ── 4. Blog Categories ──────────────────────────────────────
-        BlogCategory::has('posts')
-            ->select('slug', 'updated_at')
-            ->get()
-            ->each(function ($category) use (&$urls, $baseUrl) {
-                $urls[] = $this->url(
-                    $baseUrl.'/blog/category/'.$category->slug,
-                    $category->updated_at,
-                    'weekly',
-                    '0.5'
-                );
-            });
-
-        // ── 5. Marketplace Stores (public) ──────────────────────────
-        Store::where('is_public', true)
-            ->select('slug', 'updated_at')
-            ->orderBy('updated_at', 'desc')
-            ->chunk(500, function ($stores) use (&$urls, $baseUrl) {
-                foreach ($stores as $store) {
-                    $urls[] = $this->url(
-                        $baseUrl.'/marketplace/store/'.$store->slug,
-                        $store->updated_at,
-                        'weekly',
-                        '0.7'
-                    );
-                }
-            });
-
-        // ── 6. Marketplace Products (public items from public stores)
-        Item::public()
-            ->select('items.slug', 'items.updated_at')
-            ->orderBy('items.updated_at', 'desc')
-            ->chunk(500, function ($items) use (&$urls, $baseUrl) {
-                foreach ($items as $item) {
-                    $urls[] = $this->url(
-                        $baseUrl.'/marketplace/product/'.$item->slug,
-                        $item->updated_at ?? $item->created_at ?? now(),
-                        'weekly',
-                        '0.6'
-                    );
-                }
-            });
-
-        // ── 7. Marketplace Categories (with public items) ───────────
-        Category::where('is_active', true)
-            ->whereHas('items', function ($q) {
-                $q->public();
-            })
-            ->select('slug', 'updated_at')
-            ->get()
-            ->each(function ($category) use (&$urls, $baseUrl) {
-                $urls[] = $this->url(
-                    $baseUrl.'/marketplace/category/'.$category->slug,
-                    $category->updated_at,
-                    'weekly',
-                    '0.5'
-                );
-            });
+                });
+        }
 
         // ── Build XML ───────────────────────────────────────────────
         return $this->buildXml($urls);
@@ -158,6 +163,7 @@ class SitemapController extends Controller
     protected function buildXml(array $urls): string
     {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
         foreach ($urls as $url) {

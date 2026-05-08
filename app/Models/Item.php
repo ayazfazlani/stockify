@@ -108,8 +108,16 @@ class Item extends Model
     protected static function booted()
     {
         static::saving(function ($item) {
-            if (empty($item->slug)) {
-                $item->slug = Str::slug($item->name).'-'.Str::random(4);
+            if ($item->isDirty('name') || empty($item->slug)) {
+                $slug = Str::slug($item->name);
+                $originalSlug = $slug;
+                $count = 1;
+
+                while (static::where('slug', $slug)->where('id', '!=', $item->id)->exists()) {
+                    $slug = $originalSlug.'-'.$count;
+                    $count++;
+                }
+                $item->slug = $slug;
             }
         });
 
@@ -118,7 +126,15 @@ class Item extends Model
                 $item->sku = 'SKU-'.strtoupper(Str::random(8));
             }
             if (empty($item->slug)) {
-                $item->slug = Str::slug($item->name).'-'.Str::random(4);
+                $slug = Str::slug($item->name);
+                $originalSlug = $slug;
+                $count = 1;
+
+                while (static::where('slug', $slug)->exists()) {
+                    $slug = $originalSlug.'-'.$count;
+                    $count++;
+                }
+                $item->slug = $slug;
             }
         });
 

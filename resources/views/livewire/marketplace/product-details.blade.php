@@ -14,15 +14,15 @@
     {
       "@context": "https://schema.org/",
       "@type": "Product",
-      "name": "{{ $item->name }}",
+      "name": {!! json_encode($item->name) !!},
       @if($item->image)
       "image": "{{ Storage::url($item->image) }}",
       @endif
-      "description": "{{ Str::limit($item->description, 160) }}",
-      "sku": "{{ $item->sku ?? $item->id }}",
+      "description": {!! json_encode(Str::limit($item->description, 160)) !!},
+      "sku": {!! json_encode($item->sku ?? $item->id) !!},
       "brand": {
         "@type": "Brand",
-        "name": "{{ $item->store->name ?? 'Stockify Marketplace' }}"
+        "name": {!! json_encode($item->store->name ?? config('app.name') . ' Marketplace') !!}
       },
       "offers": {
         "@type": "Offer",
@@ -33,7 +33,7 @@
         "availability": "https://schema.org/{{ $item->current_stock > 0 ? 'InStock' : 'OutOfStock' }}",
         "seller": {
           "@type": "Organization",
-          "name": "{{ $item->store->name ?? 'Stockify Marketplace' }}"
+          "name": {!! json_encode($item->store->name ?? config('app.name') . ' Marketplace') !!}
         }
       }
     }

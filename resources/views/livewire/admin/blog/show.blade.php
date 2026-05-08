@@ -4,26 +4,41 @@
         {
           "@context": "https://schema.org",
           "@type": "BlogPosting",
-          "headline": "{{ $post->title }}",
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ url()->current() }}"
+          },
+          "headline": {!! json_encode($post->title) !!},
+          "description": {!! json_encode($post->excerpt ?: Str::limit(strip_tags($post->body), 160)) !!},
           @if($post->featured_image)
-              "image": "{{ asset('storage/' . $post->featured_image) }}",
+          "image": "{{ asset('storage/' . $post->featured_image) }}",
           @endif
-          "datePublished": "{{ $post->published_at ? $post->published_at->toIso8601String() : '' }}",
+          "datePublished": "{{ $post->published_at ? $post->published_at->toIso8601String() : $post->created_at->toIso8601String() }}",
+          "dateModified": "{{ $post->updated_at->toIso8601String() }}",
           "author": {
             "@type": "Person",
-            "name": "{{ $post->creator->name ?? 'Stockify Editor' }}"
+            "name": {!! json_encode($post->creator->name ?? config('app.name') . ' Editor') !!}
           },
           "publisher": {
             "@type": "Organization",
-            "name": "Stockify",
+            "name": "{{ config('app.name', 'POSfor') }}",
             "logo": {
               "@type": "ImageObject",
-              "url": "{{ asset('images/images/logo.svg') }}"
+              "url": "{{ asset('images/logo.svg') }}"
             }
-          },
-          "description": "{{ $post->excerpt ?: Str::limit(strip_tags($post->body), 160) }}"
+          }
         }
         </script>
+        @if($post->schema_markup)
+            <script type="application/ld+json">
+            {!! is_array($post->schema_markup) ? json_encode($post->schema_markup) : $post->schema_markup !!}
+            </script>
+        @endif
+        @if($globalSchema)
+            <script type="application/ld+json">
+            {!! is_array($globalSchema) ? json_encode($globalSchema) : $globalSchema !!}
+            </script>
+        @endif
     @endpush
     <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex flex-wrap items-center gap-3 mb-6 text-sm text-gray-500">

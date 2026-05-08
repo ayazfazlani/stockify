@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('seo_settings', function (Blueprint $table) {
@@ -31,7 +30,7 @@ return new class extends Migration
             ],
             [
                 'key' => 'site_description',
-                'value' => 'AI-Powered Inventory Management Solution - Streamline your operations, reduce costs, and boost efficiency.',
+                'value' => 'Simple Inventory Management Solution - Streamline your operations, reduce costs, and boost efficiency.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -41,7 +40,7 @@ return new class extends Migration
                     '@context' => 'https://schema.org',
                     '@type' => 'Organization',
                     'name' => 'StockFlow',
-                    'description' => 'AI-Powered Inventory Management Solution',
+                    'description' => 'Simple Inventory Management Solution',
                     'url' => config('app.url'),
                 ]),
                 'created_at' => now(),
