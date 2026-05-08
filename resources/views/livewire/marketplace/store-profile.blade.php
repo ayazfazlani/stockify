@@ -22,14 +22,17 @@
 
                 <!-- Profile Info Bar -->
                 <div class="px-4 pb-4">
-                    <div class="relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-24 mb-4 md:space-x-6">
+                    <div
+                        class="relative flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-24 mb-4 md:space-x-6">
                         <!-- Profile Image (Logo) -->
                         <div class="relative">
-                            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white overflow-hidden shadow-lg">
+                            <div
+                                class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white overflow-hidden shadow-lg">
                                 @if($store->logo)
                                     <img src="{{ Storage::url($store->logo) }}" class="w-full h-full object-cover">
                                 @else
-                                    <div class="w-full h-full bg-gray-100 flex items-center justify-center text-teal-500 text-4xl">
+                                    <div
+                                        class="w-full h-full bg-gray-100 flex items-center justify-center text-teal-500 text-4xl">
                                         {{ substr($store->name, 0, 1) }}
                                     </div>
                                 @endif
@@ -38,8 +41,10 @@
 
                         <!-- Info -->
                         <div class="flex-1 text-center md:text-left mt-4 md:mt-0 md:pb-4">
-                            <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 drop-shadow-sm">{{ $store->name }}</h1>
-                            <p class="text-sm font-medium text-gray-500 mt-1 flex items-center justify-center md:justify-start">
+                            <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 drop-shadow-sm">
+                                {{ $store->name }}</h1>
+                            <p
+                                class="text-sm font-medium text-gray-500 mt-1 flex items-center justify-center md:justify-start">
                                 <i class="fas fa-map-marker-alt mr-2 text-teal-500"></i>
                                 {{ $store->area ? $store->area . ', ' : '' }}{{ $store->city }}, {{ $store->country }}
                             </p>
@@ -47,10 +52,12 @@
 
                         <!-- Actions -->
                         <div class="hidden md:flex space-x-2 md:pb-4">
-                            <button class="bg-teal-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm">
+                            <button
+                                class="bg-teal-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm">
                                 <i class="fas fa-share-alt mr-2"></i> Share
                             </button>
-                            <button class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-bold hover:bg-gray-200 transition">
+                            <button
+                                class="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-bold hover:bg-gray-200 transition">
                                 <i class="fas fa-info-circle mr-2"></i> About
                             </button>
                         </div>
@@ -75,16 +82,17 @@
                 </div>
 
                 <div class="relative w-full md:w-72">
-                    <input type="text" wire:model.live.debounce.300ms="search" 
-                           class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm shadow-sm"
-                           placeholder="Search in this store...">
+                    <input type="text" wire:model.live.debounce.300ms="search"
+                        class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm shadow-sm"
+                        placeholder="Search in this store...">
                     <i class="fas fa-search absolute left-3.5 top-2.5 text-gray-400"></i>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 @forelse($items as $item)
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover-lift transition group">
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover-lift transition group">
                         <div class="relative aspect-square">
                             @if($item->image)
                                 <img src="{{ Storage::url($item->image) }}" class="w-full h-full object-cover">
@@ -102,8 +110,8 @@
                         <div class="p-3">
                             <h4 class="font-bold text-gray-800 text-sm line-clamp-1 truncate">{{ $item->name }}</h4>
                             <p class="text-[10px] text-gray-400 truncate mb-3">SKU: {{ $item->sku }}</p>
-                            <a href="{{ route('marketplace.product', $item->id) }}" 
-                               class="block text-center bg-teal-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-teal-600 transition">
+                            <a href="{{ route('marketplace.product', $item->slug) }}"
+                                class="block text-center bg-teal-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-teal-600 transition">
                                 View Details
                             </a>
                         </div>
