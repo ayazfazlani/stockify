@@ -1,5 +1,5 @@
 @push('seo')
-    <title>{{ $item->name }} | Stockify Marketplace</title>
+    <title>{{ $item->name }} | POSforShops Marketplace</title>
     <meta name="description" content="{{ Str::limit($item->description, 160) }}">
     <meta property="og:title" content="{{ $item->name }}">
     <meta property="og:description" content="{{ Str::limit($item->description, 160) }}">

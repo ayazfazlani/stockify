@@ -1,5 +1,5 @@
 /* ============================================
-   Stockify - Global Design System
+   POSforShops - Global Design System
    Sharp corners (2-4px) | BoxHero-style
    ============================================ */
 
@@ -1584,7 +1584,7 @@ body.dark [data-stockify] .sf-user-name {
 }
 
 /* ============================================
-   Stockify - Stock Out Page Styles
+   POSforShops - Stock Out Page Styles
    Sharp corners (2-4px) | BoxHero-style
    ============================================ */
 
@@ -2440,7 +2440,7 @@ body.dark [data-stockify] .sf-checkout-summary {
 }
 
 
-/* Stockify - Settings Page Styles */
+/* POSforShops - Settings Page Styles */
 [data-stockify] .sf-settings-container {
     display: flex;
     gap: 1.5rem;
@@ -3195,7 +3195,7 @@ body.dark [data-stockify] .sf-checkout-summary {
     }
 }
 
-/* Stockify - Store Management Styles */
+/* POSforShops - Store Management Styles */
 [data-stockify] .sf-store-container {
     max-width: 1280px;
     margin: 0 auto;

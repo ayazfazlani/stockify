@@ -67,7 +67,7 @@
                         <div class="rounded-lg bg-gradient-to-r from-primary-500 to-indigo-500 p-2 mr-3">
                             <i class="fas fa-boxes text-white text-xl"></i>
                         </div>
-                        <span class="font-bold text-2xl bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">StockFlow</span>
+                        <span class="font-bold text-2xl bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">POSforShops</span>
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
@@ -94,7 +94,7 @@
     {{-- Footer --}}
     <!-- <footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-400">&copy; {{ date('Y') }} StockFlow. All rights reserved.</p>
+            <p class="text-gray-400">&copy; {{ date('Y') }} POSforShops. All rights reserved.</p>
         </div>
     </footer> -->
     </body>

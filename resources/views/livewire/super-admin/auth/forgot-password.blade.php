@@ -1,6 +1,6 @@
 <div>
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <img class="mx-auto h-12 w-auto" src="{{ asset('images/logo.svg') }}" alt="Stockify">
+    <img class="mx-auto h-12 w-auto" src="{{ asset('images/logo.svg') }}" alt="POSforShops">
     <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Reset Password</h2>
     <p class="mt-2 text-center text-sm text-gray-600">
       Enter your email address and we'll send you a link to reset your password.

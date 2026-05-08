@@ -24,7 +24,7 @@ return new class extends Migration {
             ],
             [
                 'key' => 'default_meta_title',
-                'value' => '{{page_title}} | StockFlow',
+                'value' => '{{page_title}} | POSforShops',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -39,7 +39,7 @@ return new class extends Migration {
                 'value' => json_encode([
                     '@context' => 'https://schema.org',
                     '@type' => 'Organization',
-                    'name' => 'StockFlow',
+                    'name' => 'POSforShops',
                     'description' => 'Simple Inventory Management Solution',
                     'url' => config('app.url'),
                 ]),

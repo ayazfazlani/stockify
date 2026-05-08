@@ -48,7 +48,7 @@ class SeoManager extends Component
     public function mount(): void
     {
         $this->robots_txt = SeoSetting::getRobotsTxt();
-        $this->default_meta_title = SeoSetting::getValue('default_meta_title', '{{page_title}} | StockFlow');
+        $this->default_meta_title = SeoSetting::getValue('default_meta_title', '{{page_title}} | POSforShops');
         $this->site_description = SeoSetting::getValue('site_description', '');
         $globalSchema = SeoSetting::getValue('global_schema', '{}');
         $this->global_schema = json_encode(json_decode($globalSchema, true), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';

@@ -28,7 +28,7 @@ class UserRegisteredMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $subject = $this->isOwner ? __('mail.new_user_joined') : __('mail.welcome_to_stockify');
+        $subject = $this->isOwner ? __('mail.new_user_joined') : __('mail.welcome_to_posforshops');
 
         return $this->subject($subject)
             ->view('emails.user-registered')

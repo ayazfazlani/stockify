@@ -4,7 +4,7 @@
 @endslot
 
 <h2 style="color: #0f172a; font-size: 22px; margin: 0 0 8px;">
-    {{ $type === 'supplier' ? __('mail.new_po_from', ['company' => $purchaseOrder->tenant?->name ?? 'Stockify']) : __('mail.purchase_order_title') }}
+    {{ $type === 'supplier' ? __('mail.new_po_from', ['company' => $purchaseOrder->tenant?->name ?? 'POSforShops']) : __('mail.purchase_order_title') }}
 </h2>
 
 <div class="card">

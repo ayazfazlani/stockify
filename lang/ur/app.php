@@ -229,11 +229,11 @@ return [
     'mail' => [
         'footer_powered' => 'طاقت یافتہ از',
         'footer_help' => 'مدد چاہیے؟ ہم سے رابطہ کریں',
-        'footer_unsubscribe' => 'آپ نے یہ ای میل Stockify صارف ہونے کی وجہ سے موصول کی ہے۔',
+        'footer_unsubscribe' => 'آپ نے یہ ای میل POSforShops صارف ہونے کی وجہ سے موصول کی ہے۔',
         'here' => 'یہاں',
 
         // Stock In
-        'stock_in_subject' => 'اسٹاک آمد تصدیق - Stockify',
+        'stock_in_subject' => 'اسٹاک آمد تصدیق - POSforShops',
         'stock_in_title' => 'اسٹاک کامیابی سے وصول ہوا',
         'stock_in_team_title' => 'نیا اسٹاک وصول ہوا',
         'stock_in_desc' => 'آپ کا انوینٹری درج ذیل اشیاء کے ساتھ اپ ڈیٹ ہو گیا ہے۔',
@@ -250,15 +250,15 @@ return [
         'view_transactions' => 'لین دین دیکھیں',
 
         // Stock Out
-        'stock_out_subject' => 'اسٹاک نکل تصدیق - Stockify',
+        'stock_out_subject' => 'اسٹاک نکل تصدیق - POSforShops',
         'stock_out_title' => 'اسٹاک کامیابی سے نکالا گیا',
         'stock_out_desc' => 'درج ذیل اشیاء آپ کے انوینٹری سے نکال دی گئی ہیں۔',
         'items_removed' => 'نکالی گئی اشیاء',
         'remaining' => 'باقی',
 
         // Purchase Order
-        'new_purchase_order_supplier' => 'نیا خریداری آرڈر - Stockify',
-        'purchase_order_updated' => 'خریداری آرڈر اپ ڈیٹ - Stockify',
+        'new_purchase_order_supplier' => 'نیا خریداری آرڈر - POSforShops',
+        'purchase_order_updated' => 'خریداری آرڈر اپ ڈیٹ - POSforShops',
         'new_po_from' => ':company سے نیا خریداری آرڈر',
         'purchase_order_title' => 'خریداری آرڈر کی تفصیلات',
         'po_number' => 'PO نمبر',
@@ -272,8 +272,8 @@ return [
         'manage_po' => 'خریداری آرڈر منظم کریں',
 
         // Expense
-        'new_expense_logged' => 'نیا خرچہ درج - Stockify',
-        'expense_confirmation' => 'خرچہ درج - Stockify',
+        'new_expense_logged' => 'نیا خرچہ درج - POSforShops',
+        'expense_confirmation' => 'خرچہ درج - POSforShops',
         'expense_team_title' => ':name نے نیا خرچہ درج کیا',
         'expense_logged_title' => 'خرچہ کامیابی سے درج ہوا',
         'amount' => 'رقم',
@@ -284,7 +284,7 @@ return [
         'view_expenses' => 'اخراجات دیکھیں',
 
         // Subscription
-        'subscription_activated' => 'پریمیم میں خوش آمدید - Stockify',
+        'subscription_activated' => 'پریمیم میں خوش آمدید - POSforShops',
         'welcome_premium' => 'پریمیم میں خوش آمدید!',
         'subscription_active_desc' => 'آپ کی سبسکرپشن اب فعال ہے۔ تمام پریمیم فیچرز سے لطف اندوز ہوں۔',
         'plan' => 'پلان',
@@ -294,7 +294,7 @@ return [
         'check_inbox' => 'براہ کرم اپنا ان باکس چیک کریں۔',
         'manage_subscription' => 'سبسکرپشن منظم کریں',
 
-        'subscription_cancelled' => 'سبسکرپشن منسوخ - Stockify',
+        'subscription_cancelled' => 'سبسکرپشن منسوخ - POSforShops',
         'subscription_ended' => 'آپ کی سبسکرپشن ختم ہو گئی ہے',
         'cancelled_desc' => 'ہمیں افسوس ہے کہ آپ جا رہے ہیں۔ آپ کی پریمیم رسائی آپ کے بلنگ پیریڈ کے اختتام تک جاری رہے گی۔',
         'access_until' => 'رسائی تک',
@@ -303,7 +303,7 @@ return [
         'reactivate' => 'دوبارہ فعال کریں',
 
         // Payment
-        'payment_successful' => 'ادائیگی کامیاب - Stockify',
+        'payment_successful' => 'ادائیگی کامیاب - POSforShops',
         'payment_received' => 'ادائیگی موصول!',
         'thank_you_payment' => 'آپ کی ادائیگی کا شکریہ۔ آپ کی سبسکرپشن فعال ہے۔',
         'amount_paid' => 'ادا کردہ رقم',
@@ -312,7 +312,7 @@ return [
         'status' => 'حالت',
         'view_receipt' => 'رسید دیکھیں',
 
-        'payment_failed' => 'ادائیگی ناکام - Stockify',
+        'payment_failed' => 'ادائیگی ناکام - POSforShops',
         'payment_unsuccessful' => 'ادائیگی ناکام',
         'payment_failed_desc' => 'ہم آپ کی ادائیگی پراسیس نہیں کر سکے۔ براہ کرم اپنا ادائیگی کا طریقہ اپ ڈیٹ کریں۔',
         'amount_due' => 'واجب الادا رقم',
@@ -323,7 +323,7 @@ return [
         'update_payment' => 'ادائیگی کا طریقہ اپ ڈیٹ کریں',
 
         // Item
-        'item_created' => 'نئی شے شامل - Stockify',
+        'item_created' => 'نئی شے شامل - POSforShops',
         'new_item_added' => 'نئی شے شامل کی گئی',
         'item_created_desc' => 'آپ کے انوینٹری میں ایک نئی شے شامل کر دی گئی ہے۔',
         'price' => 'قیمت',
@@ -331,25 +331,25 @@ return [
         'tracking' => 'ٹریکنگ',
         'view_item' => 'شے دیکھیں',
 
-        'item_updated' => 'شے اپ ڈیٹ - Stockify',
+        'item_updated' => 'شے اپ ڈیٹ - POSforShops',
         'item_changes' => 'شے میں تبدیلیاں',
         'item_updated_desc' => ':name میں تبدیلیاں کی گئی ہیں۔',
         'changes_made' => 'کی گئی تبدیلیاں',
 
         // User
-        'new_user_joined' => 'نیا ٹیم ممبر - Stockify',
-        'welcome_to_stockify' => 'Stockify میں خوش آمدید!',
+        'new_user_joined' => 'نیا ٹیم ممبر - POSforShops',
+        'welcome_to_stockify' => 'POSforShops میں خوش آمدید!',
         'new_team_member' => 'نیا ٹیم ممبر',
         'user_joined_desc' => ':name :tenant میں شامل ہو گیا ہے۔',
         'welcome_aboard' => 'خوش آمدید!',
-        'welcome_desc' => 'آپ کو Stockify پر :tenant میں شامل ہونے کے لیے مدعو کیا گیا ہے۔',
+        'welcome_desc' => 'آپ کو POSforShops پر :tenant میں شامل ہونے کے لیے مدعو کیا گیا ہے۔',
         'your_login' => 'آپ کا لاگ ان ای میل',
         'get_started_guide' => 'اپنے ڈیش بورڈ کو دریافت کرکے شروع کریں۔',
         'go_to_dashboard' => 'ڈیش بورڈ پر جائیں',
         'manage_team' => 'ٹیم منظم کریں',
 
         // Password
-        'password_reset' => 'اپنا پاس ورڈ ری سیٹ کریں - Stockify',
+        'password_reset' => 'اپنا پاس ورڈ ری سیٹ کریں - POSforShops',
         'reset_password' => 'اپنا پاس ورڈ ری سیٹ کریں',
         'reset_desc' => 'آپ نے پاس ورڈ ری سیٹ کی درخواست کی۔ نیا پاس ورڈ سیٹ کرنے کے لیے نیچے کے بٹن پر کلک کریں۔',
         'reset_password_btn' => 'پاس ورڈ ری سیٹ کریں',
@@ -358,7 +358,7 @@ return [
         'cant_click' => 'اگر بٹن پر کلک نہیں کر سکتے تو یہ لنک کاپی اور پیسٹ کریں:',
 
         // Invitation
-        'invitation_accepted' => 'دعوت قبول - Stockify',
+        'invitation_accepted' => 'دعوت قبول - POSforShops',
         'they_joined' => 'وہ شامل ہو گئے!',
         'invite_accepted_desc' => ':name نے :tenant میں شامل ہونے کی آپ کی دعوت قبول کر لی ہے۔',
         'view_team' => 'ٹیم دیکھیں',
@@ -432,7 +432,7 @@ return [
         ],
         'solutions' => [
             'title' => 'آپ کے کاروبار کے لیے موزوں حل',
-            'subtitle' => 'Stockify آپ کے کاروبار کی مخصوص ضروریات کے مطابق خود کو ڈھال لیتا ہے۔',
+            'subtitle' => 'POSforShops آپ کے کاروبار کی مخصوص ضروریات کے مطابق خود کو ڈھال لیتا ہے۔',
             'ecommerce' => [
                 'title' => 'ای کامرس اور ریٹیل',
                 'desc' => 'متعدد چینلز کی انوینٹری کا انتظام کریں، آن لائن اسٹورز کے ساتھ ہم آہنگ کریں اور آرڈرز کو خودکار بنائیں۔',

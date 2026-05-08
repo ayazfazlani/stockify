@@ -5,7 +5,7 @@
       <div class="flex items-center justify-center h-full">
         <div class="max-w-2xl px-8">
           <div class="text-white space-y-6">
-            <h1 class="text-4xl font-bold">Welcome Back to Stockify Admin</h1>
+            <h1 class="text-4xl font-bold">Welcome Back to POSforShops Admin</h1>
             <p class="text-gray-400">Reset your password to regain access to your super admin account.</p>
           </div>
         </div>

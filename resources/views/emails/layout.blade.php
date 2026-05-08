@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subject ?? 'Stockify' }}</title>
+    <title>{{ $subject ?? 'POSforShops' }}</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; background: #f1f5f9; }
@@ -54,7 +54,7 @@
                 <div style="width: 36px; height: 36px; background: #2563eb; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;">
                     <span style="color: #fff; font-weight: 700; font-size: 16px;">S</span>
                 </div>
-                <h1>Stockify</h1>
+                <h1>POSforShops</h1>
             </div>
         </div>
 
@@ -63,7 +63,7 @@
         </div>
 
         <div class="email-footer">
-            <p>{{ __('mail.footer_powered') }} <strong>Stockify</strong></p>
+            <p>{{ __('mail.footer_powered') }} <strong>POSforShops</strong></p>
             <p style="margin-top: 8px; font-size: 12px;">{{ __('mail.footer_help') }} <a href="mailto:support@stockify.app" style="color: #2563eb;">support@stockify.app</a></p>
             <p style="margin-top: 16px; font-size: 11px; color: #cbd5e1;">
                 {{ __('mail.footer_unsubscribe') }} <a href="{{ url('/unsubscribe') }}" style="color: #94a3b8;">{{ __('mail.here') }}</a>

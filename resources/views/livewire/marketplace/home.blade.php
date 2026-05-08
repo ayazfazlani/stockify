@@ -262,7 +262,7 @@
                             </div>
                         </div>
                         <p class="text-sm text-slate-500 leading-relaxed mb-5 line-clamp-2">
-                            {{ $store->description ?? 'Official store partner on the Stockify Marketplace network. Discover exclusive products today.' }}
+                            {{ $store->description ?? 'Official store partner on the POSforShops Marketplace network. Discover exclusive products today.' }}
                         </p>
                         @php
                             $storeRoute = filled($store->slug) ? $store->slug : ($store->tenant_id ?? $store->id);

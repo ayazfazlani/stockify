@@ -235,7 +235,7 @@ class StockOutComponent extends Component
         $message = sprintf(
             "Receipt #%s from %s\nDate: %s\nTotal: %s\nThank you for your purchase.",
             str_pad((string) $sale->id, 6, '0', STR_PAD_LEFT),
-            $sale->store->name ?? 'Stockify',
+            $sale->store->name ?? 'POSforShops',
             optional($sale->created_at)->format('M d, Y h:i A'),
             number_format((float) $sale->total_amount, 2)
         );

@@ -1,4 +1,4 @@
-{{-- Stockify Dashboard — BoxHero-inspired UI --}}
+{{-- POSforShops Dashboard — BoxHero-inspired UI --}}
 {{-- Drop-in replacement for your existing dashboard blade --}}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -608,7 +608,7 @@
   {{-- Top Bar --}}
   <div class="db-topbar">
     <div class="db-topbar-left">
-      <div class="db-logo">Stock<span>ify</span></div>
+      <div class="db-logo">POSfor<span>Shops</span></div>
       <div class="db-divider"></div>
       <div class="db-page-title">Operational Dashboard</div>
     </div>
@@ -686,7 +686,7 @@
     </div>
 
     {{-- Charts --}}
-    @if(isset($stockFlow) && isset($topBrands))
+    @if(isset($posForShopsJson) && isset($topBrandsJson))
       <div class="db-section-label">Analytics</div>
       <div class="db-charts">
 
@@ -845,11 +845,11 @@
 @script
 <script>
   (() => {
-    const chartState = window.stockifyDashboardCharts || { stockFlow: null, topBrands: null };
-    window.stockifyDashboardCharts = chartState;
+    const chartState = window.posForShopsDashboardCharts || { posForShops: null, topBrands: null };
+    window.posForShopsDashboardCharts = chartState;
 
     const summary = JSON.parse(@js($summaryJson) || '{}');
-    const stockFlow = JSON.parse(@js($stockFlowJson) || '{}');
+    const posForShopsData = JSON.parse(@js($posForShopsJson) || '{}');
     const topBrands = JSON.parse(@js($topBrandsJson) || '[]');
 
     const palette = ['#4361EE', '#12B76A', '#7C3AED', '#F79009', '#F04438', '#06B6D4', '#EC4899', '#84CC16'];
@@ -861,21 +861,18 @@
       const tbCanvas = document.getElementById('topBrandsChart');
       if (!sfCanvas || !tbCanvas) return;
 
-      if (chartState.stockFlow) chartState.stockFlow.destroy();
+      if (chartState.posForShops) chartState.posForShops.destroy();
       if (chartState.topBrands) chartState.topBrands.destroy();
 
       Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
-      chartState.stockFlow = new Chart(sfCanvas.getContext('2d'), {
+      chartState.posForShops = new Chart(sfCanvas.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: stockFlow.labels || ['Total Inventory', 'Stock In', 'Stock Out'],
+          labels: posForShopsData.labels,
           datasets: [{
-            data: stockFlow.values || [
-              Number(summary.totalInventory || 0),
-              Number(summary.stockIn || 0),
-              Number(summary.stockOut || 0),
-            ],
+            label: 'Quantity',
+            data: posForShopsData.values,
             backgroundColor: ['rgba(67,97,238,.12)', 'rgba(18,183,106,.12)', 'rgba(240,68,56,.12)'],
             borderColor: ['#4361EE', '#12B76A', '#F04438'],
             borderWidth: 2,

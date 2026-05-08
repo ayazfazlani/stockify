@@ -1,5 +1,5 @@
 {{-- ============================================================
-     Stockify — Stock In  |  BoxHero-style  |  FULLY WORKING
+     POSforShops — Stock In  |  BoxHero-style  |  FULLY WORKING
      ============================================================ --}}
 
 

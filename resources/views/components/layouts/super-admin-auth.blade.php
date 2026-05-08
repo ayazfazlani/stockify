@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Stockify') }} - Super Admin</title>
+    <title>{{ config('app.name', 'POSforShops') }} - Super Admin</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -21,7 +21,7 @@
             <img src="{{ asset('bi.svg') }}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay" alt="Background">
             <div class="relative z-10 flex flex-col justify-center px-12">
                 <div class="max-w-md">
-                    <h2 class="text-3xl font-bold text-white mb-6">Welcome to Stockify Admin</h2>
+                    <h2 class="text-3xl font-bold text-white mb-6">Welcome to POSforShops Admin</h2>
                     <p class="text-indigo-100">Manage your entire SaaS platform, monitor subscriptions, and analyze growth from one central dashboard.</p>
                 </div>
             </div>

@@ -232,7 +232,7 @@
             <div class="sf-modal sf-receipt-modal" id="receipt-modal-content">
                 <!-- Receipt Header -->
                 <div class="sf-receipt-header">
-                    <h2 class="font-bold text-lg tracking-wide">{{ $currentSale->store->name ?? 'Stockify' }}</h2>
+                    <h2 class="font-bold text-lg tracking-wide">{{ $currentSale->store->name ?? 'POSforShops' }}</h2>
                     <p class="text-xs opacity-80 mt-1">Sales Receipt</p>
                     <p class="text-sm mt-2 font-mono">#{{ str_pad($currentSale->id, 6, '0', STR_PAD_LEFT) }}</p>
                 </div>

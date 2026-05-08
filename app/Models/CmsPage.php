@@ -72,7 +72,7 @@ class CmsPage extends Model
             return $this->meta_title;
         }
 
-        $template = SeoSetting::getValue('default_meta_title', '{{page_title}} | StockFlow');
+        $template = SeoSetting::getValue('default_meta_title', '{{page_title}} | POSforShops');
         return str_replace('{{page_title}}', $this->title, $template);
     }
 }

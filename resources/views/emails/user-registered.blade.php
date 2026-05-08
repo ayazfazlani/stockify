@@ -33,7 +33,7 @@
     </div>
     <h2 style="color: #0f172a; font-size: 24px; margin: 0 0 8px;">{{ __('mail.welcome_aboard') }}</h2>
     <p style="color: #64748b; font-size: 14px; margin: 0 0 24px;">
-        {{ __('mail.welcome_desc', ['tenant' => $tenant?->name ?? 'Stockify']) }}
+        {{ __('mail.welcome_desc', ['tenant' => $tenant?->name ?? 'POSforShops']) }}
     </p>
 </div>
 

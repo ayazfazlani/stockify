@@ -1,5 +1,5 @@
 <!--
-    Stockify Landing Page — Professional Redesign
+    POSforShops Landing Page — Professional Redesign
     Inspired by BoxHero's clean, modern SaaS aesthetic
 
     Design Language:
@@ -656,7 +656,7 @@
           Loved by Thousands of Teams
         </h2>
         <p class="text-lg text-slate-500 leading-relaxed">
-          Join businesses that have transformed their inventory management with Stockify.
+          Join businesses that have transformed their inventory management with POSforShops.
         </p>
       </div>
 
@@ -671,7 +671,7 @@
               </svg>
             @endfor
           </div>
-          <p class="text-slate-600 leading-relaxed mb-6">"Stockify has revolutionized how we manage our inventory. The
+          <p class="text-slate-600 leading-relaxed mb-6">"POSforShops has revolutionized how we manage our inventory. The
             AI predictions have reduced our stockouts by 85% and saved us thousands in carrying costs."</p>
           <div class="flex items-center gap-3 pt-5 border-t border-slate-100">
             <div
@@ -768,7 +768,7 @@
         <h2 class="text-3xl md:text-[2.5rem] font-bold tracking-tight text-slate-900 mb-4 leading-tight">
           Frequently Asked Questions
         </h2>
-        <p class="text-lg text-slate-500">Everything you need to know about Stockify.</p>
+        <p class="text-lg text-slate-500">Everything you need to know about POSforShops.</p>
       </div>
 
       <div class="space-y-4" x-data="{ open: 0 }">
@@ -776,7 +776,7 @@
         <div class="border border-slate-200 rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="100">
           <button @click="open === 1 ? open = 0 : open = 1"
             class="flex w-full items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors">
-            <span class="font-semibold text-slate-900 text-[15px]">How long does it take to set up Stockify?</span>
+            <span class="font-semibold text-slate-900 text-[15px]">How long does it take to set up POSforShops?</span>
             <svg x-bind:class="open === 1 ? 'rotate-180' : ''"
               class="w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ml-4" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -784,7 +784,7 @@
             </svg>
           </button>
           <div x-show="open === 1" x-collapse class="px-6 pb-5">
-            <p class="text-slate-500 leading-relaxed">Most businesses can get started with Stockify in under 30 minutes.
+            <p class="text-slate-500 leading-relaxed">Most businesses can get started with POSforShops in under 30 minutes.
               Our intuitive setup wizard guides you through the process, and if you need help, our team is available
               24/7 to assist with implementation.</p>
           </div>
@@ -794,7 +794,7 @@
         <div class="border border-slate-200 rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="150">
           <button @click="open === 2 ? open = 0 : open = 2"
             class="flex w-full items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors">
-            <span class="font-semibold text-slate-900 text-[15px]">Can I integrate Stockify with my existing
+            <span class="font-semibold text-slate-900 text-[15px]">Can I integrate POSforShops with my existing
               systems?</span>
             <svg x-bind:class="open === 2 ? 'rotate-180' : ''"
               class="w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ml-4" fill="none"
@@ -803,7 +803,7 @@
             </svg>
           </button>
           <div x-show="open === 2" x-collapse class="px-6 pb-5">
-            <p class="text-slate-500 leading-relaxed">Yes! Stockify offers pre-built integrations with popular
+            <p class="text-slate-500 leading-relaxed">Yes! POSforShops offers pre-built integrations with popular
               e-commerce platforms, accounting software, shipping carriers, and ERP systems. We also provide a robust
               API for custom integrations.</p>
           </div>
@@ -813,7 +813,7 @@
         <div class="border border-slate-200 rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="200">
           <button @click="open === 3 ? open = 0 : open = 3"
             class="flex w-full items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors">
-            <span class="font-semibold text-slate-900 text-[15px]">Is my data secure with Stockify?</span>
+            <span class="font-semibold text-slate-900 text-[15px]">Is my data secure with POSforShops?</span>
             <svg x-bind:class="open === 3 ? 'rotate-180' : ''"
               class="w-5 h-5 text-slate-400 transition-transform duration-200 shrink-0 ml-4" fill="none"
               viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -840,7 +840,7 @@
           </button>
           <div x-show="open === 4" x-collapse class="px-6 pb-5">
             <p class="text-slate-500 leading-relaxed">After your free trial, you can choose any of our paid plans to
-              continue using Stockify. If you decide not to continue, your data will be available for export for 30 days
+              continue using POSforShops. If you decide not to continue, your data will be available for export for 30 days
               before being permanently deleted.</p>
           </div>
         </div>
@@ -875,7 +875,7 @@
         Ready to Transform Your<br>Inventory Management?
       </h2>
       <p class="text-lg text-slate-400 mb-10 max-w-xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-        Join thousands of businesses using Stockify to optimize their inventory, reduce costs, and boost efficiency.
+        Join thousands of businesses using POSforShops to optimize their inventory, reduce costs, and boost efficiency.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8" data-aos="fade-up" data-aos-delay="200">
         <a href="#pricing"

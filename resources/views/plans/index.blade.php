@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div class="text-center mb-8">
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Choose Your Plan</h2>
-        <p class="mt-4 text-lg leading-6 text-gray-600">Get started with Stockify today and scale as you grow</p>
+        <p class="mt-4 text-lg leading-6 text-gray-600">Get started with POSforShops today and scale as you grow</p>
       </div>
 
       <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">

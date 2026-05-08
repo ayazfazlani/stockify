@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use App\Traits\HasPlanFeatures;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Cashier\Billable;
-// use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant
 {
-    use Billable, HasPlanFeatures;
+    use Billable, HasFactory, HasPlanFeatures;
 
     protected $fillable = [
         'name',

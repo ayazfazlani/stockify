@@ -28,7 +28,7 @@
     <div class="receipt">
         <div class="card">
             <div class="header">
-                <h1>{{ $sale->store->name ?? 'Stockify' }}</h1>
+                <h1>{{ $sale->store->name ?? 'POSforShops' }}</h1>
                 <p>Sales Receipt</p>
             </div>
 

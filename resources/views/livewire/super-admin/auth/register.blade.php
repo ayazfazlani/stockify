@@ -5,8 +5,8 @@
       <div class="flex items-center justify-center h-full">
         <div class="max-w-2xl px-8">
           <div class="text-white space-y-6">
-            <h1 class="text-4xl font-bold">Welcome to Stockify Admin</h1>
-            <p class="text-gray-400">Register as a super admin to manage and oversee your entire Stockify system.</p>
+            <h1 class="text-4xl font-bold">Welcome to POSforShops Admin</h1>
+            <p class="text-gray-400">Register as a super admin to manage and oversee your entire POSforShops system.</p>
           </div>
         </div>
       </div>

@@ -35,7 +35,7 @@ class Dashboard extends Component
 
     public string $topBrandsJson = '[]';
 
-    public string $stockFlowJson = '{}';
+    public string $posForShopsJson = '{}';
 
     // Store and team filtering
     public $selectedStoreId = null;
@@ -590,7 +590,7 @@ class Dashboard extends Component
     {
         $this->summaryJson = json_encode($this->summary, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
         $this->topBrandsJson = json_encode($this->topBrandsData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '[]';
-        $this->stockFlowJson = json_encode([
+        $this->posForShopsJson = json_encode([
             'labels' => ['Total Inventory', 'Stock In', 'Stock Out'],
             'values' => [
                 (int) ($this->summary['totalInventory'] ?? 0),

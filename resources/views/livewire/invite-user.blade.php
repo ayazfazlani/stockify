@@ -52,7 +52,7 @@
 </div>
 
 <style>
-    /* Stockify - Invite User Page Styles */
+    /* POSforShops - Invite User Page Styles */
     [data-stockify] .sf-invite-container {
         display: flex;
         align-items: center;

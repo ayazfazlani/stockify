@@ -168,8 +168,8 @@
         <div class="clear"></div>
 
         <div class="footer">
-            Thank you for choosing Stockify. If you have any questions, please contact support@stockify.io<br>
-            Stockify Inc. &bull; 123 Business Way &bull; San Francisco, CA 94107
+            Thank you for choosing POSforShops. If you have any questions, please contact support@stockify.io<br>
+            POSforShops Inc. &bull; 123 Business Way &bull; San Francisco, CA 94107
         </div>
     </div>
 </body>

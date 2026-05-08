@@ -229,11 +229,11 @@ return [
     'mail' => [
         'footer_powered' => 'Powered by',
         'footer_help' => 'Need help? Contact us at',
-        'footer_unsubscribe' => 'You received this because you are a Stockify user.',
+        'footer_unsubscribe' => 'You received this because you are a POSforShops user.',
         'here' => 'here',
 
         // Stock In
-        'stock_in_subject' => 'Stock In Confirmation - Stockify',
+        'stock_in_subject' => 'Stock In Confirmation - POSforShops',
         'stock_in_title' => 'Stock Received Successfully',
         'stock_in_team_title' => 'New Stock Received',
         'stock_in_desc' => 'Your inventory has been updated with the following items.',
@@ -250,15 +250,15 @@ return [
         'view_transactions' => 'View Transactions',
 
         // Stock Out
-        'stock_out_subject' => 'Stock Out Confirmation - Stockify',
+        'stock_out_subject' => 'Stock Out Confirmation - POSforShops',
         'stock_out_title' => 'Stock Removed Successfully',
         'stock_out_desc' => 'The following items have been removed from your inventory.',
         'items_removed' => 'Items Removed',
         'remaining' => 'Remaining',
 
         // Purchase Order
-        'new_purchase_order_supplier' => 'New Purchase Order - Stockify',
-        'purchase_order_updated' => 'Purchase Order Updated - Stockify',
+        'new_purchase_order_supplier' => 'New Purchase Order - POSforShops',
+        'purchase_order_updated' => 'Purchase Order Updated - POSforShops',
         'new_po_from' => 'New Purchase Order from :company',
         'purchase_order_title' => 'Purchase Order Details',
         'po_number' => 'PO Number',
@@ -272,8 +272,8 @@ return [
         'manage_po' => 'Manage Purchase Order',
 
         // Expense
-        'new_expense_logged' => 'New Expense Logged - Stockify',
-        'expense_confirmation' => 'Expense Logged - Stockify',
+        'new_expense_logged' => 'New Expense Logged - POSforShops',
+        'expense_confirmation' => 'Expense Logged - POSforShops',
         'expense_team_title' => ':name logged a new expense',
         'expense_logged_title' => 'Expense Logged Successfully',
         'amount' => 'Amount',
@@ -284,7 +284,7 @@ return [
         'view_expenses' => 'View Expenses',
 
         // Subscription
-        'subscription_activated' => 'Welcome to Premium - Stockify',
+        'subscription_activated' => 'Welcome to Premium - POSforShops',
         'welcome_premium' => 'Welcome to Premium!',
         'subscription_active_desc' => 'Your subscription is now active. Enjoy all premium features.',
         'plan' => 'Plan',
@@ -294,7 +294,7 @@ return [
         'check_inbox' => 'Please check your inbox.',
         'manage_subscription' => 'Manage Subscription',
 
-        'subscription_cancelled' => 'Subscription Cancelled - Stockify',
+        'subscription_cancelled' => 'Subscription Cancelled - POSforShops',
         'subscription_ended' => 'Your Subscription Has Ended',
         'cancelled_desc' => 'We are sorry to see you go. Your premium access will continue until the end of your billing period.',
         'access_until' => 'Access Until',
@@ -303,7 +303,7 @@ return [
         'reactivate' => 'Reactivate Subscription',
 
         // Payment
-        'payment_successful' => 'Payment Successful - Stockify',
+        'payment_successful' => 'Payment Successful - POSforShops',
         'payment_received' => 'Payment Received!',
         'thank_you_payment' => 'Thank you for your payment. Your subscription is active.',
         'amount_paid' => 'Amount Paid',
@@ -312,7 +312,7 @@ return [
         'status' => 'Status',
         'view_receipt' => 'View Receipt',
 
-        'payment_failed' => 'Payment Failed - Stockify',
+        'payment_failed' => 'Payment Failed - POSforShops',
         'payment_unsuccessful' => 'Payment Unsuccessful',
         'payment_failed_desc' => 'We were unable to process your payment. Please update your payment method.',
         'amount_due' => 'Amount Due',
@@ -323,7 +323,7 @@ return [
         'update_payment' => 'Update Payment Method',
 
         // Item
-        'item_created' => 'New Item Added - Stockify',
+        'item_created' => 'New Item Added - POSforShops',
         'new_item_added' => 'New Item Added',
         'item_created_desc' => 'A new item has been added to your inventory.',
         'price' => 'Price',
@@ -331,25 +331,25 @@ return [
         'tracking' => 'Tracking',
         'view_item' => 'View Item',
 
-        'item_updated' => 'Item Updated - Stockify',
+        'item_updated' => 'Item Updated - POSforShops',
         'item_changes' => 'Item Changes Detected',
         'item_updated_desc' => 'Changes have been made to :name.',
         'changes_made' => 'Changes Made',
 
         // User
-        'new_user_joined' => 'New Team Member - Stockify',
-        'welcome_to_stockify' => 'Welcome to Stockify!',
+        'new_user_joined' => 'New Team Member - POSforShops',
+        'welcome_to_stockify' => 'Welcome to POSforShops!',
         'new_team_member' => 'New Team Member',
         'user_joined_desc' => ':name has joined :tenant.',
         'welcome_aboard' => 'Welcome Aboard!',
-        'welcome_desc' => 'You have been invited to join :tenant on Stockify.',
+        'welcome_desc' => 'You have been invited to join :tenant on POSforShops.',
         'your_login' => 'Your Login Email',
         'get_started_guide' => 'Get started by exploring your dashboard.',
         'go_to_dashboard' => 'Go to Dashboard',
         'manage_team' => 'Manage Team',
 
         // Password
-        'password_reset' => 'Reset Your Password - Stockify',
+        'password_reset' => 'Reset Your Password - POSforShops',
         'reset_password' => 'Reset Your Password',
         'reset_desc' => 'You requested a password reset. Click the button below to set a new password.',
         'reset_password_btn' => 'Reset Password',
@@ -358,7 +358,7 @@ return [
         'cant_click' => "If you can't click the button, copy and paste this link:",
 
         // Invitation
-        'invitation_accepted' => 'Invitation Accepted - Stockify',
+        'invitation_accepted' => 'Invitation Accepted - POSforShops',
         'they_joined' => 'They Joined!',
         'invite_accepted_desc' => ':name has accepted your invitation to join :tenant.',
         'view_team' => 'View Team',
@@ -432,7 +432,7 @@ return [
         ],
         'solutions' => [
             'title' => 'Tailored Solutions for Your Business',
-            'subtitle' => 'Stockify adapts to your industry-specific needs with specialized features and workflows.',
+            'subtitle' => 'POSforShops adapts to your industry-specific needs with specialized features and workflows.',
             'ecommerce' => [
                 'title' => 'E-commerce & Retail',
                 'desc' => 'Manage multi-channel inventory, sync with online stores, and automate order fulfillment.',

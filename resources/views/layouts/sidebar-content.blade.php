@@ -4,7 +4,7 @@
              <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500">
                 <i class="fas fa-cube text-lg text-white"></i>
              </div>
-             <span class="text-2xl font-bold tracking-wider text-white">Stockify</span>
+             <span class="text-2xl font-bold tracking-wider text-white">POSforShops</span>
         </a>
     </div>
     

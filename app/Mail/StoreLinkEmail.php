@@ -30,7 +30,7 @@ class StoreLinkEmail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your StockFlow Store Links',
+            subject: 'Your POSforShops Store Links',
         );
     }
 
